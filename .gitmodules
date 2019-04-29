@@ -1,0 +1,3 @@
+[submodule "src/app/data/common"]
+	path = src/app/data/common
+	url = https://Padjon@bitbucket.org/devsheep/strife-ce-datamodel.git
