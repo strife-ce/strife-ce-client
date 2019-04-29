@@ -6,12 +6,18 @@ import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { ToastrModule } from 'ngx-toastr';
+import { APP_INITIALIZER } from '@angular/core';
 
 import { AppRoutes } from '@app/app.routing';
 import { AppComponent } from '@app/app.component';
 import { CoreModule } from '@app/core';
 import { SharedModule } from '@app/shared';
-import { AuthenticationService, ErrorService, ParseService } from 'app/data/services';
+import {
+  AuthenticationService,
+  ErrorService,
+  ParseService
+} from 'app/data/services';
 import { UserService, RoleService } from 'app/data/modelservices';
 
 @NgModule({
@@ -24,23 +30,32 @@ import { UserService, RoleService } from 'app/data/modelservices';
     NgbModule.forRoot(),
     RouterModule.forRoot(AppRoutes),
     CoreModule,
-    SharedModule
+    SharedModule,
+    ToastrModule.forRoot()
   ],
   bootstrap: [AppComponent],
   providers: [
     AuthenticationService,
+    {
+      provide: APP_INITIALIZER,
+      useFactory: AppModule.onAppInit,
+      multi: true,
+      deps: [Injector]
+    },
     ErrorService,
     ParseService,
-    RoleService,
+    RoleService
   ]
 })
-
 export class AppModule {
   private static onAppInit(injector: Injector) {
-      return () => {
-          return new Promise<void>((resolve, reject) => {
-              injector.get(AuthenticationService).initialize().then(() => resolve());
-          })
-      }
+    return () => {
+      return new Promise<void>((resolve, reject) => {
+        injector
+          .get(AuthenticationService)
+          .initialize()
+          .then(() => resolve());
+      });
+    };
   }
 }

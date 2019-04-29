@@ -19,8 +19,8 @@ export const AppRoutes: Routes = [
         path: 'dashboard',
         loadChildren: './dashboard/dashboard.module#DashboardModule',
         data: {
-          requiresAuthentication: true,
-        },
+          requiresAuthentication: true
+        }
       }
     ]
   },
@@ -31,7 +31,7 @@ export const AppRoutes: Routes = [
       {
         path: '',
         loadChildren:
-          './authentication/authentication.module#AuthenticationModule'
+          './views/authentication/authentication.module#AuthenticationModule'
       }
     ]
   },

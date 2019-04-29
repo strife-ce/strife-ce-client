@@ -1,4 +1,3 @@
-
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -29,16 +28,17 @@ export class LoginComponent implements OnInit {
     this.isLoading = true;
     this.authenticationService
       .login(this.loginForm.value.username, this.loginForm.value.password)
-      .then((user) => {
+      .then(user => {
         console.log(user);
         this.isLoading = false;
         this.router.navigate(['/'], {
           replaceUrl: true
         });
-      }).catch(err => {
+      })
+      .catch(err => {
         this.isLoading = false;
         console.log(`Login error: ${err}`);
-      })
+      });
   }
 
   private createForm() {
