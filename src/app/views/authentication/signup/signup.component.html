@@ -1,6 +1,9 @@
 <section id="wrapper" class="login-register login-sidebar" style="padding-top:100px">
   <div class="login-box card" style="width: 300px; margin: auto">
     <div class="card-body" style="overflow:hidden">
+        <h1>Strife CE </h1>
+        <h5>Version 0.0.1</h5>
+        <br/>
       <form [formGroup]="signupForm" (ngSubmit)="signup()" class="" id="signupForm"
         novalidate>
         <a href="javascript:void(0)" class="text-center db logo-container">
@@ -11,30 +14,22 @@
         </div>
         <div class="form-group m-t-20">
           <div class="col-xs-12">
-            <app-form-error-wrapper [control]="signupForm.controls['accountname']" [controlName]="'accountname'">
               <input class="form-control" type="text" formControlName="accountname" placeholder="Shown name">
-            </app-form-error-wrapper>
           </div>
         </div>
         <div class="form-group m-t-20">
           <div class="col-xs-12">
-            <app-form-error-wrapper [control]="signupForm.controls['username']" [controlName]="'username'">
               <input class="form-control" type="text" formControlName="username" placeholder="Email">
-            </app-form-error-wrapper>
           </div>
         </div>
         <div class="form-group">
           <div class="col-xs-12">
-            <app-form-error-wrapper [control]="signupForm.controls['password']" [controlName]="'Password'">
               <input class="form-control" type="password" formControlName="password" placeholder="Password">
-            </app-form-error-wrapper>
           </div>
         </div>
         <div class="form-group">
           <div class="col-xs-12">
-            <app-form-error-wrapper [control]="signupForm.controls['passwordRepeat']" [controlName]="'passwordRepeat'">
               <input class="form-control" type="password" formControlName="passwordRepeat" placeholder="Repeat password">
-            </app-form-error-wrapper>
           </div>
         </div>
         <div class="form-group text-center m-t-20">

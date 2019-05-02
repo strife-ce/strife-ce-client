@@ -1,6 +1,9 @@
 <section id="wrapper" class="login-register login-sidebar" style="padding-top:100px">
   <div class="login-box card" style="width: 300px; margin: auto">
     <div class="card-body">
+      <h1>Strife CE </h1>
+      <h5>Version 0.0.1</h5>
+      <br/>
       <form [formGroup]="loginForm" (ngSubmit)="login()" class="" id="loginform"
         novalidate>
         <a href="javascript:void(0)" class="text-center db logo-container">
@@ -11,16 +14,12 @@
         </div>
         <div class="form-group m-t-20">
           <div class="col-xs-12">
-            <app-form-error-wrapper [control]="loginForm.controls['username']" [controlName]="'Username'">
               <input class="form-control" type="text" formControlName="username" placeholder="Email">
-            </app-form-error-wrapper>
           </div>
         </div>
         <div class="form-group">
           <div class="col-xs-12">
-            <app-form-error-wrapper [control]="loginForm.controls['password']" [controlName]="'Password'">
               <input class="form-control" type="password" formControlName="password" placeholder="Password">
-            </app-form-error-wrapper>
           </div>
         </div>
         <div class="form-group text-center m-t-20">

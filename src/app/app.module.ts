@@ -11,7 +11,6 @@ import { APP_INITIALIZER } from '@angular/core';
 
 import { AppRoutes } from '@app/app.routing';
 import { AppComponent } from '@app/app.component';
-import { CoreModule } from '@app/core';
 import { SharedModule } from '@app/shared';
 import {
   AuthenticationService,
@@ -29,7 +28,6 @@ import { UserService, RoleService } from 'app/data/modelservices';
     HttpClientModule,
     NgbModule.forRoot(),
     RouterModule.forRoot(AppRoutes),
-    CoreModule,
     SharedModule,
     ToastrModule.forRoot()
   ],

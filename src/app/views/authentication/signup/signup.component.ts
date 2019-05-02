@@ -1,9 +1,10 @@
+import { AuthenticationService } from 'app/data/services';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { AuthenticationService } from '@app/core';
 import { finalize } from 'rxjs/operators';
-import { User } from '@app/data/models';
+import { User, Account } from '@app/data/models';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-signup',
@@ -17,30 +18,36 @@ export class SignupComponent implements OnInit {
   constructor(
     public router: Router,
     private formBuilder: FormBuilder,
-    private authenticationService: AuthenticationService
+    private authenticationService: AuthenticationService,
+    private toastrService: ToastrService
   ) {
     this.createForm();
   }
 
-  ngOnInit() {}
+  ngOnInit() { }
 
   async signup() {
     const user = new User();
     user.setUsername(this.signupForm.value.username);
     user.setEmail(this.signupForm.value.username);
     user.setPassword(this.signupForm.value.password);
-
     try {
       if (
         this.signupForm.value.password !== this.signupForm.value.passwordRepeat
       ) {
         throw new Error('passwords dont fit');
       }
-      console.log(user);
+
       await (user as any).signUp();
-      console.log(user);
+      user.account = new Account();
+      user.account.name = this.signupForm.value.accountname;
+      await user.account.save();
+      await user.save();
+      this.authenticationService.logout();
+      this.router.navigate(['/login']);
+      this.toastrService.success('account created successfully');
     } catch (error) {
-      console.warn(error);
+      this.toastrService.error(error.message);
     }
   }
 

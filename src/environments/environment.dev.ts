@@ -1,6 +1,10 @@
 export const environment = {
   env: 'DEV',
   production: false,
-  serverBaseUrl: 'http://development.com',
-  serverUrl: 'http://development.com/v1'
+  PARSE: {
+    URL: 'http://localhost:25080/parse',
+    APP_ID: 'PSBdEx46ycVok7grEcdOMKPMsLYUl0OZ',
+    JS_KEY: 'stnDsBFS454z78FSBFu36bscjxhbv'
+  },
+  LIVESERVER_URL: 'http://localhost:25081/'
 };

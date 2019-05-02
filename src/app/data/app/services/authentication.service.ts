@@ -25,7 +25,7 @@ export class AuthenticationService implements CanActivateChild {
     private router: Router,
     private parseService: ParseService,
     private roleService: RoleService
-  ) {}
+  ) { }
 
   public initialize() {
     return new Promise<void>((resolve, reject) => {
@@ -93,9 +93,7 @@ export class AuthenticationService implements CanActivateChild {
         success: () => {
           this.initialize().then(() => {
             if (this.privileges.size === 0) {
-              reject(
-                'Sie verfügen nicht über die notwendigen Rechte zur Anmeldung.'
-              );
+              reject(new Error('You dont owe any roles'));
             } else {
               resolve(this.getAuthenticatedUser());
             }

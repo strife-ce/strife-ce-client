@@ -16,4 +16,4 @@ import { DashboardComponent } from '@app/dashboard/dashboard/dashboard.component
   ],
   declarations: [DashboardComponent]
 })
-export class DashboardModule {}
+export class DashboardModule { }

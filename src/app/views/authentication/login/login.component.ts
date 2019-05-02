@@ -1,3 +1,4 @@
+import { ToastrService } from 'ngx-toastr';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -17,19 +18,19 @@ export class LoginComponent implements OnInit {
   constructor(
     public router: Router,
     private formBuilder: FormBuilder,
-    private authenticationService: AuthenticationService
+    private authenticationService: AuthenticationService,
+    private toastrService: ToastrService
   ) {
     this.createForm();
   }
 
-  ngOnInit() {}
+  ngOnInit() { }
 
   login() {
     this.isLoading = true;
     this.authenticationService
       .login(this.loginForm.value.username, this.loginForm.value.password)
       .then(user => {
-        console.log(user);
         this.isLoading = false;
         this.router.navigate(['/'], {
           replaceUrl: true
@@ -37,13 +38,13 @@ export class LoginComponent implements OnInit {
       })
       .catch(err => {
         this.isLoading = false;
-        console.log(`Login error: ${err}`);
+        this.toastrService.error((err instanceof Error) ? err.message : err);
       });
   }
 
   private createForm() {
     this.loginForm = this.formBuilder.group({
-      username: ['', [Validators.required]],
+      username: ['', [Validators.required, Validators.email]],
       password: ['', Validators.required]
     });
     this.resetPasswordForm = this.formBuilder.group({
