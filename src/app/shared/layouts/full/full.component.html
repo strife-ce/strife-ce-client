@@ -19,6 +19,12 @@
     -webkit-app-region: no-drag;
     cursor: pointer;
   }
+
+  #close:hover {
+    cursor: pointer;
+    color: #999 !important;
+  }
+
 </style>
 <div style="width: 1280px; height:800px; background-color:#fff; ">
   <div id="main-wrapper">
@@ -31,7 +37,7 @@
       <!-- ============================================================== -->
       <div class="container-fluid">
         <div style="width: 100%; padding: 14px 44px 14px 0px;" id="dragbar">
-          <div id="close">x</div>
+          <div id="close" (click)="closeWindow()">x</div>
           <h1 class="float-left">Strife CE</h1>
           <h5 class="float-left" style="padding-top:18px">&nbsp;v0.0.1</h5>
           <p class="text-right">

@@ -43,8 +43,6 @@ export class DashboardComponent extends View implements OnInit {
     this.chatDisabled = false;
     this.chatAccountMap = new Map();
     this.messages = new Array();
-    console.warn(environment);
-    console.warn('connecting to liveserver:' + environment.LIVESERVER_URL);
     this.socket = io.connect(environment.LIVESERVER_URL);
     this.socket.on('connect', () => {
       this.socket.emit(EC2ServerMessage.AUTH_REQUEST, Parse.User.current().getSessionToken());

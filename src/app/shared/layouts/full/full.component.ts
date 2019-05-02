@@ -8,11 +8,19 @@ import { Router } from '@angular/router';
   styleUrls: ['./full.component.scss']
 })
 export class FullComponent implements OnInit {
-  constructor(public router: Router, private authenticationService: AuthenticationService) {}
+  constructor(public router: Router, private authenticationService: AuthenticationService) { }
 
   ngOnInit() {
     if (this.router.url === '/') {
       this.router.navigate(['/dashboard']);
+    }
+  }
+
+  public closeWindow() {
+    if (window && (window as any).process) {
+      const { remote } = (<any>window).require('electron');
+      const wnd = remote.getCurrentWindow();
+      wnd.close();
     }
   }
 
