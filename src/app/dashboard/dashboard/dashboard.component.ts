@@ -1,6 +1,6 @@
 import { environment } from 'app/data/common-imports';
 import { Parse } from 'app/data/services';
-import { Component, OnInit, ElementRef, ViewChild, Injector } from '@angular/core';
+import { Component, OnInit, ElementRef, ViewChild, Injector, AfterViewChecked } from '@angular/core';
 import * as io from 'socket.io-client';
 import { EC2ServerMessage, ES2ClientMessage, ChatAccount, EHeroEnum, HeroEnumText, PartyMember, Party } from 'app/data/models';
 import { View } from '@app/views/view';
@@ -15,7 +15,7 @@ enum EState {
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css']
 })
-export class DashboardComponent extends View implements OnInit {
+export class DashboardComponent extends View implements OnInit, AfterViewChecked {
   private socket: SocketIOClient.Socket;
   public chatAccountMap: Map<string, { id: string, name: string }>;
   public messages: Array<{ message: string, account: ChatAccount, room: string }>;
@@ -32,6 +32,7 @@ export class DashboardComponent extends View implements OnInit {
   public EState = EState;
 
   @ViewChild('sendMsgInput') sendMsgInput: ElementRef;
+  @ViewChild('chatScrollContainer') private chatScrollContainer: ElementRef;
 
   constructor(protected injector: Injector) {
     super(injector);
@@ -106,6 +107,12 @@ export class DashboardComponent extends View implements OnInit {
         ipcRenderer.send('start-strife', { host: joinInfo.host, port: joinInfo.port, secret: joinInfo.secret });
       }
     });
+
+    this.scrollChatToBottom();
+  }
+
+  ngAfterViewChecked() {
+    this.scrollChatToBottom();
   }
 
   public sendMessage() {
@@ -123,5 +130,11 @@ export class DashboardComponent extends View implements OnInit {
     this.socket.emit(EC2ServerMessage.PARTY_LEAVE);
     this.state = EState.INIT;
     this.searchingTime = 0;
+  }
+
+  public scrollChatToBottom(): void {
+    try {
+      this.chatScrollContainer.nativeElement.scrollTop = this.chatScrollContainer.nativeElement.scrollHeight;
+    } catch (err) { }
   }
 }
