@@ -86,7 +86,9 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
     this.socket.on(ES2ClientMessage.CHAT_USERLIST, userlistMsg => {
       this.chatAccountMap.clear();
       console.warn(userlistMsg.accounts);
+
       for (const account of userlistMsg.accounts) {
+        // this.messages.push({ message: 'this is a message from me', account: account, room: 'general' });
         this.chatAccountMap.set(account.id, account);
       }
     });
@@ -135,13 +137,12 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
       }
     });
 
-    this.socket.on(ES2ClientMessage.MATCH_READY, (joinInfo: { secret: string, host: string, port: string }) => {
-      this.state = EState.INIT;
-      this.stateSwitchCounter++;
-      if (window && (window as any).process) {
-        const { ipcRenderer } = (<any>window).require('electron');
-        ipcRenderer.send('start-strife', { host: joinInfo.host, port: joinInfo.port, secret: joinInfo.secret });
+    this.socket.on('disconnect', () => {
+      if (this.state !== EState.INIT) {
+        this.errorMessage('Search was aborted', 'Your search was aborted because of a server restart');
       }
+      this.state = EState.INIT;
+      this.socket.removeAllListeners();
     });
 
     this.scrollChatToBottom();
@@ -186,9 +187,8 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
 
   public scrollChatToBottom(): void {
     try {
-
       const scrollDiff = this.chatScrollContainer.nativeElement.scrollHeight - this.chatScrollContainer.nativeElement.scrollTop;
-      if (scrollDiff <= 680) {
+      if (scrollDiff <= 730) {
         this.chatScrollContainer.nativeElement.scrollTop = this.chatScrollContainer.nativeElement.scrollHeight;
       }
     } catch (err) { }
