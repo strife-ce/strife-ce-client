@@ -72,7 +72,7 @@
           </ul>
         </div>
       </div>
-      <div style="position:absolute; bottom: 0px;">
+      <div style="position:absolute; bottom: 0px; height: 294px">
         <div class="card" style="border: none">
           <div class="card-header">
             <h5 class="card-title" style="margin:0px">Play</h5>
@@ -116,7 +116,7 @@
               <br /><br />
 
               <div class="row">
-                <div class="col-md-4">
+                <div class="col-md-6">
                   Select a Hero:
                   <select class="custom-select" [(ngModel)]="selectedHero">
                     <option *ngFor="let heroValue of getEnumValues(EHeroEnum)" [ngValue]="heroValue">
@@ -124,7 +124,7 @@
                     </option>
                   </select>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-6">
                   Select a Pet:
                   <select class="custom-select" [(ngModel)]="selectedPet">
                     <option *ngFor="let petValue of getEnumValues(EPetEnum)" [ngValue]="petValue">
@@ -132,7 +132,7 @@
                     </option>
                   </select>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-12">
                   &nbsp;
                   <button class="btn btn-primary btn-block" (click)="startGameSearch()">Play</button>
                 </div>
@@ -165,9 +165,10 @@
                   <b>{{PetEnumText.get(selectedPet)}}</b>
                 </div>
               </div>
-              <br />
+              <br /><br />
+              <div style="text-align:left">Searching for players, please wait... {{searchingTime}} seconds</div>
+              <br/>
               <button class="btn btn-danger btn-block" (click)="cancelGameSearch()">Abort searching</button>
-              <div style="text-align:left"><i>Searching for players, please wait... {{searchingTime}} seconds</i></div>
             </div>
           </div>
         </div>
