@@ -63,9 +63,16 @@
     <div>
       <div class="card" style="border: none">
         <div class="card-header">
-          <h5 class="card-title" style="margin:0px">News</h5>
+          <h5 class="card-title" style="margin:4px 0px">News</h5>
         </div>
-        <div class="card-body">
+        <div class="card-body" style="overflow-y:auto; height: 370px; font-size: 14px">
+            Changes in v0.0.3:<br>
+            <ul>
+                <li>Added queue state indicators</li>
+                <li>Enabled passive abilities of pets</li>
+                <li>Fixed a bunch of matchmaking and hero bugs</li>
+                <li>Added Patreon Supporter icons in chat</li>
+            </ul>
           Changes in v0.0.2:<br>
           <ul>
             <li>Added all the previously missed heroes</li>
@@ -81,11 +88,11 @@
           </ul>
         </div>
       </div>
-      <div style="position:absolute; bottom: 0px; height: 295px">
+      <div style="position:absolute; bottom: 0px; height: 303px">
         <div class="card" style="border: none">
-          <div class="card-header">
-            <h5 class="card-title" style="margin:0px">Play</h5>
-            <div style="position:absolute; right: 15px; margin-top: -40px">
+          <div class="card-header" style="border-top: 1px solid rgba(0, 0, 0, 0.125)">
+            <h5 class="card-title" style="margin:4px 0px">Play</h5>
+            <div style="position:absolute; right: 15px; margin-top: -44px">
             <circle-progress [percent]="queueStates[EGameMode.MODE_1ON1]/2*100" [radius]="20" [outerStrokeWidth]="3" [innerStrokeWidth]="3" [space]="-3"
               [outerStrokeColor]="'#a4a7ae'" [innerStrokeColor]="'#e7e8ea'" [animation]="true" [titleFontSize]="16" [subtitleColor]="'#aaaaaa'"
               [animationDuration]="300" [title]="queueStates[EGameMode.MODE_1ON1]" subtitle="1vs1&nbsp;&nbsp;" units="" [startFromZero]="false"></circle-progress>
