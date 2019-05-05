@@ -7,6 +7,7 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { DashboardRoutes } from '@app/dashboard/dashboard.routing';
 import { DashboardComponent } from '@app/dashboard/dashboard/dashboard.component';
 import { NgToggleModule } from '@nth-cloud/ng-toggle';
+import { NgCircleProgressModule } from 'ng-circle-progress';
 
 @NgModule({
   imports: [
@@ -14,7 +15,8 @@ import { NgToggleModule } from '@nth-cloud/ng-toggle';
     CommonModule,
     NgbModule,
     NgToggleModule,
-    RouterModule.forChild(DashboardRoutes)
+    RouterModule.forChild(DashboardRoutes),
+    NgCircleProgressModule.forRoot()
   ],
   declarations: [DashboardComponent]
 })
