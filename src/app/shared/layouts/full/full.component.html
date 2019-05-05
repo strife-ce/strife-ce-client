@@ -4,7 +4,9 @@
 <style>
   #dragbar {
     -webkit-app-region: drag;
-    cursor: move
+    cursor: move;
+    background: url('assets/images/logo.jpg') no-repeat 28px 2px #24304a;
+    height: 56px;
   }
 
   #dragbar a {
@@ -12,10 +14,10 @@
   }
 
   #close {
+    color: #fff;
     position: absolute;
-    top: 10px;
-    right: 10px;
-    color: #000;
+    top: 2px;
+    right: 6px;
     -webkit-app-region: no-drag;
     cursor: pointer;
   }
@@ -25,27 +27,32 @@
     color: #999 !important;
   }
 
+  a:hover {
+    text-decoration: none;
+  }
 </style>
-<div style="width: 1280px; height:800px; background-color:#fff; ">
+<div style="width: 1280px; height:800px; background-color:#fff; position: relative; overflow:hidden">
   <div id="main-wrapper">
     <!-- ============================================================== -->
     <!-- Page wrapper  -->
     <!-- ============================================================== -->
     <div class="page-wrapper">
+      <div style="width: 100%; padding: 24px 20px 4px 0px;" id="dragbar">
+        <div id="close" (click)="closeWindow()"><span class="fa fa-window-close"></span></div>
+        <p class="text-right">
+          &nbsp;
+          <a class="btn btn-link btn-sm text-white" target="_blank" href="https://gitreports.com/issue/padjon/Strife-CE"
+            role="button"><span class="fa fa-bug"></span> Found a bug? Report it here!</a> &nbsp;|&nbsp;
+          <a class="btn btn-link btn-sm text-white" (click)="logout()" role="button"><span
+              class="fa fa-sign-out-alt"></span> logout</a>
+          <span
+            style="position: absolute; right:30px; top:6px; font-size:9px; color:#fff"><span style="color:#909dba">Made with <span class="fa fa-heart"></span> by Pad </span>&nbsp; v0.0.2</span>
+        </p>
+      </div>
       <!-- ============================================================== -->
       <!-- Container fluid  -->
       <!-- ============================================================== -->
       <div class="container-fluid">
-        <div style="width: 100%; padding: 14px 44px 14px 0px;" id="dragbar">
-          <div id="close" (click)="closeWindow()">x</div>
-          <h1 class="float-left">Strife CE</h1>
-          <h5 class="float-left" style="padding-top:18px">&nbsp;v0.0.1</h5>
-          <p class="text-right">
-            <a class="btn btn-secondary" target="_blank" href="https://gitreports.com/issue/padjon/Strife-CE"
-              role="button">Found a bug? Report it here!</a> &nbsp;
-            <a class="btn btn-secondary" (click)="logout()" role="button">logout</a>
-          </p>
-        </div>
 
         <app-breadcrumb></app-breadcrumb>
         <!-- ============================================================== -->

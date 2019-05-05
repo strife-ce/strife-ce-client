@@ -2,7 +2,7 @@ import { environment } from 'app/data/common-imports';
 import { Parse } from 'app/data/services';
 import { Component, OnInit, ElementRef, ViewChild, Injector, AfterViewChecked } from '@angular/core';
 import * as io from 'socket.io-client';
-import { EC2ServerMessage, ES2ClientMessage, ChatAccount, EHeroEnum, HeroEnumText, PartyMember, Party } from 'app/data/models';
+import { EC2ServerMessage, ES2ClientMessage, ChatAccount, EHeroEnum, HeroEnumText, EPetEnum, PetEnumText, PartyMember, Party, EGameMode } from 'app/data/models';
 import { View } from '@app/views/view';
 
 enum EState {
@@ -17,14 +17,20 @@ enum EState {
 })
 export class DashboardComponent extends View implements OnInit, AfterViewChecked {
   private socket: SocketIOClient.Socket;
-  public chatAccountMap: Map<string, { id: string, name: string }>;
+  public chatAccountMap: Map<string, ChatAccount>;
   public messages: Array<{ message: string, account: ChatAccount, room: string }>;
   public EHeroEnum = EHeroEnum;
   public HeroEnumText = HeroEnumText;
+  public EPetEnum = EPetEnum;
+  public PetEnumText = PetEnumText;
+  public EGameMode = EGameMode;
+
   public Array = Array;
   public chatDisabled = true;
   public selectedHero: EHeroEnum;
+  public selectedPet: EPetEnum;
   public searchingTime = 0;
+  public selectedGameModes = {};
   private party: Party;
   private partyMember: PartyMember;
 
@@ -40,7 +46,15 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
 
   public ngOnInit() {
     this.state = EState.INIT;
-    this.selectedHero = Number(this.getSessionStorage('LAST_HERO_SELECTION', EHeroEnum.BASTION));
+    this.selectedHero = Number(this.getSessionStorage('LAST_HERO_SELECTION', EHeroEnum.BANDITO));
+    this.selectedPet = Number(this.getSessionStorage('LAST_PET_SELECTION', EPetEnum.BOUNDER));
+    const defaultSelectedGameModes = {};
+    defaultSelectedGameModes[EGameMode.MODE_1ON1] = true;
+    defaultSelectedGameModes[EGameMode.MODE_2ON2] = false;
+    defaultSelectedGameModes[EGameMode.MODE_3ON3] = false;
+    defaultSelectedGameModes[EGameMode.MODE_4ON4] = false;
+    defaultSelectedGameModes[EGameMode.MODE_5ON5] = true;
+    this.selectedGameModes = JSON.parse(this.getSessionStorage('LAST_GAMEMODE_SELECTION', JSON.stringify(defaultSelectedGameModes)));
     this.chatDisabled = false;
     this.chatAccountMap = new Map();
     this.messages = new Array();
@@ -116,14 +130,29 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
   }
 
   public sendMessage() {
-    this.socket.emit(EC2ServerMessage.CHAT_MSG, { message: this.sendMsgInput.nativeElement.value, room: 'general' });
-    this.sendMsgInput.nativeElement.value = '';
+    if (this.sendMsgInput.nativeElement.value.trim() !== '') {
+      this.socket.emit(EC2ServerMessage.CHAT_MSG, { message: this.sendMsgInput.nativeElement.value, room: 'general' });
+      this.sendMsgInput.nativeElement.value = '';
+    }
   }
 
   public startGameSearch() {
     this.setSessionStorage('LAST_HERO_SELECTION', this.selectedHero);
-    this.partyMember = PartyMember.create(this.selectedHero);
-    this.socket.emit(EC2ServerMessage.PARTY_CREATE, this.partyMember);
+    this.setSessionStorage('LAST_PET_SELECTION', this.selectedPet);
+    this.setSessionStorage('LAST_GAMEMODE_SELECTION', JSON.stringify(this.selectedGameModes));
+    let gameModes = 0;
+    for (const val of this.getEnumValues(EGameMode)) {
+      if (this.selectedGameModes[val]) {
+        gameModes += val;
+      }
+    }
+
+    if (gameModes === 0) {
+      this.errorMessage('No gamemode selected', 'Select at least one gamemode to play.');
+    } else {
+      this.partyMember = PartyMember.create(this.selectedHero, this.selectedPet);
+      this.socket.emit(EC2ServerMessage.PARTY_CREATE, this.partyMember, gameModes);
+    }
   }
 
   public cancelGameSearch() {
@@ -134,7 +163,11 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
 
   public scrollChatToBottom(): void {
     try {
-      this.chatScrollContainer.nativeElement.scrollTop = this.chatScrollContainer.nativeElement.scrollHeight;
+
+      const scrollDiff = this.chatScrollContainer.nativeElement.scrollHeight - this.chatScrollContainer.nativeElement.scrollTop;
+      if (scrollDiff <= 680) {
+        this.chatScrollContainer.nativeElement.scrollTop = this.chatScrollContainer.nativeElement.scrollHeight;
+      }
     } catch (err) { }
   }
 }

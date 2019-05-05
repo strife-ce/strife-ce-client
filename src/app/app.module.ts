@@ -9,6 +9,8 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { ToastrModule } from 'ngx-toastr';
 import { APP_INITIALIZER } from '@angular/core';
 
+import { NgToggleModule } from '@nth-cloud/ng-toggle';
+
 import { AppRoutes } from '@app/app.routing';
 import { AppComponent } from '@app/app.component';
 import { SharedModule } from '@app/shared';
@@ -29,7 +31,8 @@ import { UserService, RoleService } from 'app/data/modelservices';
     NgbModule.forRoot(),
     RouterModule.forRoot(AppRoutes),
     SharedModule,
-    ToastrModule.forRoot()
+    ToastrModule.forRoot(),
+    NgToggleModule
   ],
   bootstrap: [AppComponent],
   providers: [
