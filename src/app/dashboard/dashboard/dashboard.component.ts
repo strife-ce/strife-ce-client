@@ -58,12 +58,7 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
     defaultSelectedGameModes[EGameMode.MODE_4ON4] = false;
     defaultSelectedGameModes[EGameMode.MODE_5ON5] = true;
     this.selectedGameModes = JSON.parse(this.getSessionStorage('LAST_GAMEMODE_SELECTION', JSON.stringify(defaultSelectedGameModes)));
-    this.queueStates = {}
-    this.queueStates[EGameMode.MODE_1ON1] = 0;
-    this.queueStates[EGameMode.MODE_2ON2] = 0;
-    this.queueStates[EGameMode.MODE_3ON3] = 0;
-    this.queueStates[EGameMode.MODE_4ON4] = 0;
-    this.queueStates[EGameMode.MODE_5ON5] = 0;
+    this.queueStates =  {[EGameMode.MODE_1ON1]: 0, [EGameMode.MODE_2ON2]: 0, [EGameMode.MODE_3ON3]: 0, [EGameMode.MODE_4ON4]: 0, [EGameMode.MODE_5ON5]: 0} ;
     
     this.chatDisabled = false;
     this.chatAccountMap = new Map();
@@ -79,6 +74,7 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
     });
 
     this.socket.on(ES2ClientMessage.QUEUE_STATES_UPDATE, (queueStates) => {
+      console.warn(queueStates);
       this.queueStates = queueStates;
     });
 
