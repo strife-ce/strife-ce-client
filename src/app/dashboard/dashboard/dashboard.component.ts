@@ -150,7 +150,7 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
         this.errorMessage('Search was aborted', 'Your search was aborted because of a server restart');
       }
       this.state = EState.INIT;
-      this.socket.removeAllListeners();
+      //this.socket.removeAllListeners();
     });
 
     this.scrollChatToBottom();
