@@ -4,7 +4,10 @@
 <style>
   #dragbar {
     -webkit-app-region: drag;
-    cursor: move
+    cursor: move;
+    background: transparent;
+    height: 56px;
+    position:absolute;
   }
 
   #dragbar a {
@@ -12,10 +15,10 @@
   }
 
   #close {
+    color: #fff;
     position: absolute;
-    top: 10px;
-    right: 10px;
-    color: #000;
+    top: 2px;
+    right: 6px;
     -webkit-app-region: no-drag;
     cursor: pointer;
   }
@@ -24,11 +27,20 @@
     cursor: pointer;
     color: #999 !important;
   }
+
+  a:hover {
+    text-decoration: none;
+  }
 </style>
 
-<div style="width: 1280px; height:800px; background-color:#fff; ">
-  <div style="width: 100%; padding: 14px 44px 14px 0px;" id="dragbar">
-    <div id="close" (click)="closeWindow()">x</div>
-  </div>
+<div style="width: 1280px; height:800px; background-color:#fff; position:relative ">
+    <div style="width: 100%; padding: 24px 20px 4px 0px;" id="dragbar">
+        <div id="close" (click)="closeWindow()"><span class="fa fa-window-close"></span></div>
+        <p class="text-right">
+          &nbsp;
+          <span
+            style="position: absolute; right:30px; top:6px; font-size:9px; color:#fff"><span style="color:#fff">Made with <span class="fa fa-heart"></span> by Pad </span>&nbsp; v0.0.2</span>
+        </p>
+      </div>
   <router-outlet></router-outlet>
 </div>
