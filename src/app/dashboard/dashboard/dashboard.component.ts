@@ -37,6 +37,8 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
   public state: EState;
   public EState = EState;
 
+  private stateSwitchCounter = 0;
+
   @ViewChild('sendMsgInput') sendMsgInput: ElementRef;
   @ViewChild('chatScrollContainer') private chatScrollContainer: ElementRef;
 
@@ -99,6 +101,7 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
 
     this.socket.on(ES2ClientMessage.PARTY_STARTED_MATCHMAKING, () => {
       this.state = EState.SEARCHING;
+      this.stateSwitchCounter++;
       console.log('PARTY CREATED!!');
       const party = this.party;
       const intervalHandler = setInterval(() => {
@@ -112,10 +115,18 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
 
     this.socket.on(ES2ClientMessage.MATCH_PREPARING, () => {
       this.state = EState.PREPARING_MATCH;
+      const currentStateSwitchCount = ++this.stateSwitchCounter;
+      setTimeout(() => {
+        if (this.stateSwitchCounter === currentStateSwitchCount) {
+          this.state = EState.INIT;
+          this.errorMessage('The gameserver didn\'t show up', 'Your game was aborted because the gameserver didn\'t show up.');
+        }
+      }, 30000);
     });
 
     this.socket.on(ES2ClientMessage.MATCH_READY, (joinInfo: { secret: string, host: string, port: string }) => {
       this.state = EState.INIT;
+      this.stateSwitchCounter++;
       if (window && (window as any).process) {
         const { ipcRenderer } = (<any>window).require('electron');
         ipcRenderer.send('start-strife', { host: joinInfo.host, port: joinInfo.port, secret: joinInfo.secret });
@@ -158,6 +169,7 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
   public cancelGameSearch() {
     this.socket.emit(EC2ServerMessage.PARTY_LEAVE);
     this.state = EState.INIT;
+    this.stateSwitchCounter++;
     this.searchingTime = 0;
   }
 
