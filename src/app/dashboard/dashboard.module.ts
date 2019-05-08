@@ -8,6 +8,7 @@ import { DashboardRoutes } from '@app/dashboard/dashboard.routing';
 import { DashboardComponent } from '@app/dashboard/dashboard/dashboard.component';
 import { NgToggleModule } from '@nth-cloud/ng-toggle';
 import { NgCircleProgressModule } from 'ng-circle-progress';
+import { AccountService } from '@app/data/modelservices';
 
 @NgModule({
   imports: [
@@ -18,6 +19,9 @@ import { NgCircleProgressModule } from 'ng-circle-progress';
     RouterModule.forChild(DashboardRoutes),
     NgCircleProgressModule.forRoot()
   ],
-  declarations: [DashboardComponent]
+  declarations: [DashboardComponent],
+  providers: [
+    AccountService
+  ]
 })
 export class DashboardModule { }

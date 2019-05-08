@@ -3,8 +3,9 @@ import { environment } from 'app/data/common-imports';
 import { Parse } from 'app/data/services';
 import { Component, OnInit, ElementRef, ViewChild, Injector, AfterViewChecked } from '@angular/core';
 import * as io from 'socket.io-client';
-import { EC2ServerMessage, ES2ClientMessage, ChatAccount, EHeroEnum, HeroEnumText, EPetEnum, PetEnumText, PartyMember, Party, EGameMode, EAccountFlags, Account } from 'app/data/models';
+import { EC2ServerMessage, ES2ClientMessage, ChatAccount, EHeroEnum, HeroEnumText, EPetEnum, PetEnumText, PartyMember, Party, EGameMode, EAccountFlags, Account, User } from 'app/data/models';
 import { View } from '@app/views/view';
+import { AccountService } from '@app/data/modelservices';
 
 @Component({
   templateUrl: './dashboard.component.html',
@@ -13,7 +14,7 @@ import { View } from '@app/views/view';
 export class DashboardComponent extends View implements OnInit, AfterViewChecked {
   private socket: SocketIOClient.Socket;
   public chatAccountMap: Map<string, ChatAccount>;
-  public messages: Array<{ message: string, account: ChatAccount, room: string }>;
+  public messages: Array<{ message: string, account: ChatAccount, room: string, highlight?: boolean }>;
   public EHeroEnum = EHeroEnum;
   public HeroEnumText = HeroEnumText;
   public EPetEnum = EPetEnum;
@@ -31,6 +32,7 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
   public queueStates = {};
   private party: Party;
   private partyMember: PartyMember;
+  private account: Account;
 
   public state: EChatAccountState;
 
@@ -39,12 +41,12 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
   @ViewChild('sendMsgInput') sendMsgInput: ElementRef;
   @ViewChild('chatScrollContainer') private chatScrollContainer: ElementRef;
 
-  constructor(protected injector: Injector) {
+  constructor(protected injector: Injector, private accountService: AccountService) {
     super(injector);
   }
 
 
-  public ngOnInit() {
+  public async ngOnInit() {
     this.selectedHero = Number(this.getSessionStorage('LAST_HERO_SELECTION', EHeroEnum.BANDITO));
     this.selectedPet = Number(this.getSessionStorage('LAST_PET_SELECTION', EPetEnum.BOUNDER));
     const defaultSelectedGameModes = {};
@@ -55,6 +57,11 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
     defaultSelectedGameModes[EGameMode.MODE_5ON5] = true;
     this.selectedGameModes = JSON.parse(this.getSessionStorage('LAST_GAMEMODE_SELECTION', JSON.stringify(defaultSelectedGameModes)));
     this.queueStates = { [EGameMode.MODE_1ON1]: 0, [EGameMode.MODE_2ON2]: 0, [EGameMode.MODE_3ON3]: 0, [EGameMode.MODE_4ON4]: 0, [EGameMode.MODE_5ON5]: 0 };
+
+    this.accountService.getById((Parse.User.current() as User).account.id).then((account) => {
+      this.account = account;
+      console.warn(account);
+    });
 
     this.chatDisabled = false;
     this.chatAccountMap = new Map();
@@ -89,12 +96,20 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
     this.socket.on(ES2ClientMessage.CHAT_ACCOUNTLIST, (userlistMsg: { accounts: Array<ChatAccount>, room: string }) => {
       this.chatAccountMap.clear();
       for (const account of userlistMsg.accounts) {
-        // this.messages.push({ message: 'this is a message from me', account: account, room: 'general' });
+        this.messages.push({ message: 'this is a message from me @pad2', account: account, room: 'general' });
+        for (const message of this.messages) {
+          if (this.account && (message.message as string).toLowerCase().indexOf('@' + this.account.name.toLowerCase()) >= 0) {
+            message.highlight = true;
+          }
+        }
         this.chatAccountMap.set(account.id, account);
       }
     });
 
     this.socket.on(ES2ClientMessage.CHAT_MSG, message => {
+      if (this.account && (message.message as string).toLowerCase().indexOf('@' + this.account.name.toLowerCase()) >= 0) {
+        message.highlight = true;
+      }
       this.messages.push(message);
     });
 

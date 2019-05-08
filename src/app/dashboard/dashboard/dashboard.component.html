@@ -31,7 +31,7 @@
       <div class="card" style="border-radius:0px">
         <div class="card-body">
           <dl id="messageList" style="height:637px;overflow: auto" #chatScrollContainer>
-            <div *ngFor="let msg of messages">
+            <div *ngFor="let msg of messages" [style.background-color]="msg.highlight ? '#dbe4f5': ''">
               <b>
                 <span style="width: 16px; height:16px; display: inline-block" *ngIf="msg.account.icon">
                   <a href="https://www.patreon.com/strife_ce"
@@ -41,7 +41,7 @@
                   </a>
                 </span>
                 {{msg.account.name}}
-                :</b> {{msg.message}}
+                :</b> <span>{{msg.message}}</span>
             </div>
           </dl>
           <hr>
@@ -72,6 +72,7 @@
               <li>Added player state indicators</li>
               <li>Fixed a bug which lead to one player being multiple times in a game</li>
               <li>Added the GRAND Patreon Supporter icon for supporters of 10+$ (Thank you Jertle)</li>
+              <li>Chat highlighting if you mention someone via @name</li>
             </ul>
           Changes in v0.0.3:<br>
           <ul>
