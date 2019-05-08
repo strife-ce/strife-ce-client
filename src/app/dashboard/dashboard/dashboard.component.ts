@@ -2,7 +2,7 @@ import { environment } from 'app/data/common-imports';
 import { Parse } from 'app/data/services';
 import { Component, OnInit, ElementRef, ViewChild, Injector, AfterViewChecked } from '@angular/core';
 import * as io from 'socket.io-client';
-import { EC2ServerMessage, ES2ClientMessage, ChatAccount, EHeroEnum, HeroEnumText, EPetEnum, PetEnumText, PartyMember, Party, EGameMode } from 'app/data/models';
+import { EC2ServerMessage, ES2ClientMessage, ChatAccount, EHeroEnum, HeroEnumText, EPetEnum, PetEnumText, PartyMember, Party, EGameMode, EAccountFlags, Account } from 'app/data/models';
 import { View } from '@app/views/view';
 
 enum EState {
@@ -24,6 +24,7 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
   public EPetEnum = EPetEnum;
   public PetEnumText = PetEnumText;
   public EGameMode = EGameMode;
+  public EAccountFlags = EAccountFlags;
 
   public Array = Array;
   public chatDisabled = true;
@@ -34,7 +35,7 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
   public queueStates = {};
   private party: Party;
   private partyMember: PartyMember;
-  
+
   public state: EState;
   public EState = EState;
 
@@ -47,6 +48,7 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
     super(injector);
   }
 
+
   public ngOnInit() {
     this.state = EState.INIT;
     this.selectedHero = Number(this.getSessionStorage('LAST_HERO_SELECTION', EHeroEnum.BANDITO));
@@ -58,8 +60,8 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
     defaultSelectedGameModes[EGameMode.MODE_4ON4] = false;
     defaultSelectedGameModes[EGameMode.MODE_5ON5] = true;
     this.selectedGameModes = JSON.parse(this.getSessionStorage('LAST_GAMEMODE_SELECTION', JSON.stringify(defaultSelectedGameModes)));
-    this.queueStates =  {[EGameMode.MODE_1ON1]: 0, [EGameMode.MODE_2ON2]: 0, [EGameMode.MODE_3ON3]: 0, [EGameMode.MODE_4ON4]: 0, [EGameMode.MODE_5ON5]: 0} ;
-    
+    this.queueStates = { [EGameMode.MODE_1ON1]: 0, [EGameMode.MODE_2ON2]: 0, [EGameMode.MODE_3ON3]: 0, [EGameMode.MODE_4ON4]: 0, [EGameMode.MODE_5ON5]: 0 };
+
     this.chatDisabled = false;
     this.chatAccountMap = new Map();
     this.messages = new Array();
@@ -91,11 +93,16 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
       }
     });
 
-    this.socket.on(ES2ClientMessage.CHAT_USERLIST, userlistMsg => {
+    this.socket.on(ES2ClientMessage.CHAT_USERLIST, (userlistMsg: { accounts: Array<ChatAccount>, room: string }) => {
       this.chatAccountMap.clear();
-      console.warn(userlistMsg.accounts);
-
       for (const account of userlistMsg.accounts) {
+
+        if (account.name === 'Pad') {
+          account.setFlag(EAccountFlags.PATREON_L2);
+        } else {
+          account.setFlag(EAccountFlags.PATREON_L1);
+        }
+        console.warn(account.hasFlag(EAccountFlags.PATREON_L1, EAccountFlags.PATREON_L1));
         // this.messages.push({ message: 'this is a message from me', account: account, room: 'general' });
         this.chatAccountMap.set(account.id, account);
       }
@@ -150,7 +157,7 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
         this.errorMessage('Search was aborted', 'Your search was aborted because of a server restart');
       }
       this.state = EState.INIT;
-      //this.socket.removeAllListeners();
+      // this.socket.removeAllListeners();
     });
 
     this.scrollChatToBottom();
@@ -200,5 +207,9 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
         this.chatScrollContainer.nativeElement.scrollTop = this.chatScrollContainer.nativeElement.scrollHeight;
       }
     } catch (err) { }
+  }
+
+  public getChatAccounts(): Array<ChatAccount> {
+    return Array.from(this.chatAccountMap.values());
   }
 }

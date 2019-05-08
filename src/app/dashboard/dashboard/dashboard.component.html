@@ -12,12 +12,12 @@
       <div class="card-body p-0" style="height:650px;">
         <ul id="onlineUsers" class="list-group list-group-flush"></ul>
         <div style="height:10px"></div>
-        <div *ngFor="let chatAccount of Array.from(this.chatAccountMap.values())">
+        <div *ngFor="let chatAccount of getChatAccounts()">
           <span style="padding: 5px 6px">
             <span style="width: 16px; height:16px; display: inline-block">
               <a href="https://www.patreon.com/strife_ce" [ngbTooltip]="chatAccount.name + ' is a Patreon Supporter'"
-                placement="right" target="_blank" *ngIf="chatAccount.patreon">
-                <img src="assets/images/icons/patreon.png" style="width:16px; margin-top:-4px" />
+                placement="right" target="_blank" *ngIf="chatAccount.icon">
+                <img [src]="'assets/images/icons/' + chatAccount.icon +'.png'" style="width:16px; margin-top:-4px;" />
               </a>
             </span>
             {{chatAccount.name}}
@@ -66,13 +66,13 @@
           <h5 class="card-title" style="margin:4px 0px">News</h5>
         </div>
         <div class="card-body" style="overflow-y:auto; height: 370px; font-size: 14px">
-            Changes in v0.0.3:<br>
-            <ul>
-                <li>Added queue state indicators</li>
-                <li>Enabled passive abilities of pets</li>
-                <li>Fixed a bunch of matchmaking and hero bugs</li>
-                <li>Added Patreon Supporter icons in chat</li>
-            </ul>
+          Changes in v0.0.3:<br>
+          <ul>
+            <li>Added queue state indicators</li>
+            <li>Enabled passive abilities of pets</li>
+            <li>Fixed a bunch of matchmaking and hero bugs</li>
+            <li>Added Patreon Supporter icons in chat</li>
+          </ul>
           Changes in v0.0.2:<br>
           <ul>
             <li>Added all the previously missed heroes</li>
@@ -93,21 +93,29 @@
           <div class="card-header" style="border-top: 1px solid rgba(0, 0, 0, 0.125)">
             <h5 class="card-title" style="margin:4px 0px">Play</h5>
             <div style="position:absolute; right: 15px; margin-top: -44px">
-            <circle-progress [percent]="queueStates[EGameMode.MODE_1ON1]/2*100" [radius]="20" [outerStrokeWidth]="3" [innerStrokeWidth]="3" [space]="-3"
-              [outerStrokeColor]="'#a4a7ae'" [innerStrokeColor]="'#e7e8ea'" [animation]="true" [titleFontSize]="16" [subtitleColor]="'#aaaaaa'"
-              [animationDuration]="300" [title]="queueStates[EGameMode.MODE_1ON1]" subtitle="1vs1&nbsp;&nbsp;" units="" [startFromZero]="false"></circle-progress>
+              <circle-progress [percent]="queueStates[EGameMode.MODE_1ON1]/2*100" [radius]="20" [outerStrokeWidth]="3"
+                [innerStrokeWidth]="3" [space]="-3" [outerStrokeColor]="'#a4a7ae'" [innerStrokeColor]="'#e7e8ea'"
+                [animation]="true" [titleFontSize]="16" [subtitleColor]="'#aaaaaa'" [animationDuration]="300"
+                [title]="queueStates[EGameMode.MODE_1ON1]" subtitle="1vs1&nbsp;&nbsp;" units="" [startFromZero]="false">
+              </circle-progress>
 
-              <circle-progress  [percent]="queueStates[EGameMode.MODE_2ON2]/4*100" [radius]="20" [outerStrokeWidth]="3" [innerStrokeWidth]="3" [space]="-3"
-              [outerStrokeColor]="'#a4a7ae'" [innerStrokeColor]="'#e7e8ea'" [animation]="true" [titleFontSize]="16" [subtitleColor]="'#aaaaaa'"
-              [animationDuration]="300" [title]="queueStates[EGameMode.MODE_2ON2]" subtitle="2vs2&nbsp;&nbsp;" units="" [startFromZero]="false"></circle-progress>
+              <circle-progress [percent]="queueStates[EGameMode.MODE_2ON2]/4*100" [radius]="20" [outerStrokeWidth]="3"
+                [innerStrokeWidth]="3" [space]="-3" [outerStrokeColor]="'#a4a7ae'" [innerStrokeColor]="'#e7e8ea'"
+                [animation]="true" [titleFontSize]="16" [subtitleColor]="'#aaaaaa'" [animationDuration]="300"
+                [title]="queueStates[EGameMode.MODE_2ON2]" subtitle="2vs2&nbsp;&nbsp;" units="" [startFromZero]="false">
+              </circle-progress>
 
-              <circle-progress  [percent]="queueStates[EGameMode.MODE_3ON3]/6*100" [radius]="20" [outerStrokeWidth]="3" [innerStrokeWidth]="3" [space]="-3"
-              [outerStrokeColor]="'#a4a7ae'" [innerStrokeColor]="'#e7e8ea'" [animation]="true" [titleFontSize]="16" [subtitleColor]="'#aaaaaa'"
-              [animationDuration]="300" [title]="queueStates[EGameMode.MODE_3ON3]" subtitle="3vs3&nbsp;&nbsp;" units="" [startFromZero]="false"></circle-progress>
+              <circle-progress [percent]="queueStates[EGameMode.MODE_3ON3]/6*100" [radius]="20" [outerStrokeWidth]="3"
+                [innerStrokeWidth]="3" [space]="-3" [outerStrokeColor]="'#a4a7ae'" [innerStrokeColor]="'#e7e8ea'"
+                [animation]="true" [titleFontSize]="16" [subtitleColor]="'#aaaaaa'" [animationDuration]="300"
+                [title]="queueStates[EGameMode.MODE_3ON3]" subtitle="3vs3&nbsp;&nbsp;" units="" [startFromZero]="false">
+              </circle-progress>
 
-              <circle-progress [percent]="queueStates[EGameMode.MODE_5ON5]/10*100" [radius]="20" [outerStrokeWidth]="3" [innerStrokeWidth]="3" [space]="-3"
-              [outerStrokeColor]="'#a4a7ae'" [innerStrokeColor]="'#e7e8ea'" [animation]="true" [titleFontSize]="16" [subtitleColor]="'#aaaaaa'"
-              [animationDuration]="300" [title]="queueStates[EGameMode.MODE_5ON5]" subtitle="5vs5&nbsp;&nbsp;" units="" [startFromZero]="false"></circle-progress>
+              <circle-progress [percent]="queueStates[EGameMode.MODE_5ON5]/10*100" [radius]="20" [outerStrokeWidth]="3"
+                [innerStrokeWidth]="3" [space]="-3" [outerStrokeColor]="'#a4a7ae'" [innerStrokeColor]="'#e7e8ea'"
+                [animation]="true" [titleFontSize]="16" [subtitleColor]="'#aaaaaa'" [animationDuration]="300"
+                [title]="queueStates[EGameMode.MODE_5ON5]" subtitle="5vs5&nbsp;&nbsp;" units="" [startFromZero]="false">
+              </circle-progress>
             </div>
           </div>
           <div class="card-body">
