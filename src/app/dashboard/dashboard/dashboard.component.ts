@@ -45,7 +45,6 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
 
 
   public ngOnInit() {
-    this.state = EChatAccountState.IDLE;
     this.selectedHero = Number(this.getSessionStorage('LAST_HERO_SELECTION', EHeroEnum.BANDITO));
     this.selectedPet = Number(this.getSessionStorage('LAST_PET_SELECTION', EPetEnum.BOUNDER));
     const defaultSelectedGameModes = {};
@@ -68,15 +67,14 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
     this.socket.on(ES2ClientMessage.AUTH_ACCEPTED, () => {
       this.chatDisabled = false;
       this.socket.emit(EC2ServerMessage.CHAT_JOIN_ROOM, 'general');
+      this.setState(EChatAccountState.IDLE);
     });
 
     this.socket.on(ES2ClientMessage.QUEUE_STATES_UPDATE, (queueStates) => {
-      console.warn(queueStates);
       this.queueStates = queueStates;
     });
 
     this.socket.on(ES2ClientMessage.CHAT_JOINED_ROOM, joinMsg => {
-      console.warn(joinMsg.account);
       if (!this.chatAccountMap.has(joinMsg.account.id)) {
         this.chatAccountMap.set(joinMsg.account.id, joinMsg.account);
       }
@@ -101,7 +99,7 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
     });
 
     this.socket.on(ES2ClientMessage.CHAT_UPDATE_ACCOUNT, account => {
-        this.chatAccountMap.set(account.id, account);
+      this.chatAccountMap.set(account.id, account);
     });
 
     this.socket.on(ES2ClientMessage.PARTY_CREATED, (party) => {
@@ -111,9 +109,8 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
     });
 
     this.socket.on(ES2ClientMessage.PARTY_STARTED_MATCHMAKING, () => {
-      this.state = EChatAccountState.QUEUE;
+      this.setState(EChatAccountState.QUEUE);
       this.stateSwitchCounter++;
-      console.log('PARTY CREATED!!');
       const party = this.party;
       const intervalHandler = setInterval(() => {
         if (this.state !== EChatAccountState.QUEUE || this.party !== party) {
@@ -125,11 +122,11 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
     });
 
     this.socket.on(ES2ClientMessage.MATCH_PREPARING, () => {
-      this.state = EChatAccountState.PREPARING_MATCH;
+      this.setState(EChatAccountState.PREPARING_MATCH);
       const currentStateSwitchCount = ++this.stateSwitchCounter;
       setTimeout(() => {
         if (this.stateSwitchCounter === currentStateSwitchCount) {
-          this.state = EChatAccountState.IDLE;
+          this.setState(EChatAccountState.IDLE);
           this.errorMessage('The gameserver didn\'t show up', 'Your game was aborted because the gameserver didn\'t show up.');
         }
       }, 30000);
