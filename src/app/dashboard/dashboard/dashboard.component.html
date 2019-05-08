@@ -1,4 +1,4 @@
-<div *ngIf="state == EState.PREPARING_MATCH"
+<div *ngIf="state == EChatAccountState.PREPARING_MATCH"
   style="position:absolute; left:0; right:0; top:56px; bottom:0; background:rgba(255,255,255,0.7); z-index:99999; display:flex; align-items: center; justify-content: center; ">
   <h1>Game Found! Joining in a moment...</h1>
 </div>
@@ -15,12 +15,12 @@
         <div *ngFor="let chatAccount of getChatAccounts()">
           <span style="padding: 5px 6px">
             <span style="width: 16px; height:16px; display: inline-block">
-              <a href="https://www.patreon.com/strife_ce" [ngbTooltip]="chatAccount.name + ' is a Patreon Supporter'"
+              <a href="https://www.patreon.com/strife_ce" [ngbTooltip]="chatAccount.iconTooltip"
                 placement="right" target="_blank" *ngIf="chatAccount.icon">
-                <img [src]="'assets/images/icons/' + chatAccount.icon +'.png'" style="width:16px; margin-top:-4px;" />
+                <img [src]="'assets/images/icons/' + chatAccount.icon +'.png'" style="width:16px; margin-top:-5px;" />
               </a>
             </span>
-            {{chatAccount.name}}
+            {{chatAccount.name}} <span *ngIf="chatAccount.stateIcon" [class]="'float-right fa fa-' + chatAccount.stateIcon" style="margin-right: 10px; color: #bbb"></span>
           </span>
         </div>
       </div>
@@ -33,10 +33,11 @@
           <dl id="messageList" style="height:637px;overflow: auto" #chatScrollContainer>
             <div *ngFor="let msg of messages">
               <b>
-                <span style="width: 16px; height:16px; display: inline-block" *ngIf="msg.account.patreon">
+                <span style="width: 16px; height:16px; display: inline-block" *ngIf="msg.account.icon">
                   <a href="https://www.patreon.com/strife_ce"
                     [ngbTooltip]="msg.account.name + ' is a Patreon Supporter'" placement="left" target="_blank">
-                    <img src="assets/images/icons/patreon.png" style="width:16px; margin-top:-4px" />
+                    <img [src]="'assets/images/icons/' + msg.account.icon +'.png'"
+                      style="width:16px; margin-top:-5px;" />
                   </a>
                 </span>
                 {{msg.account.name}}
@@ -66,6 +67,12 @@
           <h5 class="card-title" style="margin:4px 0px">News</h5>
         </div>
         <div class="card-body" style="overflow-y:auto; height: 370px; font-size: 14px">
+          Changes in v0.0.4:<br>
+            <ul>
+              <li>Added player state indicators</li>
+              <li>Fixed a bug which lead to one player being multiple times in a game</li>
+              <li>Added the GRAND Patreon Supporter icon for supporters of 10+$ (Thank you Jertle)</li>
+            </ul>
           Changes in v0.0.3:<br>
           <ul>
             <li>Added queue state indicators</li>
@@ -119,7 +126,7 @@
             </div>
           </div>
           <div class="card-body">
-            <div *ngIf="state != EState.SEARCHING">
+            <div *ngIf="state != EChatAccountState.QUEUE">
               Select one or multiple gamemodes: <br />
 
               <ng-toggle onColor="success" offColor="light" size="sm"
@@ -180,7 +187,7 @@
               </div>
 
             </div>
-            <div *ngIf="state == EState.SEARCHING">
+            <div *ngIf="state == EChatAccountState.QUEUE">
               <div class="row">
                 <div class="col-6">
                   Gamemodes:

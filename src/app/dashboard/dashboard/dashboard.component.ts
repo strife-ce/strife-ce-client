@@ -1,15 +1,10 @@
+import { EChatAccountState } from './../../data/common/models/transient/chat-account';
 import { environment } from 'app/data/common-imports';
 import { Parse } from 'app/data/services';
 import { Component, OnInit, ElementRef, ViewChild, Injector, AfterViewChecked } from '@angular/core';
 import * as io from 'socket.io-client';
 import { EC2ServerMessage, ES2ClientMessage, ChatAccount, EHeroEnum, HeroEnumText, EPetEnum, PetEnumText, PartyMember, Party, EGameMode, EAccountFlags, Account } from 'app/data/models';
 import { View } from '@app/views/view';
-
-enum EState {
-  INIT,
-  SEARCHING,
-  PREPARING_MATCH
-}
 
 @Component({
   templateUrl: './dashboard.component.html',
@@ -25,6 +20,7 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
   public PetEnumText = PetEnumText;
   public EGameMode = EGameMode;
   public EAccountFlags = EAccountFlags;
+  public EChatAccountState = EChatAccountState;
 
   public Array = Array;
   public chatDisabled = true;
@@ -36,8 +32,7 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
   private party: Party;
   private partyMember: PartyMember;
 
-  public state: EState;
-  public EState = EState;
+  public state: EChatAccountState;
 
   private stateSwitchCounter = 0;
 
@@ -50,7 +45,7 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
 
 
   public ngOnInit() {
-    this.state = EState.INIT;
+    this.state = EChatAccountState.IDLE;
     this.selectedHero = Number(this.getSessionStorage('LAST_HERO_SELECTION', EHeroEnum.BANDITO));
     this.selectedPet = Number(this.getSessionStorage('LAST_PET_SELECTION', EPetEnum.BOUNDER));
     const defaultSelectedGameModes = {};
@@ -93,16 +88,9 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
       }
     });
 
-    this.socket.on(ES2ClientMessage.CHAT_USERLIST, (userlistMsg: { accounts: Array<ChatAccount>, room: string }) => {
+    this.socket.on(ES2ClientMessage.CHAT_ACCOUNTLIST, (userlistMsg: { accounts: Array<ChatAccount>, room: string }) => {
       this.chatAccountMap.clear();
       for (const account of userlistMsg.accounts) {
-
-        if (account.name === 'Pad') {
-          account.setFlag(EAccountFlags.PATREON_L2);
-        } else {
-          account.setFlag(EAccountFlags.PATREON_L1);
-        }
-        console.warn(account.hasFlag(EAccountFlags.PATREON_L1, EAccountFlags.PATREON_L1));
         // this.messages.push({ message: 'this is a message from me', account: account, room: 'general' });
         this.chatAccountMap.set(account.id, account);
       }
@@ -112,6 +100,10 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
       this.messages.push(message);
     });
 
+    this.socket.on(ES2ClientMessage.CHAT_UPDATE_ACCOUNT, account => {
+        this.chatAccountMap.set(account.id, account);
+    });
+
     this.socket.on(ES2ClientMessage.PARTY_CREATED, (party) => {
       this.party = party;
       this.partyMember.ready = true;
@@ -119,12 +111,12 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
     });
 
     this.socket.on(ES2ClientMessage.PARTY_STARTED_MATCHMAKING, () => {
-      this.state = EState.SEARCHING;
+      this.state = EChatAccountState.QUEUE;
       this.stateSwitchCounter++;
       console.log('PARTY CREATED!!');
       const party = this.party;
       const intervalHandler = setInterval(() => {
-        if (this.state !== EState.SEARCHING || this.party !== party) {
+        if (this.state !== EChatAccountState.QUEUE || this.party !== party) {
           clearInterval(intervalHandler);
         } else {
           this.searchingTime++;
@@ -133,18 +125,18 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
     });
 
     this.socket.on(ES2ClientMessage.MATCH_PREPARING, () => {
-      this.state = EState.PREPARING_MATCH;
+      this.state = EChatAccountState.PREPARING_MATCH;
       const currentStateSwitchCount = ++this.stateSwitchCounter;
       setTimeout(() => {
         if (this.stateSwitchCounter === currentStateSwitchCount) {
-          this.state = EState.INIT;
+          this.state = EChatAccountState.IDLE;
           this.errorMessage('The gameserver didn\'t show up', 'Your game was aborted because the gameserver didn\'t show up.');
         }
       }, 30000);
     });
 
     this.socket.on(ES2ClientMessage.MATCH_READY, (joinInfo: { secret: string, host: string, port: string }) => {
-      this.state = EState.INIT;
+      this.state = EChatAccountState.IDLE;
       this.stateSwitchCounter++;
       if (window && (window as any).process) {
         const { ipcRenderer } = (<any>window).require('electron');
@@ -153,10 +145,10 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
     });
 
     this.socket.on('disconnect', () => {
-      if (this.state !== EState.INIT) {
+      if (this.state !== EChatAccountState.IDLE) {
         this.errorMessage('Search was aborted', 'Your search was aborted because of a server restart');
       }
-      this.state = EState.INIT;
+      this.setState(EChatAccountState.IDLE);
       // this.socket.removeAllListeners();
     });
 
@@ -195,7 +187,7 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
 
   public cancelGameSearch() {
     this.socket.emit(EC2ServerMessage.PARTY_LEAVE);
-    this.state = EState.INIT;
+    this.setState(EChatAccountState.IDLE);
     this.stateSwitchCounter++;
     this.searchingTime = 0;
   }
@@ -211,5 +203,12 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
 
   public getChatAccounts(): Array<ChatAccount> {
     return Array.from(this.chatAccountMap.values());
+  }
+
+  private setState(state: EChatAccountState) {
+    if (state !== this.state) {
+      this.state = state;
+      this.socket.emit(EC2ServerMessage.CHAT_UPDATE_STATE, this.state);
+    }
   }
 }
