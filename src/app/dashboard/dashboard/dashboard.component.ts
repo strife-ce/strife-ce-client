@@ -154,6 +154,12 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
       }
     });
 
+    this.socket.on(ES2ClientMessage.MATCH_FINISHED, () => {
+      if (this.state === EChatAccountState.INGAME) {
+        this.setState(EChatAccountState.IDLE);
+      }
+    });
+
     this.socket.on('disconnect', () => {
       if (this.state !== EChatAccountState.IDLE) {
         this.errorMessage('Search was aborted', 'Your search was aborted because of a server restart');
