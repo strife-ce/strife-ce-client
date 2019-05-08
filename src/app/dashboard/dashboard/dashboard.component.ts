@@ -97,20 +97,15 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
       this.chatAccountMap.clear();
       for (const account of userlistMsg.accounts) {
         // this.messages.push({ message: 'this is a message from me @pad2', account: account, room: 'general' });
-        for (const message of this.messages) {
-          if (this.account && ((message.message as string).toLowerCase().indexOf('@' + this.account.name.toLowerCase()) >= 0 ||
-            (message.message as string).toLowerCase().indexOf('@all') >= 0 ||
-            (message.message as string).toLowerCase().indexOf('@everyone') >= 0 ||
-            (message.message as string).toLowerCase().indexOf('@everybody') >= 0)) {
-            message.highlight = true;
-          }
-        }
         this.chatAccountMap.set(account.id, account);
       }
     });
 
     this.socket.on(ES2ClientMessage.CHAT_MSG, message => {
-      if (this.account && (message.message as string).toLowerCase().indexOf('@' + this.account.name.toLowerCase()) >= 0) {
+      if (this.account && ((message.message as string).toLowerCase().indexOf('@' + this.account.name.toLowerCase()) >= 0 ||
+        (message.message as string).toLowerCase().indexOf('@all') >= 0 ||
+        (message.message as string).toLowerCase().indexOf('@everyone') >= 0 ||
+        (message.message as string).toLowerCase().indexOf('@everybody') >= 0)) {
         message.highlight = true;
       }
       this.messages.push(message);
@@ -151,7 +146,7 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
     });
 
     this.socket.on(ES2ClientMessage.MATCH_READY, (joinInfo: { secret: string, host: string, port: string }) => {
-      this.state = EChatAccountState.IDLE;
+      this.setState(EChatAccountState.INGAME);
       this.stateSwitchCounter++;
       if (window && (window as any).process) {
         const { ipcRenderer } = (<any>window).require('electron');
