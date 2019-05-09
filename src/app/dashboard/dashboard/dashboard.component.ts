@@ -57,8 +57,8 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
     defaultSelectedGameModes[EGameMode.MODE_5ON5] = true;
     this.selectedGameModes = JSON.parse(this.getSessionStorage('LAST_GAMEMODE_SELECTION', JSON.stringify(defaultSelectedGameModes)));
     this.queueStates = { [EGameMode.MODE_1ON1]: 0, [EGameMode.MODE_2ON2]: 0, [EGameMode.MODE_3ON3]: 0, [EGameMode.MODE_4ON4]: 0, [EGameMode.MODE_5ON5]: 0 };
-
-    this.accountService.getById((Parse.User.current() as User).account.id).then((account) => {
+console.log(Parse.User.current());
+    this.accountService.getCurrentAccount().then((account) => {
       this.account = account;
       console.warn(account);
     });
