@@ -189,6 +189,11 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
     }
   }
 
+  public cancelMatch() {
+    delete this.lastJoinInfo;
+    this.setState(EChatAccountState.IDLE);
+  }
+
   ngAfterViewChecked() {
     this.scrollChatToBottom();
   }
