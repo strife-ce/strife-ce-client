@@ -5,7 +5,7 @@ import { Component, OnInit, ElementRef, ViewChild, Injector, AfterViewChecked } 
 import * as io from 'socket.io-client';
 import { EC2ServerMessage, ES2ClientMessage, ChatAccount, EHeroEnum, HeroEnumText, EPetEnum, PetEnumText, PartyMember, Party, EGameMode, EAccountFlags, Account, User, EUserSettingEnum, MatchInfo } from 'app/data/models';
 import { View } from '@app/views/view';
-import { AccountService } from '@app/data/modelservices';
+import { AccountService, UserService } from '@app/data/modelservices';
 
 import { beep } from './sounds';
 
@@ -50,32 +50,31 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
   @ViewChild('sendMsgInput') sendMsgInput: ElementRef;
   @ViewChild('chatScrollContainer') private chatScrollContainer: ElementRef;
 
-  constructor(protected injector: Injector, private accountService: AccountService) {
+  constructor(protected injector: Injector, private accountService: AccountService, private userService: UserService) {
     super(injector);
   }
 
 
   public async ngOnInit() {
-    this.user = Parse.User.current() as User;
-    this.isChatAudioMuted = this.user.getSetting(EUserSettingEnum.CHAT_MUTE, false);
-    this.selectedHero = Number(this.getSessionStorage('LAST_HERO_SELECTION', EHeroEnum.BANDITO));
-    this.selectedPet = Number(this.getSessionStorage('LAST_PET_SELECTION', EPetEnum.BOUNDER));
-    const defaultSelectedGameModes = {};
-    defaultSelectedGameModes[EGameMode.MODE_1ON1] = true;
-    defaultSelectedGameModes[EGameMode.MODE_2ON2] = false;
-    defaultSelectedGameModes[EGameMode.MODE_3ON3] = false;
-    defaultSelectedGameModes[EGameMode.MODE_4ON4] = false;
-    defaultSelectedGameModes[EGameMode.MODE_5ON5] = true;
-    this.selectedGameModes = JSON.parse(this.getSessionStorage('LAST_GAMEMODE_SELECTION', JSON.stringify(defaultSelectedGameModes)));
-    this.queueStates = { [EGameMode.MODE_1ON1]: 0, [EGameMode.MODE_2ON2]: 0, [EGameMode.MODE_3ON3]: 0, [EGameMode.MODE_4ON4]: 0, [EGameMode.MODE_5ON5]: 0 };
-
-    this.accountService.getById(this.user.account.id).then((account) => {
-      this.account = account;
-    });
-
     this.chatDisabled = false;
     this.chatAccountMap = new Map();
     this.messages = new Array();
+    this.selectedGameModes = { [EGameMode.MODE_1ON1]: true, [EGameMode.MODE_2ON2]: false, [EGameMode.MODE_3ON3]: false, [EGameMode.MODE_4ON4]: false, [EGameMode.MODE_5ON5]: true };
+
+    this.userService.getCurrentUser().then(user => {
+      this.user = user;
+      this.isChatAudioMuted = this.user.getSetting(EUserSettingEnum.CHAT_MUTE, false);
+      this.selectedHero = Number(this.user.getSetting(EUserSettingEnum.LAST_HERO_SELECTION, EHeroEnum.BANDITO));
+      this.selectedPet = Number(this.user.getSetting(EUserSettingEnum.LAST_PET_SELECTION, EPetEnum.BOUNDER));
+      this.selectedGameModes = JSON.parse(this.user.getSetting(EUserSettingEnum.LAST_GAMEMODE_SELECTION, JSON.stringify(this.selectedGameModes)));
+    });
+
+    this.queueStates = { [EGameMode.MODE_1ON1]: 0, [EGameMode.MODE_2ON2]: 0, [EGameMode.MODE_3ON3]: 0, [EGameMode.MODE_4ON4]: 0, [EGameMode.MODE_5ON5]: 0 };
+
+    this.accountService.getCurrentAccount().then((account) => {
+      this.account = account;
+    });
+
     this.socket = io.connect(environment.LIVESERVER_URL);
     this.socket.on('connect', () => {
       this.socket.emit(EC2ServerMessage.AUTH_REQUEST, Parse.User.current().getSessionToken());
@@ -213,9 +212,9 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
   }
 
   public startGameSearch() {
-    this.setSessionStorage('LAST_HERO_SELECTION', this.selectedHero);
-    this.setSessionStorage('LAST_PET_SELECTION', this.selectedPet);
-    this.setSessionStorage('LAST_GAMEMODE_SELECTION', JSON.stringify(this.selectedGameModes));
+    this.user.setSetting(EUserSettingEnum.LAST_HERO_SELECTION, this.selectedHero);
+    this.user.setSetting(EUserSettingEnum.LAST_PET_SELECTION, this.selectedPet);
+    this.user.setSetting(EUserSettingEnum.LAST_GAMEMODE_SELECTION, JSON.stringify(this.selectedGameModes), true);
     let gameModes = 0;
     for (const val of this.getEnumValues(EGameMode)) {
       if (this.selectedGameModes[val]) {

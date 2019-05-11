@@ -33,7 +33,7 @@ export abstract class View implements OnInit, OnDestroy, AfterViewInit {
   public navigate(path: string) {
     this.injector.get(Router).navigate([path], { relativeTo: this.injector.get(ActivatedRoute) });
   }
-
+/*
   public setSessionStorage(key: string, value: any) {
     sessionStorage.setItem(key, value);
   }
@@ -42,7 +42,7 @@ export abstract class View implements OnInit, OnDestroy, AfterViewInit {
     const value = sessionStorage.getItem(key);
     return ((value) ? value : defaultValue) as T;
   }
-
+*/
   public errorMessage(title: string, message?: string) {
     this.injector.get(ToastrService).error(message, title);
   }
