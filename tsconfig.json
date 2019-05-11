@@ -5,6 +5,7 @@
     "noImplicitAny": false,
     "sourceMap": true,
     "declaration": false,
+    "resolveJsonModule":true,
     "moduleResolution": "node",
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,

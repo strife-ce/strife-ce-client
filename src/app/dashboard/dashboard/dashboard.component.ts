@@ -3,9 +3,13 @@ import { environment } from 'app/data/common-imports';
 import { Parse } from 'app/data/services';
 import { Component, OnInit, ElementRef, ViewChild, Injector, AfterViewChecked } from '@angular/core';
 import * as io from 'socket.io-client';
-import { EC2ServerMessage, ES2ClientMessage, ChatAccount, EHeroEnum, HeroEnumText, EPetEnum, PetEnumText, PartyMember, Party, EGameMode, EAccountFlags, Account, User } from 'app/data/models';
+import { EC2ServerMessage, ES2ClientMessage, ChatAccount, EHeroEnum, HeroEnumText, EPetEnum, PetEnumText, PartyMember, Party, EGameMode, EAccountFlags, Account, User, EUserSettingEnum, MatchInfo } from 'app/data/models';
 import { View } from '@app/views/view';
 import { AccountService } from '@app/data/modelservices';
+
+import { beep } from './sounds';
+
+interface IJoinInfo { secret: string; host: string; port: string; }
 
 @Component({
   templateUrl: './dashboard.component.html',
@@ -22,6 +26,7 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
   public EGameMode = EGameMode;
   public EAccountFlags = EAccountFlags;
   public EChatAccountState = EChatAccountState;
+  public EUserSettingEnum = EUserSettingEnum;
 
   public Array = Array;
   public chatDisabled = true;
@@ -30,9 +35,13 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
   public searchingTime = 0;
   public selectedGameModes = {};
   public queueStates = {};
+  public isChatAudioMuted: boolean;
   private party: Party;
   private partyMember: PartyMember;
   private account: Account;
+  private beepAudio = new Audio(beep);
+  public user: User;
+  private lastJoinInfo: IJoinInfo = null;
 
   public state: EChatAccountState;
 
@@ -47,6 +56,8 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
 
 
   public async ngOnInit() {
+    this.user = Parse.User.current() as User;
+    this.isChatAudioMuted = this.user.getSetting(EUserSettingEnum.CHAT_MUTE, false);
     this.selectedHero = Number(this.getSessionStorage('LAST_HERO_SELECTION', EHeroEnum.BANDITO));
     this.selectedPet = Number(this.getSessionStorage('LAST_PET_SELECTION', EPetEnum.BOUNDER));
     const defaultSelectedGameModes = {};
@@ -58,9 +69,8 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
     this.selectedGameModes = JSON.parse(this.getSessionStorage('LAST_GAMEMODE_SELECTION', JSON.stringify(defaultSelectedGameModes)));
     this.queueStates = { [EGameMode.MODE_1ON1]: 0, [EGameMode.MODE_2ON2]: 0, [EGameMode.MODE_3ON3]: 0, [EGameMode.MODE_4ON4]: 0, [EGameMode.MODE_5ON5]: 0 };
 
-    this.accountService.getById((Parse.User.current() as User).account.id).then((account) => {
+    this.accountService.getById(this.user.account.id).then((account) => {
       this.account = account;
-      console.warn(account);
     });
 
     this.chatDisabled = false;
@@ -107,6 +117,7 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
         (message.message as string).toLowerCase().indexOf('@everyone') >= 0 ||
         (message.message as string).toLowerCase().indexOf('@everybody') >= 0)) {
         message.highlight = true;
+        this.playSoundNotification();
       }
       this.messages.push(message);
     });
@@ -145,13 +156,11 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
       }, 30000);
     });
 
-    this.socket.on(ES2ClientMessage.MATCH_READY, (joinInfo: { secret: string, host: string, port: string }) => {
+    this.socket.on(ES2ClientMessage.MATCH_READY, (joinInfo: IJoinInfo) => {
       this.setState(EChatAccountState.INGAME);
       this.stateSwitchCounter++;
-      if (window && (window as any).process) {
-        const { ipcRenderer } = (<any>window).require('electron');
-        ipcRenderer.send('start-strife', { host: joinInfo.host, port: joinInfo.port, secret: joinInfo.secret });
-      }
+      this.lastJoinInfo = joinInfo;
+      this.joinMatch(this.lastJoinInfo);
     });
 
     this.socket.on(ES2ClientMessage.MATCH_FINISHED, () => {
@@ -171,6 +180,16 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
     this.scrollChatToBottom();
   }
 
+  public joinMatch(joinInfo: IJoinInfo) {
+    if (!joinInfo) {
+      joinInfo = this.lastJoinInfo;
+    }
+    if (window && (window as any).process) {
+      const { ipcRenderer } = (<any>window).require('electron');
+      ipcRenderer.send('start-strife', { host: joinInfo.host, port: joinInfo.port, secret: joinInfo.secret });
+    }
+  }
+
   ngAfterViewChecked() {
     this.scrollChatToBottom();
   }
@@ -180,6 +199,17 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
       this.socket.emit(EC2ServerMessage.CHAT_MSG, { message: this.sendMsgInput.nativeElement.value, room: 'general' });
       this.sendMsgInput.nativeElement.value = '';
     }
+  }
+
+  public playSoundNotification() {
+    if (!this.isChatAudioMuted) {
+      this.beepAudio.play();
+    }
+  }
+
+  public toggleMute() {
+    this.isChatAudioMuted = !this.isChatAudioMuted;
+    this.user.setSetting(EUserSettingEnum.CHAT_MUTE, this.isChatAudioMuted, true);
   }
 
   public startGameSearch() {

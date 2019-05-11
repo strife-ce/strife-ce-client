@@ -7,9 +7,9 @@
     <a target="_blank" href="https://www.patreon.com/bePatron?u=19872450"
       data-patreon-widget-type="become-patron-button">
       <img src="assets/images/patreon_button.png" style="height:44px; margin-left: -8px" /></a>
-    <div class="card" style="border-radius:0px; border-right:none">
+    <div class="card" style="border-radius:0px; border-right:none; height:700px;">
       <div class="card-header">Users in Chat</div>
-      <div class="card-body p-0" style="height:650px;">
+      <div class="card-body p-0">
         <ul id="onlineUsers" class="list-group list-group-flush"></ul>
         <div style="height:10px"></div>
         <div *ngFor="let chatAccount of getChatAccounts()">
@@ -24,6 +24,12 @@
               [class]="'float-right fa fa-' + chatAccount.stateIcon" style="margin-right: 10px; color: #bbb"></span>
           </span>
         </div>
+      </div>
+      <div class="card-footer">
+        <a *ngIf="!isChatAudioMuted" (click)="toggleMute()" style="font-size: 12px; color:#aaa"><span
+            class="fa fa-volume-up"></span>&nbsp; sound notifications on</a>
+        <a *ngIf="isChatAudioMuted" (click)="toggleMute()" style="font-size: 12px; color:#aaa"><span
+            class="fa fa-volume-mute"></span>&nbsp; sound notifications off</a>
       </div>
     </div>
   </div>
@@ -67,6 +73,13 @@
           <h5 class="card-title" style="margin:4px 0px">News</h5>
         </div>
         <div class="card-body" style="overflow-y:auto; height: 370px; font-size: 14px">
+          Changes in v0.1.0:<br>
+          <ul>
+            <li>Matches don't end anymore after a player left</li>
+            <li>Reconnecting to a match is now possible</li>
+            <li>Audio alerts on receiving a @-tagged message</li>
+            <li>Remembering latest hero and pet selection</li>
+          </ul>
           Changes in v0.0.4:<br>
           <ul>
             <li>Added player state indicators</li>
@@ -127,7 +140,7 @@
             </div>
           </div>
           <div class="card-body">
-            <div *ngIf="state != EChatAccountState.QUEUE">
+            <div *ngIf="state == EChatAccountState.IDLE">
               Select one or multiple gamemodes: <br />
 
               <ng-toggle onColor="success" offColor="light" size="sm"
@@ -188,7 +201,7 @@
               </div>
 
             </div>
-            <div *ngIf="state == EChatAccountState.QUEUE">
+            <div *ngIf="state == EChatAccountState.QUEUE || state == EChatAccountState.PREPARING_MATCH">
               <div class="row">
                 <div class="col-6">
                   Gamemodes:
@@ -218,6 +231,38 @@
               <div style="text-align:left">Searching for players, please wait... {{searchingTime}} seconds</div>
               <br />
               <button class="btn btn-danger btn-block" (click)="cancelGameSearch()">Abort searching</button>
+            </div>
+
+            <div *ngIf="state == EChatAccountState.INGAME">
+              <div class="row">
+                <div class="col-6">
+                  Gamemodes:
+                </div>
+                <div class="col-6">
+                  <b>
+                    {{selectedGameModes[EGameMode.MODE_1ON1]? '1vs1':''}}
+                    {{selectedGameModes[EGameMode.MODE_2ON2]? '2vs2':''}}
+                    {{selectedGameModes[EGameMode.MODE_3ON3]? '3vs3':''}}
+                    {{selectedGameModes[EGameMode.MODE_5ON5]? '5vs5':''}}
+                  </b>
+                </div>
+                <div class="col-6">
+                  Hero:
+                </div>
+                <div class="col-6">
+                  <b>{{HeroEnumText.get(selectedHero)}}</b>
+                </div>
+                <div class="col-6">
+                  Pet:
+                </div>
+                <div class="col-6">
+                  <b>{{PetEnumText.get(selectedPet)}}</b>
+                </div>
+              </div>
+              <br /><br />
+              <div style="text-align:left">You left a running game. Please reconnect!</div>
+              <br />
+              <button class="btn btn-primary btn-block" (click)="joinMatch()">Rejoin the game</button>
             </div>
           </div>
         </div>

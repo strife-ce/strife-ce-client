@@ -1,5 +1,6 @@
 a {
-  color:#e64825
+  color:#e64825;
+  cursor: pointer;
 }
 
 a:hover {
