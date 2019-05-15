@@ -25,3 +25,8 @@ File: scss
 @import 'responsive';
 
 @import '~ngx-toastr/toastr-bs4-alert';
+
+.progress {
+  border-radius: 0px !important;
+  background-color: #888;
+}

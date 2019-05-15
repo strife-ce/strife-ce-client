@@ -6,6 +6,7 @@ import * as io from 'socket.io-client';
 import { EC2ServerMessage, ES2ClientMessage, ChatAccount, EHeroEnum, HeroEnumText, EPetEnum, PetEnumText, PartyMember, Party, EGameMode, EAccountFlags, Account, User, EUserSettingEnum, MatchInfo } from 'app/data/models';
 import { View } from '@app/views/view';
 import { AccountService, UserService } from '@app/data/modelservices';
+import { HttpClient } from '@angular/common/http';
 
 import { beep } from './sounds';
 
@@ -50,7 +51,7 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
   @ViewChild('sendMsgInput') sendMsgInput: ElementRef;
   @ViewChild('chatScrollContainer') private chatScrollContainer: ElementRef;
 
-  constructor(protected injector: Injector, private accountService: AccountService, private userService: UserService) {
+  constructor(protected injector: Injector, private accountService: AccountService, private userService: UserService, private http: HttpClient) {
     super(injector);
   }
 
@@ -177,6 +178,8 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
     });
 
     this.scrollChatToBottom();
+
+    this.http.get('https://www.patreon.com/strife_ce').subscribe((data) => console.log(data));
   }
 
   public joinMatch(joinInfo: IJoinInfo) {

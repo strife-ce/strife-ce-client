@@ -4,12 +4,9 @@
 </div>
 <div class="row">
   <div class="col-md-2" style="padding:0px;">
-    <a target="_blank" href="https://www.patreon.com/bePatron?u=19872450"
-      data-patreon-widget-type="become-patron-button">
-      <img src="assets/images/patreon_button.png" style="height:44px; margin-left: -8px" /></a>
-    <div class="card" style="border-radius:0px; border-right:none; height:700px;">
+    <div class="card" style="border-radius:0px; border-right:none; height:656px;">
       <div class="card-header">Users in Chat</div>
-      <div class="card-body p-0">
+      <div class="card-body p-0" style="overflow-y: auto">
         <ul id="onlineUsers" class="list-group list-group-flush"></ul>
         <div style="height:10px"></div>
         <div *ngFor="let chatAccount of getChatAccounts()">
@@ -21,7 +18,8 @@
               </a>
             </span>
             {{chatAccount.name}} <span *ngIf="chatAccount.stateIcon"
-              [class]="'float-right fa fa-' + chatAccount.stateIcon" style="position:absolute; right: 10px; margin-top:2px; color: #bbb"></span>
+              [class]="'float-right fa fa-' + chatAccount.stateIcon"
+              style="position:absolute; right: 10px; margin-top:2px; color: #bbb"></span>
           </span>
         </div>
       </div>
@@ -32,6 +30,13 @@
             class="fa fa-volume-mute"></span>&nbsp; sound notifications off</a>
       </div>
     </div>
+    <a target="_blank" href="https://www.patreon.com/bePatron?u=19872450"
+      data-patreon-widget-type="become-patron-button">
+      <ngb-progressbar type="primary" [value]="58" [striped]="true" [animated]="false" height="44px">
+          <div style="margin-left: 10px; font-weight:500">Server cost covered: 41$
+            of 70$</div></ngb-progressbar>
+      <img src="assets/images/patreon_button.png" style="height:44px; margin-left: -8px;" />
+    </a>
   </div>
   <div class="col-md-6" style="padding:0px;">
     <div id="chatbox">
@@ -73,6 +78,17 @@
           <h5 class="card-title" style="margin:4px 0px">News</h5>
         </div>
         <div class="card-body" style="overflow-y:auto; height: 370px; font-size: 14px">
+          Changes in v0.1.1:<br>
+          <ul>
+            <li><b>Ingame Chat</b> is now working</li>
+            <li>Ingame Chat to all via prefixed exclamation mark (example: !Hello everyone)</li>
+            <li>Increased performance of Gameservers (running now in a <b>datacenter</b>)</li>
+            <li>Added operation cost coverage bar</li>
+            <li>Fixed Shop Bug for fresh installations</li>
+            <li>Fixed overflowing Chat User-List</li>
+            <!--<li>Fixed Testbutton bug</li>-->
+
+          </ul>
           Changes in v0.1.0:<br>
           <ul>
             <li>Matches don't end anymore after a player left</li>
@@ -262,7 +278,8 @@
               <br /><br />
               <div style="text-align:left">You left a running game. Please reconnect!</div>
               <br />
-              <button class="btn btn-primary" style="width:252px; margin-right:10px" (click)="joinMatch()">Rejoin the game</button>
+              <button class="btn btn-primary" style="width:252px; margin-right:10px" (click)="joinMatch()">Rejoin the
+                game</button>
               <button class="btn btn-danger" (click)="cancelMatch()">Abort game</button>
             </div>
           </div>
