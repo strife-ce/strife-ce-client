@@ -32,11 +32,22 @@
     </div>
     <a target="_blank" href="https://www.patreon.com/bePatron?u=19872450"
       data-patreon-widget-type="become-patron-button">
-      <ngb-progressbar type="primary" [value]="58" [striped]="true" [animated]="false" height="44px">
-          <div style="margin-left: 10px; font-weight:500">Server cost covered: 41$
-            of 70$</div></ngb-progressbar>
-      <img src="assets/images/patreon_button.png" style="height:44px; margin-left: -8px;" />
+      <ngb-progressbar type="primary" [value]="Math.ceil(patreonData.pledge_sum/70) " [striped]="true" [animated]="false"
+        height="44px">
+        <div style="position:absolute; font-weight:500; width:100%; font-size: 11px">Server cost covered By
+          Patreon:<br />
+          <span style="font-size:14px">{{Math.ceil(patreonData.pledge_sum / 100)}}$ of 70$</span></div>
+      </ngb-progressbar>
     </a>
+    <a target="_blank" href="https://www.patreon.com/bePatron?u=19872450"
+      style="display:inline-block; overflow:hidden; width:106px;">
+      <img src="assets/images/patreon_button.png" style="height:44px; margin-left: -110px;" />
+    </a>
+    <a target="_blank" href="https://www.paypal.me/strifece"
+      style="display:inline-block; overflow:hidden; width:106px;">
+      <img src="assets/images/paypal.png" style="height:44px; margin-left: 10px;" />
+    </a>
+
   </div>
   <div class="col-md-6" style="padding:0px;">
     <div id="chatbox">
@@ -78,6 +89,14 @@
           <h5 class="card-title" style="margin:4px 0px">News</h5>
         </div>
         <div class="card-body" style="overflow-y:auto; height: 370px; font-size: 14px">
+          Changes in v0.1.2:<br>
+          <ul>
+            <li>Added a set of <b>94 preselected crafted</b> items to the shop (thanks to <b>treehead</b> and <b>Neo1171</b> for preparing this!). If you want to request the addition of an crafted item, talk to Neo1171 on Discord!</li>
+            <li>Added Paypal-Button for one-time donators</li>
+            <li>Fixed "one player multiple times in game"-bug</li>
+            <li>Fixed Testbutton bug</li>
+
+          </ul>
           Changes in v0.1.1:<br>
           <ul>
             <li><b>Ingame Chat</b> is now working</li>

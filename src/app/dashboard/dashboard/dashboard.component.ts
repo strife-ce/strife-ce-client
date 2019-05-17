@@ -43,6 +43,7 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
   private beepAudio = new Audio(beep);
   public user: User;
   private lastJoinInfo: IJoinInfo = null;
+  public patreonData = { pledge_sum: 0 };
 
   public state: EChatAccountState;
 
@@ -179,7 +180,19 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
 
     this.scrollChatToBottom();
 
-    this.http.get('https://www.patreon.com/strife_ce').subscribe((data) => console.log(data));
+    this.http.get(environment.PARSE.URL.replace('/parse', '') + '/patreon').subscribe((data) => {
+      if (!isNaN((data as any).pledge_sum)) {
+        this.patreonData = data as any;
+      }
+    });
+
+    setTimeout(() => {
+      this.http.get(environment.PARSE.URL.replace('/parse', '') + '/patreon').subscribe((data) => {
+        if (!isNaN((data as any).pledge_sum)) {
+          this.patreonData = data as any;
+        }
+      });
+    }, 60 * 1000);
   }
 
   public joinMatch(joinInfo: IJoinInfo) {
