@@ -32,8 +32,8 @@
     </div>
     <a target="_blank" href="https://www.patreon.com/bePatron?u=19872450"
       data-patreon-widget-type="become-patron-button">
-      <ngb-progressbar type="primary" [value]="Math.ceil(patreonData.pledge_sum/70) " [striped]="true" [animated]="false"
-        height="44px">
+      <ngb-progressbar type="primary" [value]="Math.ceil(patreonData.pledge_sum/70) " [striped]="true"
+        [animated]="false" height="44px">
         <div style="position:absolute; font-weight:500; width:100%; font-size: 11px">Server cost covered By
           Patreon:<br />
           <span style="font-size:14px">{{Math.ceil(patreonData.pledge_sum / 100)}}$ of 70$</span></div>
@@ -50,11 +50,21 @@
 
   </div>
   <div class="col-md-6" style="padding:0px;">
+
     <div id="chatbox">
       <div class="card" style="border-radius:0px">
-        <div class="card-body">
-          <dl id="messageList" style="height:637px;overflow: auto" #chatScrollContainer>
-            <div *ngFor="let msg of messages" [style.background-color]="msg.highlight ? '#dbe4f5': ''">
+        <div style=" margin: 5px 5px 0px 5px; box-sizing: border-box; height: 100px; background-color:#F7F7F7" *ngIf="this.chatAccount && !this.chatAccount.icon" >
+          <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+          <!-- responsive -->
+          <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-8248851277942593"
+            data-ad-slot="5562642351" data-ad-format="auto" data-full-width-responsive="true"></ins>
+          <script>
+            (adsbygoogle = window.adsbygoogle || []).push({});
+          </script>
+        </div>
+        <div class="card-body" style="padding-top:10px">
+          <dl id="messageList" style="overflow: auto" [style.height.px]="(this.chatAccount && !this.chatAccount.icon) ? 524 : 524 + 110" #chatScrollContainer>
+            <div class="msg" *ngFor="let msg of messages" [style.background-color]="msg.highlight ? '#dbe4f5': ''" [ngbTooltip]="'By ' + msg.account.name + ' at ' + msg.arrivedAt" placement="top">
               <b>
                 <span style="width: 16px; height:16px; display: inline-block" *ngIf="msg.account.icon">
                   <a href="https://www.patreon.com/strife_ce"
@@ -91,7 +101,9 @@
         <div class="card-body" style="overflow-y:auto; height: 370px; font-size: 14px">
           Changes in v0.1.2:<br>
           <ul>
-            <li>Added a set of <b>94 preselected crafted</b> items to the shop (thanks to <b>treehead</b> and <b>Neo1171</b> for preparing this!). If you want to request the addition of an crafted item, talk to Neo1171 on Discord!</li>
+            <li>Added a set of <b>94 preselected crafted</b> items to the shop (thanks to <b>treehead</b> and
+              <b>Neo1171</b> for preparing this!). If you want to request the addition of an crafted item, talk to
+              Neo1171 on Discord!</li>
             <li>Added Paypal-Button for one-time donators</li>
             <li>Fixed "one player multiple times in game"-bug</li>
             <li>Fixed Testbutton bug</li>
@@ -146,7 +158,7 @@
       </div>
       <div style="position:absolute; bottom: 0px; height: 303px">
         <div class="card" style="border: none">
-          <div class="card-header" style="border-top: 1px solid rgba(0, 0, 0, 0.125)">
+          <div class="card-header" style="border-top: 1px solid rgba(0, 0, 0, 0.125);">
             <h5 class="card-title" style="margin:4px 0px">Play</h5>
             <div style="position:absolute; right: 15px; margin-top: -44px">
               <circle-progress [percent]="queueStates[EGameMode.MODE_1ON1]/2*100" [radius]="20" [outerStrokeWidth]="3"
@@ -173,6 +185,16 @@
                 [title]="queueStates[EGameMode.MODE_5ON5]" subtitle="5vs5&nbsp;&nbsp;" units="" [startFromZero]="false">
               </circle-progress>
             </div>
+          </div>
+          <div class="card-header" style="background-color: #f3f3f3">
+            <ul class="nav nav-tabs card-header-tabs">
+              <li class="nav-item">
+                <a class="nav-link active" href="#">Active</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
+              </li>
+            </ul>
           </div>
           <div class="card-body">
             <div *ngIf="state == EChatAccountState.IDLE">

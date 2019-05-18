@@ -40,6 +40,7 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
   private party: Party;
   private partyMember: PartyMember;
   private account: Account;
+  public chatAccount: ChatAccount = null;
   private beepAudio = new Audio(beep);
   public user: User;
   private lastJoinInfo: IJoinInfo = null;
@@ -75,6 +76,7 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
 
     this.accountService.getCurrentAccount().then((account) => {
       this.account = account;
+      this.chatAccount = new ChatAccount(account);
     });
 
     this.socket = io.connect(environment.LIVESERVER_URL);
@@ -120,6 +122,7 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
         message.highlight = true;
         this.playSoundNotification();
       }
+      message.arrivedAt = new Date().toLocaleString().split(',')[1].trim();
       this.messages.push(message);
     });
 
