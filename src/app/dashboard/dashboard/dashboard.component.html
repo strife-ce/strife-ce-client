@@ -63,7 +63,7 @@
           </script>
         </div>
         <div class="card-body" style="padding-top:10px">
-          <dl id="messageList" style="overflow: auto" [style.height.px]="(this.chatAccount && !this.chatAccount.icon) ? 524 : 524 + 110" #chatScrollContainer>
+          <dl id="messageList" style="overflow: auto" [style.height.px]="(this.chatAccount && !this.chatAccount.icon) ? 537 : 537 + 105" #chatScrollContainer>
             <div class="msg" *ngFor="let msg of messages" [style.background-color]="msg.highlight ? '#dbe4f5': ''" [ngbTooltip]="'By ' + msg.account.name + ' at ' + msg.arrivedAt" placement="top">
               <b>
                 <span style="width: 16px; height:16px; display: inline-block" *ngIf="msg.account.icon">
