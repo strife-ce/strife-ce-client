@@ -122,7 +122,14 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
         message.highlight = true;
         this.playSoundNotification();
       }
-      message.arrivedAt = new Date().toLocaleString().split(',')[1].trim();
+      let arrivedAt = new Date().toLocaleString();
+      if (arrivedAt.indexOf(',') >= 0) {
+        arrivedAt = arrivedAt.split(',')[1].trim();
+      } else if(arrivedAt.indexOf(' ')) {
+        const parts = arrivedAt.split(' ');
+        arrivedAt = parts[parts.length - 1];
+      }
+      message.arrivedAt = arrivedAt.trim();
       this.messages.push(message);
     });
 
@@ -189,7 +196,7 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
       }
     });
 
-    setTimeout(() => {
+    setInterval(() => {
       this.http.get(environment.PARSE.URL.replace('/parse', '') + '/patreon').subscribe((data) => {
         if (!isNaN((data as any).pledge_sum)) {
           this.patreonData = data as any;
