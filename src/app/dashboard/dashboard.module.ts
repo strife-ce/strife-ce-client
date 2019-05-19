@@ -9,6 +9,7 @@ import { DashboardComponent } from '@app/dashboard/dashboard/dashboard.component
 import { NgToggleModule } from '@nth-cloud/ng-toggle';
 import { NgCircleProgressModule } from 'ng-circle-progress';
 import { AccountService, UserService } from '@app/data/modelservices';
+import { AdsenseModule } from 'ng2-adsense';
 
 @NgModule({
   imports: [
@@ -17,7 +18,11 @@ import { AccountService, UserService } from '@app/data/modelservices';
     NgbModule,
     NgToggleModule,
     RouterModule.forChild(DashboardRoutes),
-    NgCircleProgressModule.forRoot()
+    NgCircleProgressModule.forRoot(),
+    AdsenseModule.forRoot({
+      adClient: 'ca-pub-8248851277942593',
+      adSlot:'5670932491'
+    })
   ],
   declarations: [DashboardComponent],
   providers: [
