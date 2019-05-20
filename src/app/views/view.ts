@@ -33,16 +33,16 @@ export abstract class View implements OnInit, OnDestroy, AfterViewInit {
   public navigate(path: string) {
     this.injector.get(Router).navigate([path], { relativeTo: this.injector.get(ActivatedRoute) });
   }
-/*
-  public setSessionStorage(key: string, value: any) {
-    sessionStorage.setItem(key, value);
-  }
+  /*
+    public setSessionStorage(key: string, value: any) {
+      sessionStorage.setItem(key, value);
+    }
 
-  public getSessionStorage<T>(key: string, defaultValue: T): T {
-    const value = sessionStorage.getItem(key);
-    return ((value) ? value : defaultValue) as T;
-  }
-*/
+    public getSessionStorage<T>(key: string, defaultValue: T): T {
+      const value = sessionStorage.getItem(key);
+      return ((value) ? value : defaultValue) as T;
+    }
+  */
   public errorMessage(title: string, message?: string) {
     this.injector.get(ToastrService).error(message, title);
   }
@@ -57,6 +57,16 @@ export abstract class View implements OnInit, OnDestroy, AfterViewInit {
 
   public getEnumValues(enumType: any): Array<number> {
     return Object.keys(enumType).filter((type) => !isNaN(<any>type) && type !== 'values').map<number>((value, index, array) => Number(value));
+  }
+
+  public getAttributes(value: any): Array<any> {
+    const array = [];
+    for (const attr in value) {
+      if (value.hasOwnProperty(attr)) {
+        array.push(value[attr]);
+      }
+    }
+    return array;
   }
 
   protected addSub(subscription: Subscription) {

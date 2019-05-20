@@ -6,9 +6,9 @@
   <div class="col-md-2" style="padding:0px;">
     <div class="card" style="border-radius:0px; border-right:none; height:658px;">
       <div class="card-header">
-          <h5 class="card-title" style="margin:6px 0px 5px 0px">Users in Chat</h5></div>
-      <div class="card-body p-0" style="overflow-y: auto">
-        <ul id="onlineUsers" class="list-group list-group-flush"></ul>
+        <h5 class="card-title" style="margin:6px 0px 5px 0px">Users in Chat ({{getChatAccounts().length}})</h5>
+      </div>
+      <div class="card-body p-0" style="overflow-y: auto; position:relative">
         <div style="height:10px"></div>
         <div *ngFor="let chatAccount of getChatAccounts()">
           <span style="padding: 5px 6px">
@@ -18,8 +18,7 @@
                 <img [src]="'assets/images/icons/' + chatAccount.icon +'.png'" style="width:16px; margin-top:-5px;" />
               </a>
             </span>
-            {{chatAccount.name}} <span *ngIf="chatAccount.stateIcon"
-              [class]="'float-right fa fa-' + chatAccount.stateIcon"
+            {{chatAccount.name}} <span *ngIf="chatAccount.stateIcon" [class]="'fa fa-' + chatAccount.stateIcon"
               style="position:absolute; right: 10px; margin-top:2px; color: #bbb"></span>
           </span>
         </div>
@@ -54,22 +53,16 @@
 
     <div id="chatbox">
       <div class="card" style="border-radius:0px">
-        <div style="box-sizing: border-box; height: 60px; background-color:#F7F7F7; border-bottom: 1px solid #eee; position:relative"
+        <div
+          style="box-sizing: border-box; height: 60px; background-color:#F7F7F7; border-bottom: 1px solid #eee; position:relative"
           *ngIf="this.chatAccount && !this.chatAccount.icon">
           <!-- strife -->
-          <ng-adsense
-            [display]="'inline-block'"
-            [width]="468"
-            [height]="60">
-          </ng-adsense>
-          <div style="position: absolute; top:0px; box-sizing:border-box; right:0px; width: 170px; height:60px; padding:12px; font-size:13px;">
-            You want no ads? <br/>
+          <div
+            style="position: absolute; top:0px; box-sizing:border-box; right:0px; width: 170px; height:60px; padding:12px; font-size:13px;">
+            You want no ads? <br />
             <a target="_blank" href="https://www.patreon.com/bePatron?u=19872450"
-            data-patreon-widget-type="become-patron-button">Become a Patreon</a>
+              data-patreon-widget-type="become-patron-button">Become a Patreon</a>
           </div>
-
-          <!--<ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-8248851277942593"
-            data-ad-slot="5562642351" data-ad-format="auto" data-full-width-responsive="true"></ins>-->
         </div>
         <div class="card-body" style="padding-top:10px">
           <dl id="messageList" style="overflow: auto"
@@ -109,7 +102,7 @@
         <div class="card-header">
           <h5 class="card-title" style="margin:6px 0px">News</h5>
         </div>
-        <div class="card-body" style="overflow-y:auto; height: 370px; font-size: 14px">
+        <div class="card-body" style="overflow-y:auto; height: 334px; font-size: 14px">
           Changes in v0.1.2:<br>
           <ul>
             <li>Added a set of <b>94 preselected crafted</b> items to the shop (thanks to <b>treehead</b> and
@@ -167,7 +160,7 @@
           </ul>
         </div>
       </div>
-      <div style="position:absolute; bottom: 0px; height: 303px">
+      <div style="position:absolute; bottom: 0px; height: 358px; width:100%">
         <div class="card" style="border: none">
           <div class="card-header" style="border-top: 1px solid rgba(0, 0, 0, 0.125);">
             <h5 class="card-title" style="margin:4px 0px">Play</h5>
@@ -197,54 +190,17 @@
               </circle-progress>
             </div>
           </div>
-          <!--<div class="card-header" style="background-color: #f3f3f3">
+          <div class="card-header" style="background-color: #f3f3f3">
+            <div></div>
             <ul class="nav nav-tabs card-header-tabs">
-              <li class="nav-item">
-                <a class="nav-link active" href="#">Active</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
+              <li class="nav-item" *ngFor="let tab of getAttributes(playTabs)">
+                <a [class]="'nav-link' + ((tab.active) ? ' active' :'')  + ((tab.disabled) ? ' disabled' :'')"
+                  (click)="switchTab(playTabs, tab)">{{tab.name}}</a>
               </li>
             </ul>
-          </div>-->
+          </div>
           <div class="card-body">
-            <div *ngIf="state == EChatAccountState.IDLE">
-              Select one or multiple gamemodes: <br />
-
-              <ng-toggle onColor="success" offColor="light" size="sm"
-                [(ngModel)]="selectedGameModes[EGameMode.MODE_1ON1]">
-                <ng-template ngToggleLabel forLabel="on"><span class="fa fa-check-circle"></span>&nbsp;&nbsp;1vs1
-                </ng-template>
-                <ng-template ngToggleLabel forLabel="off"><span class="fa fa-times-circle"></span>&nbsp;&nbsp;1vs1
-                </ng-template>
-              </ng-toggle>
-              &nbsp;
-              <ng-toggle onColor="success" offColor="light" size="sm"
-                [(ngModel)]="selectedGameModes[EGameMode.MODE_2ON2]">
-                <ng-template ngToggleLabel forLabel="on"><span class="fa fa-check-circle"></span>&nbsp;&nbsp;2vs2
-                </ng-template>
-                <ng-template ngToggleLabel forLabel="off"><span class="fa fa-times-circle"></span>&nbsp;&nbsp;2vs2
-                </ng-template>
-              </ng-toggle>
-              &nbsp;
-              <ng-toggle onColor="success" offColor="light" size="sm"
-                [(ngModel)]="selectedGameModes[EGameMode.MODE_3ON3]">
-                <ng-template ngToggleLabel forLabel="on"><span class="fa fa-check-circle"></span>&nbsp;&nbsp;3vs3
-                </ng-template>
-                <ng-template ngToggleLabel forLabel="off"><span class="fa fa-times-circle"></span>&nbsp;&nbsp;3vs3
-                </ng-template>
-              </ng-toggle>
-              &nbsp;
-              <ng-toggle onColor="success" offColor="light" size="sm"
-                [(ngModel)]="selectedGameModes[EGameMode.MODE_5ON5]">
-                <ng-template ngToggleLabel forLabel="on"><span class="fa fa-check-circle"></span>&nbsp;&nbsp;5vs5
-                </ng-template>
-                <ng-template ngToggleLabel forLabel="off"><span class="fa fa-times-circle"></span>&nbsp;&nbsp;5vs5
-                </ng-template>
-              </ng-toggle>
-
-              <br /><br />
-
+            <div *ngIf="playTabs.BOT_GAME.active">
               <div class="row">
                 <div class="col-md-6">
                   Select a Hero:
@@ -262,77 +218,174 @@
                     </option>
                   </select>
                 </div>
+                <div class="col-md-12" style="margin-top:14px;">
+                  Select a difficulty level:
+                  <select class="custom-select" [(ngModel)]="selectedHero">
+                    <option *ngFor="let heroValue of getEnumValues(EHeroEnum)" [ngValue]="heroValue">
+                      {{HeroEnumText.get(heroValue)}}
+                    </option>
+                  </select>
+                </div>
                 <div class="col-md-12">
                   &nbsp;
-                  <button class="btn btn-primary btn-block" (click)="startGameSearch()">Play</button>
+                  <button class="btn btn-primary btn-block" (click)="startGameSearch()">Play versus Bots</button>
                 </div>
+              </div>
+            </div>
+            <div *ngIf="playTabs.STORY.active">
+              <button class="btn btn-primary btn-block" style="margin-bottom:20px"
+                (click)="joinStoryMap('bastact_1')">Story of Bastion</button>
+              <button class="btn btn-primary btn-block" (click)="joinStoryMap('tutorial_1')">Story of Caprice
+                (Tutorial
+                Part 1)
+              </button>
+              <button class="btn btn-primary btn-block" (click)="joinStoryMap('tutorial_2')">Story of Caprice
+                (Tutorial
+                Part 2)
+              </button>
+              <button class="btn btn-primary btn-block" (click)="joinStoryMap('tutorial_3')">Story of Caprice
+                (Tutorial
+                Part 3)
+              </button>
+            </div>
+            <div *ngIf="playTabs.EARLY_ACCESS.active">
+              In Early Access, <a href="https://www.patreon.com/strife_ce" target="_blank">
+                <img [src]="'assets/images/icons/' + chatAccount.icon +'.png'" style="width:16px; margin-top:-5px;" />
+                Patreon Supporters
+              </a> of Strife CE can play the <b>latest balance changes and new heroes</b> even before it gets released
+              to the rest of the
+              world.<br /><br /> Currently the first balance patch is in development and is made available here as
+              soon
+              as possible.
+            </div>
+            <div *ngIf="playTabs.MATCHMAKING.active">
+              <div *ngIf="state == EChatAccountState.IDLE">
+                Select one or multiple gamemodes: <br />
+
+                <ng-toggle onColor="success" offColor="light" size="sm"
+                  [(ngModel)]="selectedGameModes[EGameMode.MODE_1ON1]">
+                  <ng-template ngToggleLabel forLabel="on"><span class="fa fa-check-circle"></span>&nbsp;&nbsp;1vs1
+                  </ng-template>
+                  <ng-template ngToggleLabel forLabel="off"><span class="fa fa-times-circle"></span>&nbsp;&nbsp;1vs1
+                  </ng-template>
+                </ng-toggle>
+                &nbsp;
+                <ng-toggle onColor="success" offColor="light" size="sm"
+                  [(ngModel)]="selectedGameModes[EGameMode.MODE_2ON2]">
+                  <ng-template ngToggleLabel forLabel="on"><span class="fa fa-check-circle"></span>&nbsp;&nbsp;2vs2
+                  </ng-template>
+                  <ng-template ngToggleLabel forLabel="off"><span class="fa fa-times-circle"></span>&nbsp;&nbsp;2vs2
+                  </ng-template>
+                </ng-toggle>
+                &nbsp;
+                <ng-toggle onColor="success" offColor="light" size="sm"
+                  [(ngModel)]="selectedGameModes[EGameMode.MODE_3ON3]">
+                  <ng-template ngToggleLabel forLabel="on"><span class="fa fa-check-circle"></span>&nbsp;&nbsp;3vs3
+                  </ng-template>
+                  <ng-template ngToggleLabel forLabel="off"><span class="fa fa-times-circle"></span>&nbsp;&nbsp;3vs3
+                  </ng-template>
+                </ng-toggle>
+                &nbsp;
+                <ng-toggle onColor="success" offColor="light" size="sm"
+                  [(ngModel)]="selectedGameModes[EGameMode.MODE_5ON5]">
+                  <ng-template ngToggleLabel forLabel="on"><span class="fa fa-check-circle"></span>&nbsp;&nbsp;5vs5
+                  </ng-template>
+                  <ng-template ngToggleLabel forLabel="off"><span class="fa fa-times-circle"></span>&nbsp;&nbsp;5vs5
+                  </ng-template>
+                </ng-toggle>
+
+                <br /><br />
+
+                <div class="row">
+                  <div class="col-md-6">
+                    Select a Hero:
+                    <select class="custom-select" [(ngModel)]="selectedHero">
+                      <option *ngFor="let heroValue of getEnumValues(EHeroEnum)" [ngValue]="heroValue">
+                        {{HeroEnumText.get(heroValue)}}
+                      </option>
+                    </select>
+                  </div>
+                  <div class="col-md-6">
+                    Select a Pet:
+                    <select class="custom-select" [(ngModel)]="selectedPet">
+                      <option *ngFor="let petValue of getEnumValues(EPetEnum)" [ngValue]="petValue">
+                        {{PetEnumText.get(petValue)}}
+                      </option>
+                    </select>
+                  </div>
+                  <div class="col-md-12">
+                    &nbsp;
+                    <button class="btn btn-primary btn-block" (click)="startGameSearch()">Play</button>
+                  </div>
+                </div>
+
+              </div>
+              <div *ngIf="state == EChatAccountState.QUEUE || state == EChatAccountState.PREPARING_MATCH">
+                <div class="row">
+                  <div class="col-6">
+                    Gamemodes:
+                  </div>
+                  <div class="col-6">
+                    <b>
+                      {{selectedGameModes[EGameMode.MODE_1ON1]? '1vs1':''}}
+                      {{selectedGameModes[EGameMode.MODE_2ON2]? '2vs2':''}}
+                      {{selectedGameModes[EGameMode.MODE_3ON3]? '3vs3':''}}
+                      {{selectedGameModes[EGameMode.MODE_5ON5]? '5vs5':''}}
+                    </b>
+                  </div>
+                  <div class="col-6">
+                    Hero:
+                  </div>
+                  <div class="col-6">
+                    <b>{{HeroEnumText.get(selectedHero)}}</b>
+                  </div>
+                  <div class="col-6">
+                    Pet:
+                  </div>
+                  <div class="col-6">
+                    <b>{{PetEnumText.get(selectedPet)}}</b>
+                  </div>
+                </div>
+                <br /><br />
+                <div style="text-align:left">Searching for players, please wait... {{searchingTime}} seconds</div>
+                <br />
+                <button class="btn btn-danger btn-block" (click)="cancelGameSearch()">Abort searching</button>
               </div>
 
-            </div>
-            <div *ngIf="state == EChatAccountState.QUEUE || state == EChatAccountState.PREPARING_MATCH">
-              <div class="row">
-                <div class="col-6">
-                  Gamemodes:
+              <div *ngIf="state == EChatAccountState.INGAME">
+                <div class="row">
+                  <div class="col-6">
+                    Gamemodes:
+                  </div>
+                  <div class="col-6">
+                    <b>
+                      {{selectedGameModes[EGameMode.MODE_1ON1]? '1vs1':''}}
+                      {{selectedGameModes[EGameMode.MODE_2ON2]? '2vs2':''}}
+                      {{selectedGameModes[EGameMode.MODE_3ON3]? '3vs3':''}}
+                      {{selectedGameModes[EGameMode.MODE_5ON5]? '5vs5':''}}
+                    </b>
+                  </div>
+                  <div class="col-6">
+                    Hero:
+                  </div>
+                  <div class="col-6">
+                    <b>{{HeroEnumText.get(selectedHero)}}</b>
+                  </div>
+                  <div class="col-6">
+                    Pet:
+                  </div>
+                  <div class="col-6">
+                    <b>{{PetEnumText.get(selectedPet)}}</b>
+                  </div>
                 </div>
-                <div class="col-6">
-                  <b>
-                    {{selectedGameModes[EGameMode.MODE_1ON1]? '1vs1':''}}
-                    {{selectedGameModes[EGameMode.MODE_2ON2]? '2vs2':''}}
-                    {{selectedGameModes[EGameMode.MODE_3ON3]? '3vs3':''}}
-                    {{selectedGameModes[EGameMode.MODE_5ON5]? '5vs5':''}}
-                  </b>
-                </div>
-                <div class="col-6">
-                  Hero:
-                </div>
-                <div class="col-6">
-                  <b>{{HeroEnumText.get(selectedHero)}}</b>
-                </div>
-                <div class="col-6">
-                  Pet:
-                </div>
-                <div class="col-6">
-                  <b>{{PetEnumText.get(selectedPet)}}</b>
-                </div>
+                <br /><br />
+                <div style="text-align:left">You left a running game. Please reconnect!</div>
+                <br />
+                <button class="btn btn-primary" style="width:252px; margin-right:10px" (click)="joinMatch()">Rejoin
+                  the
+                  game</button>
+                <button class="btn btn-danger" (click)="cancelMatch()">Abort game</button>
               </div>
-              <br /><br />
-              <div style="text-align:left">Searching for players, please wait... {{searchingTime}} seconds</div>
-              <br />
-              <button class="btn btn-danger btn-block" (click)="cancelGameSearch()">Abort searching</button>
-            </div>
-
-            <div *ngIf="state == EChatAccountState.INGAME">
-              <div class="row">
-                <div class="col-6">
-                  Gamemodes:
-                </div>
-                <div class="col-6">
-                  <b>
-                    {{selectedGameModes[EGameMode.MODE_1ON1]? '1vs1':''}}
-                    {{selectedGameModes[EGameMode.MODE_2ON2]? '2vs2':''}}
-                    {{selectedGameModes[EGameMode.MODE_3ON3]? '3vs3':''}}
-                    {{selectedGameModes[EGameMode.MODE_5ON5]? '5vs5':''}}
-                  </b>
-                </div>
-                <div class="col-6">
-                  Hero:
-                </div>
-                <div class="col-6">
-                  <b>{{HeroEnumText.get(selectedHero)}}</b>
-                </div>
-                <div class="col-6">
-                  Pet:
-                </div>
-                <div class="col-6">
-                  <b>{{PetEnumText.get(selectedPet)}}</b>
-                </div>
-              </div>
-              <br /><br />
-              <div style="text-align:left">You left a running game. Please reconnect!</div>
-              <br />
-              <button class="btn btn-primary" style="width:252px; margin-right:10px" (click)="joinMatch()">Rejoin the
-                game</button>
-              <button class="btn btn-danger" (click)="cancelMatch()">Abort game</button>
             </div>
           </div>
         </div>

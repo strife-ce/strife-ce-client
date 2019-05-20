@@ -45,6 +45,12 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
   public user: User;
   private lastJoinInfo: IJoinInfo = null;
   public patreonData = { pledge_sum: 0 };
+  public playTabs = {
+    MATCHMAKING: { name: 'Match', disabled: false, active: true },
+    STORY: { name: 'Story', disabled: false, active: false },
+    BOT_GAME: { name: 'Against Bots', disabled: false, active: false },
+    EARLY_ACCESS: { name: 'Early Access', disabled: false, active: false },
+  };
 
   public state: EChatAccountState;
 
@@ -125,7 +131,7 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
       let arrivedAt = new Date().toLocaleString();
       if (arrivedAt.indexOf(',') >= 0) {
         arrivedAt = arrivedAt.split(',')[1].trim();
-      } else if(arrivedAt.indexOf(' ')) {
+      } else if (arrivedAt.indexOf(' ')) {
         const parts = arrivedAt.split(' ');
         arrivedAt = parts[parts.length - 1];
       }
@@ -211,7 +217,14 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
     }
     if (window && (window as any).process) {
       const { ipcRenderer } = (<any>window).require('electron');
-      ipcRenderer.send('start-strife', { host: joinInfo.host, port: joinInfo.port, secret: joinInfo.secret });
+      ipcRenderer.send('start-strife', { type: 'mmr', map: 'strife', host: joinInfo.host, port: joinInfo.port, secret: joinInfo.secret });
+    }
+  }
+
+  public joinStoryMap(mapName: string) {
+    if (window && (window as any).process) {
+      const { ipcRenderer } = (<any>window).require('electron');
+      ipcRenderer.send('start-strife', { type: 'story', map: mapName });
     }
   }
 
@@ -279,6 +292,14 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
 
   public getChatAccounts(): Array<ChatAccount> {
     return Array.from(this.chatAccountMap.values());
+  }
+
+  public switchTab(tabs, tab) {
+    for (const key of Object.keys(tabs)) {
+      tabs[key].active = false;
+    }
+    tab.active = true;
+    console.log(tabs);
   }
 
   private setState(state: EChatAccountState) {

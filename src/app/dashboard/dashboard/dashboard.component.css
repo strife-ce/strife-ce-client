@@ -32,4 +32,11 @@ a:hover {
   background-color: #f7f7f7;
 }
 
+a.disabled {
+  cursor: not-allowed;
+  opacity:0.5;
+}
 
+.nav-tabs a {
+  color: #67757c;
+}
