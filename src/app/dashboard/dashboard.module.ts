@@ -19,7 +19,11 @@ import { AdsenseModule } from 'ng2-adsense';
     NgToggleModule,
     RouterModule.forChild(DashboardRoutes),
     NgCircleProgressModule.forRoot(),
-    AdsenseModule.forRoot()
+    AdsenseModule.forRoot({
+      adClient: 'ca-pub-8248851277942593',
+      adSlot: 5670932491,
+    })
+
   ],
   declarations: [DashboardComponent],
   providers: [
