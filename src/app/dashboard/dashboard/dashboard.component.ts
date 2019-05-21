@@ -133,6 +133,7 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
     this.socket.on(ES2ClientMessage.CHAT_ACCOUNTLIST, (userlistMsg: { accounts: Array<ChatAccount>, room: string }) => {
       this.chatAccountMap.clear();
       for (const account of userlistMsg.accounts) {
+        // this.messages.push({ message: 'this is a message from me @pad2', account: account, room: 'general' });
         this.chatAccountMap.set(account.id, account);
       }
     });

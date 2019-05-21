@@ -59,7 +59,7 @@
               </span>
             </div>
             <div class="flex-fill d-flex flex-column" style="padding:10px">
-              <dl class="flex-fill" id="messageList" style="overflow: auto; max-height:618px; margin-right: -8px"
+              <dl class="flex-fill" id="messageList" style="overflow: auto; margin-right: -8px" [style.max-height.px] ="(this.chatAccount && !this.chatAccount.icon) ? 539 : 618"
                 #chatScrollContainer>
                 <div class="msg" *ngFor="let msg of messages" [style.background-color]="msg.highlight ? '#dbe4f5': ''"
                   [ngbTooltip]="'By ' + msg.account.name + ' at ' + msg.arrivedAt" placement="top">
@@ -357,7 +357,7 @@
             </div>
             <div *ngIf="playTabs.EARLY_ACCESS.active">
               In Early Access, <a href="https://www.patreon.com/strife_ce" target="_blank">
-                <img [src]="'assets/images/icons/' + chatAccount.icon +'.png'" style="width:16px; margin-top:-5px;" />
+                <img [src]="'assets/images/icons/patreon1.png'" style="width:16px; margin-top:-5px;" />
                 Patreon Supporters
               </a> of Strife CE can play the <b>latest balance changes and new heroes</b> even before it gets released
               to the rest of the
