@@ -1,4 +1,3 @@
-import { PetEnumGameName } from './../../data/common/models/transient/pet.enums';
 import { EChatAccountState } from './../../data/common/models/transient/chat-account';
 import { environment } from 'app/data/common-imports';
 import { Parse } from 'app/data/services';
