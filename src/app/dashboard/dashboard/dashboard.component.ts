@@ -243,7 +243,7 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
   public joinStoryMap(mapName: string) {
     if (window && (window as any).process) {
       const { ipcRenderer } = (<any>window).require('electron');
-      ipcRenderer.send('start-strife', { type: 'story', map: mapName });
+      ipcRenderer.send('start-strife', { type: 'story', map: mapName, name: this.chatAccount.name });
       this.successMessage('Game is loading', 'Strife is starting in the background!');
     }
   }
