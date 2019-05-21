@@ -1,29 +1,31 @@
 a {
-  color:#e64825;
+  color: #e64825;
   cursor: pointer;
 }
 
 a:hover {
-  color:#fc8b72
+  color: #fc8b72
 }
-
 
 ::-webkit-scrollbar {
   width: 6px;
 }
 
 /* Track */
+
 ::-webkit-scrollbar-track {
   background: #f1f1f1;
 }
 
 /* Handle */
+
 ::-webkit-scrollbar-thumb {
   background: #ddd;
   width: 6px;
 }
 
 /* Handle on hover */
+
 ::-webkit-scrollbar-thumb:hover {
   background: #888;
 }
@@ -34,9 +36,42 @@ a:hover {
 
 a.disabled {
   cursor: not-allowed;
-  opacity:0.5;
+  opacity: 0.5;
 }
 
 .nav-tabs a {
   color: #67757c;
+}
+
+.card-title {
+  font-weight: bold;
+  margin: 0px;
+  padding: 0px;
+  text-shadow: 1px 1px 1px #eee;
+}
+
+.news {
+  padding:0px;
+  max-height: 170px;
+  font-size: 12px
+}
+
+.heroSelect {
+  display:inline-block; 
+  margin:2px;
+  width: 40px;
+}
+
+.heroSelect img {
+  width:100%; 
+  opacity: 0.5
+}
+
+.heroSelect:hover img {
+  width:60px; 
+  margin-top:-30px;
+  margin-left: -10px;
+  opacity: 1.0 !important;
+  position:absolute;
+  z-index:9999;
 }

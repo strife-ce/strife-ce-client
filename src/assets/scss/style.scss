@@ -26,7 +26,115 @@ File: scss
 
 @import '~ngx-toastr/toastr-bs4-alert';
 
+$dragbarHeight: 56px;
+
 .progress {
   border-radius: 0px !important;
   background-color: #888;
+}
+
+#dragbar {
+  position:absolute;
+  left:0px;
+  right: 0px;
+  padding: 24px 20px 4px 0px;
+  -webkit-app-region: drag;
+
+  cursor: move;
+  background: url('assets/images/logo.jpg') no-repeat 28px 2px #24304a;
+  height: $dragbarHeight;
+
+  a {
+    -webkit-app-region: no-drag;
+  }
+}
+
+#content-area {
+  position: absolute;
+  bottom: 0px;
+  left: 0px;
+  right: 0px;
+  top: $dragbarHeight;
+}
+
+.full-size-abs {
+  position:absolute;
+  top: 0px;
+  bottom: 0px;
+  left: 0px;
+  right: 0px;
+}
+
+
+.title {
+  font-size:16px;
+  font-weight:bold;
+  padding:10px 20px;
+  background-color: #f3f3f3;
+  border-bottom: 1px solid rgba(0,0,0, 0.125);
+  margin:0px;
+}
+
+.mainNav {
+  font-size:16px;
+  font-weight:bold;
+  padding:10px 20px;
+  margin:0px;
+  opacity: 0.8;
+  padding: 10px;
+}
+
+.mainNav.active {
+  opacity: 1.0;
+  border-bottom: 4px solid #6b7a99;
+}
+
+.mainNav.deactivated {
+  opacity: 0.5;
+  cursor:not-allowed;
+}
+
+b {
+  font-weight: 600 !important;
+}
+
+
+.news .card-header {
+  padding:0px !important;
+}
+
+.news .card {
+  border-radius: 0px !important;
+}
+
+.news .card-body {
+  padding:0px;
+
+}
+
+.news * {
+  border: none;
+
+}
+
+.news .card-body ul {
+  list-style-type:square;
+  padding: 4px 4px 4px 26px;
+}
+
+.news .card-header {
+  background-color: #fff;
+}
+
+.news .card-header button {
+  padding: 0px 10px !important;
+  font-size:12px;
+  display:block;
+  width:100%;
+  text-align:left;
+  text-decoration: none !important;
+}
+
+.btn-link:hover {
+  text-decoration: none !important;
 }

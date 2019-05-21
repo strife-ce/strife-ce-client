@@ -3,7 +3,7 @@ import { environment } from 'app/data/common-imports';
 import { Parse } from 'app/data/services';
 import { Component, OnInit, ElementRef, ViewChild, Injector, AfterViewChecked } from '@angular/core';
 import * as io from 'socket.io-client';
-import { EC2ServerMessage, ES2ClientMessage, ChatAccount, EHeroEnum, HeroEnumText, EPetEnum, PetEnumText, PartyMember, Party, EGameMode, EAccountFlags, Account, User, EUserSettingEnum, MatchInfo } from 'app/data/models';
+import { EC2ServerMessage, ES2ClientMessage, ChatAccount, EHeroEnum, HeroEnumText, EPetEnum, PetEnumText, PetEnumGameName, PartyMember, Party, EGameMode, EAccountFlags, Account, User, EUserSettingEnum, MatchInfo, HeroEnumGameName } from 'app/data/models';
 import { View } from '@app/views/view';
 import { AccountService, UserService } from '@app/data/modelservices';
 import { HttpClient } from '@angular/common/http';
@@ -22,8 +22,10 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
   public messages: Array<{ message: string, account: ChatAccount, room: string, highlight?: boolean }>;
   public EHeroEnum = EHeroEnum;
   public HeroEnumText = HeroEnumText;
+  public HeroEnumGameName = HeroEnumGameName;
   public EPetEnum = EPetEnum;
   public PetEnumText = PetEnumText;
+  public PetEnumGameName = PetEnumGameName;
   public EGameMode = EGameMode;
   public EAccountFlags = EAccountFlags;
   public EChatAccountState = EChatAccountState;
@@ -35,6 +37,7 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
   public selectedPet: EPetEnum;
   public searchingTime = 0;
   public selectedGameModes = {};
+  public selectedBotDifficulty = 'normal';
   public queueStates = {};
   public isChatAudioMuted: boolean;
   private party: Party;
@@ -44,6 +47,9 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
   private beepAudio = new Audio(beep);
   public user: User;
   private lastJoinInfo: IJoinInfo = null;
+  readonly allTagTreshold = 3 * 60000;
+  private lastAllTag = new Date(new Date().getTime() - this.allTagTreshold);
+  public latestPatrons: Array<ChatAccount> = [];
   public patreonData = { pledge_sum: 0 };
   public playTabs = {
     MATCHMAKING: { name: 'Match', disabled: false, active: true },
@@ -51,6 +57,13 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
     BOT_GAME: { name: 'Against Bots', disabled: false, active: false },
     EARLY_ACCESS: { name: 'Early Access', disabled: false, active: false },
   };
+
+  public chatTabs = {
+    GENERAL: { name: 'general', label: 'General Chat', disabled: false, active: true },
+  };
+
+  private scrollBottomActive = false;
+
 
   public state: EChatAccountState;
 
@@ -76,6 +89,11 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
       this.selectedHero = Number(this.user.getSetting(EUserSettingEnum.LAST_HERO_SELECTION, EHeroEnum.BANDITO));
       this.selectedPet = Number(this.user.getSetting(EUserSettingEnum.LAST_PET_SELECTION, EPetEnum.BOUNDER));
       this.selectedGameModes = JSON.parse(this.user.getSetting(EUserSettingEnum.LAST_GAMEMODE_SELECTION, JSON.stringify(this.selectedGameModes)));
+      this.selectedBotDifficulty = this.user.getSetting(EUserSettingEnum.LAST_BOT_DIFFICULTY_SELECTION, 'normal');
+    });
+
+    this.accountService.getLatestPatrons(4).then(accounts => {
+      this.latestPatrons = accounts.map(a => new ChatAccount(a));
     });
 
     this.queueStates = { [EGameMode.MODE_1ON1]: 0, [EGameMode.MODE_2ON2]: 0, [EGameMode.MODE_3ON3]: 0, [EGameMode.MODE_4ON4]: 0, [EGameMode.MODE_5ON5]: 0 };
@@ -115,16 +133,13 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
     this.socket.on(ES2ClientMessage.CHAT_ACCOUNTLIST, (userlistMsg: { accounts: Array<ChatAccount>, room: string }) => {
       this.chatAccountMap.clear();
       for (const account of userlistMsg.accounts) {
-        // this.messages.push({ message: 'this is a message from me @pad2', account: account, room: 'general' });
         this.chatAccountMap.set(account.id, account);
       }
     });
 
     this.socket.on(ES2ClientMessage.CHAT_MSG, message => {
       if (this.account && ((message.message as string).toLowerCase().indexOf('@' + this.account.name.toLowerCase()) >= 0 ||
-        (message.message as string).toLowerCase().indexOf('@all') >= 0 ||
-        (message.message as string).toLowerCase().indexOf('@everyone') >= 0 ||
-        (message.message as string).toLowerCase().indexOf('@everybody') >= 0)) {
+        (message.message as string).toLowerCase().indexOf('@all') >= 0)) {
         message.highlight = true;
         this.playSoundNotification();
       }
@@ -136,6 +151,9 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
         arrivedAt = parts[parts.length - 1];
       }
       message.arrivedAt = arrivedAt.trim();
+
+      const raw = this.chatScrollContainer.nativeElement;
+      this.scrollBottomActive = (raw.scrollTop + raw.offsetHeight) === raw.scrollHeight;
       this.messages.push(message);
     });
 
@@ -225,6 +243,18 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
     if (window && (window as any).process) {
       const { ipcRenderer } = (<any>window).require('electron');
       ipcRenderer.send('start-strife', { type: 'story', map: mapName });
+      this.successMessage('Game is loading', 'Strife is starting in the background!');
+    }
+  }
+
+  public joinBotGame() {
+    this.user.setSetting(EUserSettingEnum.LAST_HERO_SELECTION, this.selectedHero);
+    this.user.setSetting(EUserSettingEnum.LAST_PET_SELECTION, this.selectedPet);
+    this.user.setSetting(EUserSettingEnum.LAST_BOT_DIFFICULTY_SELECTION, this.selectedBotDifficulty, true);
+    if (window && (window as any).process) {
+      const { ipcRenderer } = (<any>window).require('electron');
+      ipcRenderer.send('start-strife', { type: 'bot', map: 'strife', difficulty: this.selectedBotDifficulty });
+      this.successMessage('Game is loading', 'Strife is starting in the background!');
     }
   }
 
@@ -238,8 +268,16 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
   }
 
   public sendMessage() {
-    if (this.sendMsgInput.nativeElement.value.trim() !== '') {
-      this.socket.emit(EC2ServerMessage.CHAT_MSG, { message: this.sendMsgInput.nativeElement.value, room: 'general' });
+    const value = this.sendMsgInput.nativeElement.value.trim() as string;
+    if (value !== '') {
+      if (value.toLowerCase().indexOf('@all') >= 0) {
+        if (new Date().getTime() - this.lastAllTag.getTime() < this.allTagTreshold) {
+          this.errorMessage('Too many @all tags', 'You are allowed to use @all only once every ' + (this.allTagTreshold / 1000) + ' seconds.');
+          return;
+        }
+        this.lastAllTag = new Date();
+      }
+      this.socket.emit(EC2ServerMessage.CHAT_MSG, { message: value, room: 'general' });
       this.sendMsgInput.nativeElement.value = '';
     }
   }
@@ -283,8 +321,7 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
 
   public scrollChatToBottom(): void {
     try {
-      const scrollDiff = this.chatScrollContainer.nativeElement.scrollHeight - this.chatScrollContainer.nativeElement.scrollTop;
-      if (scrollDiff <= 730) {
+      if (this.scrollBottomActive) {
         this.chatScrollContainer.nativeElement.scrollTop = this.chatScrollContainer.nativeElement.scrollHeight;
       }
     } catch (err) { }

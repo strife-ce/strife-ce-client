@@ -2,169 +2,276 @@
   style="position:absolute; left:0; right:0; top:56px; bottom:0; background:rgba(255,255,255,0.7); z-index:99999; display:flex; align-items: center; justify-content: center; ">
   <h1>Game Found! Joining in a moment...</h1>
 </div>
-<div class="row">
-  <div class="col-md-2" style="padding:0px;">
-    <div class="card" style="border-radius:0px; border-right:none; height:658px;">
-      <div class="card-header">
-        <h5 class="card-title" style="margin:6px 0px 5px 0px">Users in Chat ({{getChatAccounts().length}})</h5>
-      </div>
-      <div class="card-body p-0" style="overflow-y: auto; position:relative">
-        <div style="height:10px"></div>
-        <div *ngFor="let chatAccount of getChatAccounts()">
-          <span style="padding: 5px 6px">
-            <span style="width: 16px; height:16px; display: inline-block">
-              <a href="https://www.patreon.com/strife_ce" [ngbTooltip]="chatAccount.iconTooltip" placement="right"
-                target="_blank" *ngIf="chatAccount.icon">
-                <img [src]="'assets/images/icons/' + chatAccount.icon +'.png'" style="width:16px; margin-top:-5px;" />
-              </a>
-            </span>
-            {{chatAccount.name}} <span *ngIf="chatAccount.stateIcon" [class]="'fa fa-' + chatAccount.stateIcon"
-              style="position:absolute; right: 10px; margin-top:2px; color: #bbb"></span>
-          </span>
-        </div>
-      </div>
-      <div class="card-footer">
-        <a *ngIf="!isChatAudioMuted" (click)="toggleMute()" style="font-size: 12px; color:#aaa"><span
-            class="fa fa-volume-up"></span>&nbsp; sound notifications on</a>
-        <a *ngIf="isChatAudioMuted" (click)="toggleMute()" style="font-size: 12px; color:#aaa"><span
-            class="fa fa-volume-mute"></span>&nbsp; sound notifications off</a>
-      </div>
+
+<div class="row h-100">
+  <div class="col-md-6 d-flex flex-column align-items-stretch" style="padding:0px 10px 0px 0px; background-color: #ddd">
+    <div class="card-header" style="background-color: #f3f3f3">
+
+      <ul class="nav nav-tabs card-header-tabs">
+        <li class="nav-item" style="display:block; width: 146px;">
+          <h5 class="title" style="padding:0px;margin: 5px 0px 0px 5px; border: none">Chat</h5>
+        </li>
+        <li class="nav-item" *ngFor="let tab of getAttributes(chatTabs)">
+          <a [class]="'nav-link' + ((tab.active) ? ' active' :'')  + ((tab.disabled) ? ' disabled' :'')"
+            (click)="switchTab(chatTabs, tab)">{{tab.label}} ({{getChatAccounts().length}})</a>
+        </li>
+      </ul>
     </div>
-    <a target="_blank" href="https://www.patreon.com/bePatron?u=19872450"
-      data-patreon-widget-type="become-patron-button">
-      <ngb-progressbar type="primary" [value]="Math.ceil(patreonData.pledge_sum/70) " [striped]="true"
-        [animated]="false" height="44px">
-        <div style="position:absolute; font-weight:500; width:100%; font-size: 11px">Server cost covered By
-          Patreon:<br />
-          <span style="font-size:14px">{{Math.ceil(patreonData.pledge_sum / 100)}}$ of 70$</span></div>
-      </ngb-progressbar>
-    </a>
-    <a target="_blank" href="https://www.patreon.com/bePatron?u=19872450"
-      style="display:inline-block; overflow:hidden; width:106px;">
-      <img src="assets/images/patreon_button.png" style="height:44px; margin-left: -110px;" />
-    </a>
-    <a target="_blank" href="https://www.paypal.me/strifece"
-      style="display:inline-block; overflow:hidden; width:106px;">
-      <img src="assets/images/paypal.png" style="height:44px; margin-left: 10px;" />
-    </a>
-
-  </div>
-  <div class="col-md-6" style="padding:0px;">
-
-    <div id="chatbox">
-      <div class="card" style="border-radius:0px">
-        <div
-          style="box-sizing: border-box; height: 60px; background-color:#F7F7F7; border-bottom: 1px solid #eee; position:relative"
-          *ngIf="this.chatAccount && !this.chatAccount.icon">
-          <!-- strife -->
-          <div
-            style="position: absolute; top:0px; box-sizing:border-box; right:0px; width: 170px; height:60px; padding:12px; font-size:13px;">
-            You want no ads? <br />
-            <a target="_blank" href="https://www.patreon.com/bePatron?u=19872450"
-              data-patreon-widget-type="become-patron-button">Become a Patreon</a>
-          </div>
-        </div>
-        <div class="card-body" style="padding-top:10px">
-          <dl id="messageList" style="overflow: auto"
-            [style.height.px]="(this.chatAccount && !this.chatAccount.icon) ? 590 : (590 + 60)" #chatScrollContainer>
-            <div class="msg" *ngFor="let msg of messages" [style.background-color]="msg.highlight ? '#dbe4f5': ''"
-              [ngbTooltip]="'By ' + msg.account.name + ' at ' + msg.arrivedAt" placement="top">
-              <b>
-                <span style="width: 16px; height:16px; display: inline-block" *ngIf="msg.account.icon">
-                  <a href="https://www.patreon.com/strife_ce"
-                    [ngbTooltip]="msg.account.name + ' is a Patreon Supporter'" placement="left" target="_blank">
-                    <img [src]="'assets/images/icons/' + msg.account.icon +'.png'"
+    <div class="flex-fill d-flex" style="background-color: #fff">
+      <div class="row flex-fill">
+        <div class="col-md-3 d-flex flex-column" style="padding-right:0px; border-right: 1px solid #ddd">
+          <div class="flex-fill" style="overflow-y: auto; position:relative">
+            <div style="height:10px"></div>
+            <div *ngFor="let chatAccount of getChatAccounts()">
+              <span style="padding: 5px 6px">
+                <span style="width: 16px; height:16px; display: inline-block">
+                  <a href="https://www.patreon.com/strife_ce" [ngbTooltip]="chatAccount.iconTooltip" placement="right"
+                    target="_blank" *ngIf="chatAccount.icon">
+                    <img [src]="'assets/images/icons/' + chatAccount.icon +'.png'"
                       style="width:16px; margin-top:-5px;" />
                   </a>
                 </span>
-                {{msg.account.name}}:</b>&nbsp;<span>{{msg.message}}</span>
+                {{chatAccount.name}} <span *ngIf="chatAccount.stateIcon" [class]="'fa fa-' + chatAccount.stateIcon"
+                  style="position:absolute; right: 10px; margin-top:2px; color: #bbb"></span>
+              </span>
             </div>
-          </dl>
-          <hr>
-          <form id="sendMessage" (ngSubmit)="sendMessage(); ">
-            <div class='input-group'>
-              <input [disabled]="chatDisabled" #sendMsgInput type='text' name='message' class="form-control"
-                placeholder="Type your message..." autofocus autocomplete="off">
+          </div>
+          <div class="card-footer" style="padding: 16px 20px">
+            <a *ngIf="!isChatAudioMuted" (click)="toggleMute()" style="font-size: 12px; color:#aaa"><span
+                class="fa fa-volume-up"></span>&nbsp; alerts on</a>
+            <a *ngIf="isChatAudioMuted" (click)="toggleMute()" style="font-size: 12px; color:#aaa"><span
+                class="fa fa-volume-mute"></span>&nbsp; alerts off</a>
+          </div>
+        </div>
+        <div class="col-md-9 d-flex flex-column" style="padding-left:0px;">
 
-              <div class='input-group-append'>
-                <button [disabled]="chatDisabled" class='btn btn-primary'>Send</button>
+          <div id="chatbox" class="flex-fill d-flex flex-column">
+            <div
+              style="box-sizing: border-box; background-color:#F7F7F7; border-bottom: 1px solid #eee; position:relative; min-height:83px; padding-top: 6px; padding-left: 6px"
+              *ngIf="this.chatAccount && !this.chatAccount.icon">
+              <!-- strife -->
+              <div style="background: url('assets/images/strife_banner.jpg') no-repeat; min-height:60px">
+                <ng-adsense [display]="'inline-block'" [width]="468" [height]="60">
+                </ng-adsense>
               </div>
+              <br />
+              <span style="font-size:10px; position:absolute; bottom:0px; right: 5px">
+                You want no more ads? <a target="_blank" href="https://www.patreon.com/bePatron?u=19872450"
+                  data-patreon-widget-type="become-patron-button">Support Strife CE at Patreon</a>
+              </span>
             </div>
-          </form>
+            <div class="flex-fill d-flex flex-column" style="padding:10px">
+              <dl class="flex-fill" id="messageList" style="overflow: auto; max-height:618px; margin-right: -8px"
+                #chatScrollContainer>
+                <div class="msg" *ngFor="let msg of messages" [style.background-color]="msg.highlight ? '#dbe4f5': ''"
+                  [ngbTooltip]="'By ' + msg.account.name + ' at ' + msg.arrivedAt" placement="top">
+                  <span style="width: 16px; height:16px; margin-right:4px; display: inline-block"
+                    *ngIf="msg.account.icon">
+                    <a href="https://www.patreon.com/strife_ce" [ngbTooltip]="msg.account.iconTooltip" placement="left"
+                      target="_blank">
+                      <img [src]="'assets/images/icons/' + msg.account.icon +'.png'"
+                        style="width:16px; margin-top:-5px;" />
+                    </a>
+                  </span>
+                  <span style="font-weight:600">{{msg.account.name}}</span>:&nbsp;<span>{{msg.message}}</span>
+                </div>
+              </dl>
+              <form id="sendMessage" (ngSubmit)="sendMessage(); ">
+                <div class='input-group'>
+                  <input [disabled]="chatDisabled" #sendMsgInput type='text' name='message' class="form-control"
+                    placeholder="Type your message..." autofocus autocomplete="off">
+
+                  <div class='input-group-append'>
+                    <button [disabled]="chatDisabled" class='btn btn-primary'>Send</button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </div>
 
-  <div class="col-md-4" style="padding-right: 0px; padding-left: 0px">
-    <div>
-      <div class="card" style="border: none">
-        <div class="card-header">
-          <h5 class="card-title" style="margin:6px 0px">News</h5>
-        </div>
-        <div class="card-body" style="overflow-y:auto; height: 334px; font-size: 14px">
-          Changes in v0.1.2:<br>
-          <ul>
-            <li>Added a set of <b>94 preselected crafted</b> items to the shop (thanks to <b>treehead</b> and
-              <b>Neo1171</b> for preparing this!). If you want to request the addition of an crafted item, talk to
-              Neo1171 on Discord!</li>
-            <li>Added Paypal-Button for one-time donators</li>
-            <li>Fixed "one player multiple times in game"-bug</li>
-            <li>Fixed Testbutton bug</li>
+  <div class="col-md-6 d-flex flex-column" style="padding-right: 0px; padding-left: 0px">
+    <div class="row" style="margin-bottom:4px;">
+      <div class="col-md-6" style="padding-right: 0px;">
+        <h5 class="title">News</h5>
+        <div style="padding:10px; height: 170px; font-size: 12px; overflow: auto">
+          <div class="news">
 
-          </ul>
-          Changes in v0.1.1:<br>
-          <ul>
-            <li><b>Ingame Chat</b> is now working</li>
-            <li>Ingame Chat to all via prefixed exclamation mark (example: !Hello everyone)</li>
-            <li>Increased performance of Gameservers (running now in a <b>datacenter</b>)</li>
-            <li>Added operation cost coverage bar</li>
-            <li>Fixed Shop Bug for fresh installations</li>
-            <li>Fixed overflowing Chat User-List</li>
-            <!--<li>Fixed Testbutton bug</li>-->
+            <ngb-accordion #acc="ngbAccordion" activeIds="ngb-panel-0">
+              <ngb-panel title="v0.2.0 Client update [05/21]">
+                <ng-template ngbPanelContent>
+                  <ul>
+                    <li>Client Restructurizing!</li>
+                    <li>Story, tutorial and bot-games added</li>
+                    <li>Preparations for custom games and Parties</li>
+                    <li>Ads for non-supporters (Sorry folks, its needed)</li>
+                    <li>Restricted @all tags to once / 3 minutes</li>
+                    <li>Added hero and pet icons (Thanks to chotke!)</li>
+                  </ul>
+                </ng-template>
+              </ngb-panel>
+              <ngb-panel title="v0.1.2 Client update">
+                <ng-template ngbPanelContent>
+                  <ul>
+                    <li>Added a set of <b>94 preselected crafted</b> items to the shop (thanks to <b>treehead</b> and
+                      <b>Neo1171</b> for preparing this!). If you want to request the addition of an crafted item, talk
+                      to
+                      Neo1171 on Discord!</li>
+                    <li>Added Paypal-Button for one-time donators</li>
+                    <li>Fixed "one player multiple times in game"-bug</li>
+                    <li>Fixed Testbutton bug</li>
+                  </ul>
+                </ng-template>
+              </ngb-panel>
+              <ngb-panel>
+                <ng-template ngbPanelTitle>v0.1.1 Client update</ng-template>
+                <ng-template ngbPanelContent>
+                  <ul>
+                    <li><b>Ingame Chat</b> is now working</li>
+                    <li>Ingame Chat to all via prefixed exclamation mark (example: !Hello everyone)</li>
+                    <li>Increased performance of Gameservers (running now in a <b>datacenter</b>)</li>
+                    <li>Added operation cost coverage bar</li>
+                    <li>Fixed Shop Bug for fresh installations</li>
+                    <li>Fixed overflowing Chat User-List</li>
+                  </ul>
+                </ng-template>
+              </ngb-panel>
+              <ngb-panel>
+                <ng-template ngbPanelTitle>v0.1.0 Client update</ng-template>
+                <ng-template ngbPanelContent>
+                  <ul>
+                    <li>Matches don't end anymore after a player left</li>
+                    <li>Reconnecting to a match is now possible</li>
+                    <li>Audio alerts on receiving a @-tagged message</li>
+                    <li>Remembering latest hero and pet selection</li>
+                  </ul>
+                </ng-template>
+              </ngb-panel>
+              <ngb-panel>
+                <ng-template ngbPanelTitle>v0.0.4 Client update</ng-template>
+                <ng-template ngbPanelContent>
+                  <ul>
+                    <li>Added player state indicators</li>
+                    <li>Fixed a bug which lead to one player being multiple times in a game</li>
+                    <li>Added the GRAND Patreon Supporter icon for supporters of 10+$ (Thank you Jertle)</li>
+                    <li>Chat highlighting if you mention someone via @name</li>
+                  </ul>
+                </ng-template>
+              </ngb-panel>
+              <ngb-panel>
+                <ng-template ngbPanelTitle>v0.0.3 Client update</ng-template>
+                <ng-template ngbPanelContent>
+                  <ul>
+                    <li>Added queue state indicators</li>
+                    <li>Enabled passive abilities of pets</li>
+                    <li>Fixed a bunch of matchmaking and hero bugs</li>
+                    <li>Added Patreon Supporter icons in chat</li>
+                  </ul>
+                </ng-template>
+              </ngb-panel>
 
-          </ul>
-          Changes in v0.1.0:<br>
-          <ul>
-            <li>Matches don't end anymore after a player left</li>
-            <li>Reconnecting to a match is now possible</li>
-            <li>Audio alerts on receiving a @-tagged message</li>
-            <li>Remembering latest hero and pet selection</li>
-          </ul>
-          Changes in v0.0.4:<br>
-          <ul>
-            <li>Added player state indicators</li>
-            <li>Fixed a bug which lead to one player being multiple times in a game</li>
-            <li>Added the GRAND Patreon Supporter icon for supporters of 10+$ (Thank you Jertle)</li>
-            <li>Chat highlighting if you mention someone via @name</li>
-          </ul>
-          Changes in v0.0.3:<br>
-          <ul>
-            <li>Added queue state indicators</li>
-            <li>Enabled passive abilities of pets</li>
-            <li>Fixed a bunch of matchmaking and hero bugs</li>
-            <li>Added Patreon Supporter icons in chat</li>
-          </ul>
-          Changes in v0.0.2:<br>
-          <ul>
-            <li>Added all the previously missed heroes</li>
-            <li>Added all pets</li>
-            <li>Added selection for gamemodes</li>
-            <li>Removed Blazer (<a target="_blank" href="https://www.strawpoll.me/17936571/r">community decission</a>)
-            </li>
-            <li>Added a icon for <a href="https://www.patreon.com/strife_ce" target="_blank">Patreon Supporters</a> in
-              chat
-            </li>
-            <li>Fixed chat scroll issues</li>
-            <li>Client redesign</li>
-          </ul>
+              <ngb-panel>
+                <ng-template ngbPanelTitle>v0.0.2 Client update</ng-template>
+                <ng-template ngbPanelContent>
+                  <ul>
+                    <li>Added all the previously missed heroes</li>
+                    <li>Added all pets</li>
+                    <li>Added selection for gamemodes</li>
+                    <li>Removed Blazer (<a target="_blank" href="https://www.strawpoll.me/17936571/r">community
+                        decission</a>)
+                    </li>
+                    <li>Added a icon for <a href="https://www.patreon.com/strife_ce" target="_blank">Patreon
+                        Supporters</a> in
+                      chat
+                    </li>
+                    <li>Fixed chat scroll issues</li>
+                    <li>Client redesign</li>
+                  </ul>
+                </ng-template>
+              </ngb-panel>
+            </ngb-accordion>
+          </div>
         </div>
       </div>
-      <div style="position:absolute; bottom: 0px; height: 358px; width:100%">
-        <div class="card" style="border: none">
-          <div class="card-header" style="border-top: 1px solid rgba(0, 0, 0, 0.125);">
-            <h5 class="card-title" style="margin:4px 0px">Play</h5>
-            <div style="position:absolute; right: 15px; margin-top: -44px">
+      <div class="col-md-6" style="padding-left:0px; border-left: 1px solid #ddd">
+        <h5 class="title">Community Support</h5>
+        <div style="padding:10px; max-height: 170px; overflow: hidden; font-size: 12px">
+          <div>
+            <span>Many thanks to our most recent supporters:</span>
+          </div>
+
+          <div class="row" style="padding-top: 2px">
+            <div class="col-md-6" *ngFor="let patron of latestPatrons">
+              <span style="width: 16px; height:16px; margin-right:4px; display: inline-block">
+                <a href="https://www.patreon.com/strife_ce" [ngbTooltip]=" patron.iconTooltip" placement="left"
+                  target="_blank">
+                  <img [src]="'assets/images/icons/' + patron.icon +'.png'" style="width:16px; margin-top:-5px;" />
+                </a>
+              </span> {{patron.name}}</div>
+          </div>
+
+          <div style="position:absolute; bottom: 0px;">
+            Server cost covered By Patreon supporters:
+            <a target="_blank" href="https://www.patreon.com/bePatron?u=19872450"
+              data-patreon-widget-type="become-patron-button">
+              <ngb-progressbar type="primary" [value]="Math.ceil(patreonData.pledge_sum/70) " [striped]="true"
+                [animated]="false" height="24px">
+                <div style="position:absolute; font-weight:500; width:100%; font-size: 14px; ">
+                  {{Math.ceil(patreonData.pledge_sum / 100)}}$ of 70$</div>
+              </ngb-progressbar>
+            </a>
+            <a target="_blank" href="https://www.patreon.com/bePatron?u=19872450"
+              style="display:inline-block; overflow: hidden; width: 190px;">
+              <img src="assets/images/patreon_button.png" style="height:40px; margin-left: -8px;" />
+            </a>
+            <a target="_blank" href="https://www.paypal.me/strifece"
+              style="display:inline-block; overflow:hidden; width:106px;">
+              <img src="assets/images/paypal.png" style="height:44px; margin-left: 10px;" />
+            </a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="row flex-fill d-flex">
+      <div class="col-md-12 flex-fill d-flex flex-column">
+        <div class="card flex-fill d-flex" style="border: none">
+          <div class="card-header" style="border-top: 1px solid rgba(0, 0, 0, 0.125); padding: 10px 12px">
+            <a class="mainNav active">
+              <span class="fa fa-gamepad"></span> Play
+            </a>
+            <a class="mainNav deactivated" [ngbTooltip]="'Coming soon..'">
+              <span class="fa fa-pencil-ruler"></span> Crafting
+            </a>
+            <a class="mainNav deactivated" [ngbTooltip]="'Coming soon..'">
+              <span class="fa fa-user-astronaut"></span> Heroes
+            </a>
+            <a class="mainNav deactivated" [ngbTooltip]="'Coming soon..'">
+              <span class="fa fa-paw"></span> Pets
+            </a>
+
+            <a class="mainNav deactivated" style="position:absolute; right:10px; top:2px" *ngIf="chatAccount"
+              [ngbTooltip]="'Coming soon..'">
+              <span class="fa fa-user"></span> {{chatAccount.name}}
+            </a>
+
+
+          </div>
+          <div class="card-header" style="background-color: #f3f3f3">
+            <div></div>
+            <ul class="nav nav-tabs card-header-tabs">
+              <li class="nav-item" *ngFor="let tab of getAttributes(playTabs)">
+                <a [class]="'nav-link' + ((tab.active) ? ' active' :'')  + ((tab.disabled) ? ' disabled' :'')"
+                  (click)="switchTab(playTabs, tab)">{{tab.name}}</a>
+              </li>
+            </ul>
+          </div>
+          <div class="card-body">
+
+            <div style="position:absolute; right: 15px; margin-top: -72px">
               <circle-progress [percent]="queueStates[EGameMode.MODE_1ON1]/2*100" [radius]="20" [outerStrokeWidth]="3"
                 [innerStrokeWidth]="3" [space]="-3" [outerStrokeColor]="'#a4a7ae'" [innerStrokeColor]="'#e7e8ea'"
                 [animation]="true" [titleFontSize]="16" [subtitleColor]="'#aaaaaa'" [animationDuration]="300"
@@ -189,46 +296,48 @@
                 [title]="queueStates[EGameMode.MODE_5ON5]" subtitle="5vs5&nbsp;&nbsp;" units="" [startFromZero]="false">
               </circle-progress>
             </div>
-          </div>
-          <div class="card-header" style="background-color: #f3f3f3">
-            <div></div>
-            <ul class="nav nav-tabs card-header-tabs">
-              <li class="nav-item" *ngFor="let tab of getAttributes(playTabs)">
-                <a [class]="'nav-link' + ((tab.active) ? ' active' :'')  + ((tab.disabled) ? ' disabled' :'')"
-                  (click)="switchTab(playTabs, tab)">{{tab.name}}</a>
-              </li>
-            </ul>
-          </div>
-          <div class="card-body">
             <div *ngIf="playTabs.BOT_GAME.active">
               <div class="row">
-                <div class="col-md-6">
-                  Select a Hero:
-                  <select class="custom-select" [(ngModel)]="selectedHero">
-                    <option *ngFor="let heroValue of getEnumValues(EHeroEnum)" [ngValue]="heroValue">
-                      {{HeroEnumText.get(heroValue)}}
-                    </option>
-                  </select>
+                <div class="col-md-12">
+                  Select a Hero:<br />
+                  <a class="heroSelect" *ngFor="let heroValue of getEnumValues(EHeroEnum)"
+                    (click)="selectedHero = heroValue">
+                    <img
+                      [src]="'assets/images/gameicons/heroes/' + HeroEnumGameName.get(heroValue) + '/gearicon.tga.3.png'"
+                      [style.opacity]="selectedHero == heroValue ? '1.0' : 0.5"
+                      [ngbTooltip]="HeroEnumText.get(heroValue)">
+                  </a>
                 </div>
-                <div class="col-md-6">
-                  Select a Pet:
-                  <select class="custom-select" [(ngModel)]="selectedPet">
-                    <option *ngFor="let petValue of getEnumValues(EPetEnum)" [ngValue]="petValue">
-                      {{PetEnumText.get(petValue)}}
-                    </option>
-                  </select>
+              </div>
+              <br />
+              <div class="row">
+                <div class="col-md-12">
+                  Select a Pet: <br />
+                  <a class="heroSelect" *ngFor="let petValue of getEnumValues(EPetEnum)"
+                    (click)="selectedPet = petValue">
+                    <img [src]="'assets/images/gameicons/pets/' + PetEnumGameName.get(petValue) + '/icon.tga.3 (3).png'"
+                      [style.opacity]="selectedPet == petValue ? '1.0' : 0.5" [ngbTooltip]="PetEnumText.get(petValue)">
+                  </a>
                 </div>
+              </div>
+              <div class="row">
                 <div class="col-md-12" style="margin-top:14px;">
                   Select a difficulty level:
-                  <select class="custom-select" [(ngModel)]="selectedHero">
-                    <option *ngFor="let heroValue of getEnumValues(EHeroEnum)" [ngValue]="heroValue">
-                      {{HeroEnumText.get(heroValue)}}
+                  <select class="custom-select" [(ngModel)]="selectedBotDifficulty">
+                    <option value="easy">
+                      Easy
+                    </option>
+                    <option value="normal">
+                      Normal
+                    </option>
+                    <option value="hard">
+                      Hard
                     </option>
                   </select>
                 </div>
-                <div class="col-md-12">
+                <div class="col-md-12" style="position:absolute; bottom: 10px;">
                   &nbsp;
-                  <button class="btn btn-primary btn-block" (click)="startGameSearch()">Play versus Bots</button>
+                  <button class="btn btn-primary btn-block" (click)="joinBotGame()">Play versus Bots</button>
                 </div>
               </div>
             </div>
@@ -297,23 +406,32 @@
                 <br /><br />
 
                 <div class="row">
-                  <div class="col-md-6">
-                    Select a Hero:
-                    <select class="custom-select" [(ngModel)]="selectedHero">
-                      <option *ngFor="let heroValue of getEnumValues(EHeroEnum)" [ngValue]="heroValue">
-                        {{HeroEnumText.get(heroValue)}}
-                      </option>
-                    </select>
-                  </div>
-                  <div class="col-md-6">
-                    Select a Pet:
-                    <select class="custom-select" [(ngModel)]="selectedPet">
-                      <option *ngFor="let petValue of getEnumValues(EPetEnum)" [ngValue]="petValue">
-                        {{PetEnumText.get(petValue)}}
-                      </option>
-                    </select>
-                  </div>
                   <div class="col-md-12">
+                    Select a Hero:<br />
+                    <a class="heroSelect" *ngFor="let heroValue of getEnumValues(EHeroEnum)"
+                      (click)="selectedHero = heroValue">
+                      <img
+                        [src]="'assets/images/gameicons/heroes/' + HeroEnumGameName.get(heroValue) + '/gearicon.tga.3.png'"
+                        [style.opacity]="selectedHero == heroValue ? '1.0' : 0.5"
+                        [ngbTooltip]="HeroEnumText.get(heroValue)">
+                    </a>
+                  </div>
+                </div>
+                <br />
+                <div class="row">
+                  <div class="col-md-12">
+                    Select a Pet: <br />
+                    <a class="heroSelect" *ngFor="let petValue of getEnumValues(EPetEnum)"
+                      (click)="selectedPet = petValue">
+                      <img
+                        [src]="'assets/images/gameicons/pets/' + PetEnumGameName.get(petValue) + '/icon.tga.3 (3).png'"
+                        [style.opacity]="selectedPet == petValue ? '1.0' : 0.5"
+                        [ngbTooltip]="PetEnumText.get(petValue)">
+                    </a>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-12" style="position:absolute; bottom: 10px;">
                     &nbsp;
                     <button class="btn btn-primary btn-block" (click)="startGameSearch()">Play</button>
                   </div>
@@ -392,3 +510,4 @@
       </div>
     </div>
   </div>
+</div>

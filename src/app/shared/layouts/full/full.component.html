@@ -2,17 +2,6 @@
 <!-- Main wrapper - style you can find in pages.scss -->
 <!-- ============================================================== -->
 <style>
-  #dragbar {
-    -webkit-app-region: drag;
-    cursor: move;
-    background: url('assets/images/logo.jpg') no-repeat 28px 2px #24304a;
-    height: 56px;
-  }
-
-  #dragbar a {
-    -webkit-app-region: no-drag;
-  }
-
   #close {
     color: #fff;
     position: absolute;
@@ -37,10 +26,12 @@
     <!-- Page wrapper  -->
     <!-- ============================================================== -->
     <div class="page-wrapper">
-      <div style="width: 100%; padding: 24px 20px 4px 0px;" id="dragbar">
+      <div id="dragbar">
         <div id="close" (click)="closeWindow()"><span class="fa fa-window-close"></span></div>
         <p class="text-right">
           &nbsp;
+          <a class="btn btn-link btn-sm text-white" target="_blank" href="https://www.tricider.com/brainstorming/2kmOXehNw7Z"
+          role="button"><span class="fa fa-lightbulb"></span> Vote for / add new feature requests!</a> &nbsp;|&nbsp;
           <a class="btn btn-link btn-sm text-white" target="_blank" href="https://gitreports.com/issue/padjon/Strife-CE"
             role="button"><span class="fa fa-bug"></span> Found a bug? Report it here!</a> &nbsp;|&nbsp;
           <a class="btn btn-link btn-sm text-white" (click)="logout()" role="button"><span
@@ -52,7 +43,7 @@
       <!-- ============================================================== -->
       <!-- Container fluid  -->
       <!-- ============================================================== -->
-      <div class="container-fluid">
+      <div class="container-fluid" id="content-area">
 
         <app-breadcrumb></app-breadcrumb>
         <!-- ============================================================== -->
