@@ -1,3 +1,4 @@
+import { PetEnumGameName } from './../../data/common/models/transient/pet.enums';
 import { EChatAccountState } from './../../data/common/models/transient/chat-account';
 import { environment } from 'app/data/common-imports';
 import { Parse } from 'app/data/services';
@@ -253,7 +254,7 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
     this.user.setSetting(EUserSettingEnum.LAST_BOT_DIFFICULTY_SELECTION, this.selectedBotDifficulty, true);
     if (window && (window as any).process) {
       const { ipcRenderer } = (<any>window).require('electron');
-      ipcRenderer.send('start-strife', { type: 'bot', map: 'strife', difficulty: this.selectedBotDifficulty });
+      ipcRenderer.send('start-strife', { type: 'bot', map: 'strife', difficulty: this.selectedBotDifficulty, name: this.chatAccount.name, pet: PetEnumGameName.get(this.selectedPet), hero: HeroEnumGameName.get(this.selectedHero) });
       this.successMessage('Game is loading', 'Strife is starting in the background!');
     }
   }
