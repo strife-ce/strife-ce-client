@@ -45,9 +45,12 @@ npm start
 ```
 
 You can view the application in your browser (5a) or via the electron app (5b). In your browser not all features (like starting a game) are available but it is easier to work with.
+
+
 5a) Open the Strife CE Client in your browser
 
 Open `localhost:4200` in your browser
+
 
 5b) Open the Strife CE Client in the electron app
 
