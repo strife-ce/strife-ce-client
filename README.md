@@ -40,7 +40,7 @@ First you have to setup a local master server. You find the repository and howTo
 after setting up the project, run the following command in your client repository directory:
 
 ```bash
-npm run start
+npm start
 ```
 
 You can view the application in your browser or via the electron app. In your browser not all features (like starting a game) are available but it is easier to work with.
