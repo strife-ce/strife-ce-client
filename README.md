@@ -3,11 +3,17 @@
 The Strife CE client consists of two parts.One part is a electron app, the other part is the angular website, which is shown in the app. This repository contains the content of the angular website. 
 The electron app itself is very rudimentary and usually doesn't need any modifications. Thats why the app itself is not available via an repository. Just install Strife CE from http://strife-ce.com to get the electron app.
 
+## Contact and Help
+If you have issues or questions regarding the code or the following "How to start"-Guide, reach out to strife-ce@devsheep.de or contact Pad at the Strife CE discord (https://discord.gg/a8SRUGk)
+
+## How to contribute
+You can't push to this repository directly. Feel free to fork this repository and create pull requests for your implementations.
+
 ## How to start
 
 This is a NPM Project. You need to have Node.JS and a IDE like Visual Studio Code installed.
 
-1. Clone the repository locally.
+1. Fork the repository and clone your fork locally.
 2. Initialize the submodule (src/app/data/common) from your cloned directory:
 
 ```bash
@@ -44,9 +50,11 @@ Open `localhost:4200` in your browser
 ### 5b) Open the Strife CE Client in the electron app
 
 If you have not already installed Strife CE, install it from http://strife-ce.com.
-You will find the electron app in your installation path (Usually C:\Program files(X86)\Strife CE.
+You will find the electron app in your installation path (Usually C:\Program files(X86)\Strife CE).
 start the strife-ce.exe with the parameter -devmode
 
 ```bash
 strife-ce.exe -devmode
 ```
+
+It should start the app now with your locally running website.
