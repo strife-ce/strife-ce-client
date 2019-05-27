@@ -28,14 +28,15 @@ npm install
 ```
 
 You can start the application now locally, connected against the productive remote master server (4a) or against your locally driven master server (4b)
-### 4a) Start connected to the productive master server
+
+4a) Start connected to the productive master server
 run the following command:
 
 ```bash
 npm run start:prod
 ```
 
-### 4b) Start connected to the local master server
+4b) Start connected to the local master server
 First you have to setup a local master server. You find the repository and howTo's here: https://github.com/strife-ce/strife-ce-master)
 after setting up the project, run the following command in your client repository directory:
 
@@ -44,11 +45,11 @@ npm start
 ```
 
 You can view the application in your browser (5a) or via the electron app (5b). In your browser not all features (like starting a game) are available but it is easier to work with.
-### 5a) Open the Strife CE Client in your browser
+5a) Open the Strife CE Client in your browser
 
 Open `localhost:4200` in your browser
 
-### 5b) Open the Strife CE Client in the electron app
+5b) Open the Strife CE Client in the electron app
 
 If you have not already installed Strife CE, install it from http://strife-ce.com.
 You will find the electron app in your installation path (Usually C:\Program files(X86)\Strife CE).
