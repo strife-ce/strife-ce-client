@@ -1,71 +1,52 @@
-# Angular 7 Boilerplate
+# Strife CE Client
 
-1. Go to project folder and install dependencies:
+The Strife CE client consists of two parts.One part is a electron app, the other part is the angular website, which is shown in the app. This repository contains the content of the angular website. 
+The electron app itself is very rudimentary and usually doesn't need any modifications. Thats why the app itself is not available via an repository. Just install Strife CE from http://strife-ce.com to get the electron app.
+
+## How to start
+
+This is a NPM Project. You need to have Node.JS and a IDE like Visual Studio Code installed.
+
+1. Clone the repository locally.
+2. Initialize the submodule (src/app/data/common) from your cloned directory:
+
+```bash
+git submodule update --init
+```
+This submodule contains all datamodels, which are shared between Client and Master-Server
+
+3. Execute in the directory of the cloned repository:
 
 ```bash
 npm install
 ```
 
-2. Launch development server, and open `localhost:4200` in your browser:
+You can start the application now locally, connected against the productive remote master server or against your locally driven master server (see strife-ce-master repository)
+### 4a) Start connected to the productive master server
+run the following command:
 
 ```bash
-npm start
+npm run start:prod
 ```
 
-## Project structure
+### 4b) Start connected to the local master server
+run the following command:
 
-```
-dist/                        compiled version
-documentation/               generated document source
-e2e/                         end-to-end tests
-src/                         project source code
-|- app/                      app components
-|  |- core/                  core module (singleton services and single-use components)
-|  |- shared/                shared module  (common components, directives and pipes)
-|  |- app.component.*        app root component (shell)
-|  |- app.module.ts          app root module definition
-|  |- app.routing.ts         app routes
-|  +- ...                    additional modules and components
-|- assets/                   app assets (images, fonts, sounds...)
-|- environments/             values for various build environments
-|- index.html                html entry point
-|- styles.css                global style entry point
-|- main.ts                   app entry point
-|- polyfills.ts              polyfills needed by Angular
-+- test.ts                   unit tests entry point
+```bash
+npm run start:prod
 ```
 
-## Main tasks
+You can view the application in your browser or via the electron app. In your browser not all features (like starting a game) are available but it is easier to work with.
+### 5a) Open the Strife CE Client in your browser
 
-Task automation is based on [NPM scripts](https://docs.npmjs.com/misc/scripts).
+Open `localhost:4200` in your browser
 
-| Tasks                   | Description                                                                       |
-| ----------------------- | --------------------------------------------------------------------------------- |
-| npm start               | Run development server on `http://localhost:4200/`                                |
-| npm run build:dev       | Lint code and build app for development env in `dist/` folder                     |
-| npm run build:prod      | Lint code and build app for production env in `dist/` folder                      |
-| npm run build:local     | Lint code and build app for local env in `dist/` folder                           |
-| npm run pwa:build:dev   | Lint code and build PWA app for development env in `dist/` folder                 |
-| npm run pwa:build:prod  | Lint code and build PWA app for production env in `dist/` folder                  |
-| npm run pwa:build:local | Lint code and build PWA app for local env in `dist/` folder                       |
-| npm run lint            | Lint code                                                                         |
-| npm run compodoc:gen    | Generate Project document in ./documentation folder                               |
-| npm run compodoc:serve  | You can access ./documentation folder via `http://localhost:8080`                 |
-| npm run compodoc        | It generate latest ./documentation and you can access via `http://localhost:8080` |
+### 5b) Open the Strife CE Client in the electron app
 
-### Development server
+If you have not already installed Strife CE, install it from http://strife-ce.com.
+You will find the electron app in your installation path (Usually C:\Program files(X86)\Strife CE.
+start the strife-ce.exe with the parameter -devmode
 
-Run `npm start` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change
-any of the source files.
-
-### Code scaffolding
-
-Run `npm run generate -- component <name>` to generate a new component. You can also use
-`npm run generate -- directive|pipe|service|class|module`.
-
-If you have installed [angular-cli](https://github.com/angular/angular-cli) globally with `npm install -g @angular/cli`,
-you can also use the command `ng generate` directly.
-
-### PWA Service worker support
-
-To enalbe service worker go to `src/main.ts` and uncomment service worker code.
+```bash
+strife-ce.exe -devmode
+```
