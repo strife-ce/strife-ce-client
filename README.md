@@ -1,7 +1,7 @@
 # Strife CE Client
 
-The Strife CE client consists of two parts.One part is a electron app, the other part is the angular website, which is shown in the app. This repository contains the content of the angular website. 
-The electron app itself is very rudimentary and usually doesn't need any modifications. Thats why the app itself is not available via an repository. Just install Strife CE from http://strife-ce.com to get the electron app.
+The Strife CE client consists of two parts. One part is an electron app, the other part is the angular website, which is shown in the app. This repository contains the content of the angular website. 
+The electron app itself is rudimentary and there is o need for modifications. So the electron app itself is not available as a repository. Just install Strife CE from http://strife-ce.com to get the electron app.
 
 ## Contact and Help
 If you have issues or questions regarding the code or the following "How to start"-Guide, reach out to strife-ce@devsheep.de or contact Pad at the Strife CE discord (https://discord.gg/a8SRUGk)
