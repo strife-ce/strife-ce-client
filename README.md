@@ -36,10 +36,11 @@ npm run start:prod
 ```
 
 ### 4b) Start connected to the local master server
-run the following command:
+First you have to setup a local master server. You find the repository and howTo's here: https://github.com/strife-ce/strife-ce-master)
+after setting up the project, run the following command in your client repository directory:
 
 ```bash
-npm run start:prod
+npm run start
 ```
 
 You can view the application in your browser or via the electron app. In your browser not all features (like starting a game) are available but it is easier to work with.
