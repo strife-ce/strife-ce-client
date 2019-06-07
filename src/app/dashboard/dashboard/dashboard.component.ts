@@ -3,12 +3,13 @@ import { environment } from 'app/data/common-imports';
 import { Parse } from 'app/data/services';
 import { Component, OnInit, ElementRef, ViewChild, Injector, AfterViewChecked } from '@angular/core';
 import * as io from 'socket.io-client';
-import { EC2ServerMessage, ES2ClientMessage, ChatAccount, EHeroEnum, HeroEnumText, EPetEnum, PetEnumText, PetEnumGameName, PartyMember, Party, EGameMode, EAccountFlags, Account, User, EUserSettingEnum, MatchInfo, HeroEnumGameName } from 'app/data/models';
+import { EC2ServerMessage, ES2ClientMessage, ChatAccount, EHeroEnum, HeroEnumText, EPetEnum, PetEnumText, PetEnumGameName, PartyMember, Party, EGameMode, EAccountFlags, Account, User, EUserSettingEnum, MatchInfo, HeroEnumGameName, EPartyMemberState } from 'app/data/models';
 import { View } from '@app/views/view';
 import { AccountService, UserService } from '@app/data/modelservices';
 import { HttpClient } from '@angular/common/http';
 
 import { beep } from './sounds';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 interface IJoinInfo { secret: string; host: string; port: string; }
 
@@ -50,6 +51,7 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
   readonly allTagTreshold = 3 * 60000;
   private lastAllTag = new Date(new Date().getTime() - this.allTagTreshold);
   public latestPatrons: Array<ChatAccount> = [];
+  private partyPlayerInvites: Set<ChatAccount> = new Set();
   public patreonData = { pledge_sum: 0 };
   public playTabs = {
     MATCHMAKING: { name: 'Match', disabled: false, active: true },
@@ -70,9 +72,10 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
   private stateSwitchCounter = 0;
 
   @ViewChild('sendMsgInput') sendMsgInput: ElementRef;
+  @ViewChild('partyInvite') inviteModal: ElementRef;
   @ViewChild('chatScrollContainer') private chatScrollContainer: ElementRef;
 
-  constructor(protected injector: Injector, private accountService: AccountService, private userService: UserService, private http: HttpClient) {
+  constructor(protected injector: Injector, private accountService: AccountService, private userService: UserService, private http: HttpClient, private modalService: NgbModal) {
     super(injector);
   }
 
@@ -162,10 +165,16 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
       this.chatAccountMap.set(account.id, account);
     });
 
-    this.socket.on(ES2ClientMessage.PARTY_CREATED, (party) => {
+    this.socket.on(ES2ClientMessage.PARTY_INVITED, (party) => {
       this.party = party;
-      this.partyMember.ready = true;
-      this.socket.emit(EC2ServerMessage.PARTY_UPDATE_STATE, this.partyMember);
+      console.log("INVITE RECEIVED");
+      this.openModal(this.inviteModal);
+      
+    });
+
+    this.socket.on(ES2ClientMessage.PARTY_UPDATED, (party) => {
+      this.party = party;
+      console.log(party);
     });
 
     this.socket.on(ES2ClientMessage.PARTY_STARTED_MATCHMAKING, () => {
@@ -295,21 +304,31 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
   }
 
   public startGameSearch() {
-    this.user.setSetting(EUserSettingEnum.LAST_HERO_SELECTION, this.selectedHero);
-    this.user.setSetting(EUserSettingEnum.LAST_PET_SELECTION, this.selectedPet);
-    this.user.setSetting(EUserSettingEnum.LAST_GAMEMODE_SELECTION, JSON.stringify(this.selectedGameModes), true);
-    let gameModes = 0;
-    for (const val of this.getEnumValues(EGameMode)) {
-      if (this.selectedGameModes[val]) {
-        gameModes += val;
+    const singleMode = !this.party || (this.party.members.length == 1);
+console.log(singleMode);
+    if (singleMode || this.party.chief.id == this.chatAccount.id) {
+      this.user.setSetting(EUserSettingEnum.LAST_HERO_SELECTION, this.selectedHero);
+      this.user.setSetting(EUserSettingEnum.LAST_PET_SELECTION, this.selectedPet);
+      this.user.setSetting(EUserSettingEnum.LAST_GAMEMODE_SELECTION, JSON.stringify(this.selectedGameModes), true);
+      let gameModes = 0;
+      for (const val of this.getEnumValues(EGameMode)) {
+        if (this.selectedGameModes[val]) {
+          gameModes += val;
+        }
       }
-    }
 
-    if (gameModes === 0) {
-      this.errorMessage('No gamemode selected', 'Select at least one gamemode to play.');
-    } else {
-      this.partyMember = PartyMember.create(this.selectedHero, this.selectedPet);
-      this.socket.emit(EC2ServerMessage.PARTY_CREATE, this.partyMember, gameModes);
+      if (gameModes === 0) {
+        this.errorMessage('No gamemode selected', 'Select at least one gamemode to play.');
+      } else {
+
+        this.partyMember = PartyMember.create(this.selectedHero, this.selectedPet);
+        if (singleMode) {
+          this.socket.emit(EC2ServerMessage.PARTY_CREATE, this.partyMember, gameModes, true);
+        } else {
+          this.partyMember.state = EPartyMemberState.READY;
+          this.socket.emit(EC2ServerMessage.PARTY_UPDATE_STATE, this.partyMember, gameModes);
+        }
+      }
     }
   }
 
@@ -328,8 +347,12 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
     } catch (err) { }
   }
 
-  public getChatAccounts(): Array<ChatAccount> {
-    return Array.from(this.chatAccountMap.values());
+  public getChatAccounts(includingMyself = true): Array<ChatAccount> {
+    if (includingMyself) {
+      return Array.from(this.chatAccountMap.values());
+    } else {
+      return Array.from(this.chatAccountMap.values()).filter(acc => acc.id != this.chatAccount.id);
+    }
   }
 
   public switchTab(tabs, tab) {
@@ -345,5 +368,39 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
       this.state = state;
       this.socket.emit(EC2ServerMessage.CHAT_UPDATE_STATE, this.state);
     }
+  }
+
+  public changePartyInviteState(chatAccount: ChatAccount, event) {
+    const shouldAdd = event.target.checked;
+    if (shouldAdd) {
+      this.partyPlayerInvites.add(chatAccount)
+    } else {
+      this.partyPlayerInvites.delete(chatAccount)
+    }
+  }
+
+  public inviteToParty() {
+    const partyPlayers = Array.from(this.partyPlayerInvites).filter(p => p.canReceivePartyInvite);
+    console.log(Array.from(this.partyPlayerInvites));
+    if (partyPlayers.length > 0) {
+      if (!this.party) {
+        this.partyMember = PartyMember.create(this.selectedHero, this.selectedPet);
+        this.socket.emit(EC2ServerMessage.PARTY_CREATE, this.partyMember);
+        this.socket.once(ES2ClientMessage.PARTY_CREATED, (party) => {
+          this.party = party;
+          this.socket.emit(EC2ServerMessage.PARTY_INVITE, partyPlayers);
+        });
+      } else {
+        this.socket.emit(EC2ServerMessage.PARTY_INVITE, partyPlayers);
+      }
+    }
+  }
+
+
+
+  public openModal(content) {
+    this.partyPlayerInvites.clear();
+    this.modalService.open(content, { backdropClass: 'ce-backdrop' }).result.then((result) => {
+    });
   }
 }

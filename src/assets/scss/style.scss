@@ -26,6 +26,10 @@ File: scss
 
 @import '~ngx-toastr/toastr-bs4-alert';
 
+[class*='col'] {
+  position: static !important;
+}
+
 $dragbarHeight: 56px;
 
 .progress {
@@ -137,4 +141,10 @@ b {
 
 .btn-link:hover {
   text-decoration: none !important;
+}
+
+
+.ce-backdrop {
+  opacity: 0.4 !important;
+  transition: none !important;
 }
