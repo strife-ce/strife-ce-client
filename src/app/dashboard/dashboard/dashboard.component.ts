@@ -54,7 +54,7 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
   readonly allTagTreshold = 3 * 60000;
   private lastAllTag = new Date(new Date().getTime() - this.allTagTreshold);
   public latestPatrons: Array<ChatAccount> = [];
-  private partyPlayerInvites: Set<ChatAccount> = new Set();
+  public partyPlayerInvites: Set<ChatAccount> = new Set();
   public patreonData = { pledge_sum: 0 };
   public playTabs = {
     MATCHMAKING: { name: 'Match', disabled: false, active: true },
@@ -178,12 +178,26 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
     });
 
     this.socket.on(ES2ClientMessage.PARTY_UPDATED, (party) => {
-      this.party = party;
-      this.partyMember = this.party.members.find(m => m.chatAccount.id === this.chatAccount.id);
-      this.selectedHero = this.partyMember.hero;
-      this.selectedPet = this.partyMember.pet;
-      this.setState(this.party.members.length > 1 ? EChatAccountState.PARTYING : EChatAccountState.IDLE);
-      this.setGameModesByValue(this.party.gamemodes);
+      this.partyMember = party.members.find(m => m.chatAccount.id === this.chatAccount.id);
+      if (this.partyMember === undefined) {
+        this.errorMessage('Removed from party', 'You were removed from the party by the party owner.');
+        this.setState(EChatAccountState.IDLE);
+        this.party = null;
+      } else {
+        this.party = party;
+        this.selectedHero = this.partyMember.hero;
+        this.selectedPet = this.partyMember.pet;
+        this.setState(this.party.members.length > 1 ? EChatAccountState.PARTYING : EChatAccountState.IDLE);
+        this.setGameModesByValue(this.party.gamemodes);
+      }
+    });
+
+    this.socket.on(ES2ClientMessage.PARTY_INVITE_CANCELED, () => {
+      if (this.inviteParty) {
+        this.modalService.dismissAll();
+        this.setState(EChatAccountState.IDLE);
+        this.errorMessage('Canceled party invite', 'The party invite was revoked by the party owner.');
+      }
     });
 
     this.socket.on(ES2ClientMessage.PARTY_STARTED_MATCHMAKING, () => {
@@ -397,6 +411,10 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
 
   public inviteToParty() {
     const partyPlayers = Array.from(this.partyPlayerInvites).filter(p => p.canReceivePartyInvite);
+    while (this.getMaxInviteCount() < partyPlayers.length) {
+      partyPlayers.pop();
+    }
+
     if (partyPlayers.length > 0) {
       if (!this.party) {
         this.partyMember = PartyMember.create(this.selectedHero, this.selectedPet);
@@ -519,5 +537,15 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
   public notReady() {
     this.partyMember.state = EPartyMemberState.NORMAL;
     this.socket.emit(EC2ServerMessage.PARTY_UPDATE_STATE, this.partyMember);
+  }
+
+  public getMaxInviteCount() {
+    const maxArrangedTeamSize = 5;
+    const currentSize = (this.party) ? this.party.members.length : 1;
+    return maxArrangedTeamSize - currentSize;
+  }
+
+  public removePlayerFromParty(member: PartyMember) {
+    this.socket.emit(EC2ServerMessage.PARTY_REMOVE_MEMBER, member, this.getGameModesValue());
   }
 }

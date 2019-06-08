@@ -37,6 +37,14 @@ $dragbarHeight: 56px;
   background-color: #888;
 }
 
+.hvisible {
+  display:none;
+}
+
+.hvisible:hover {
+  display:inherit;
+}
+
 #dragbar {
   position:absolute;
   left:0px;

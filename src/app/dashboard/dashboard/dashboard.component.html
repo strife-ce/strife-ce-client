@@ -272,25 +272,35 @@
                       </div>
                     </div>
                     <div *ngIf="party">
-                      <div style="width:112px;" class="float-left" *ngFor="let member of party.members"
-                        [style.opacity]="(member.state == EPartyMemberState.INVITE_PENDING) ? 0.5 : 1.0">
-                        <div style="width:100%;">
-                          <b style="font-size:12px;"><span class="fa fa-ellipsis-h"></span>
-                            {{member.chatAccount.name}}</b>
-                        </div>
-                        <div>
-                          <img style="width:40px" [src]="getHeroIcon(member.hero)"
-                            [ngbTooltip]="HeroEnumText.get(member.hero)" placement="bottom">
-                          <img style="width:40px; margin-left:0px" [src]="getPetIcon(member.pet)"
-                            [ngbTooltip]="PetEnumText.get(member.pet)" placement="bottom">
+                      <div style="width:112px; position:relative" class="float-left"
+                        *ngFor="let member of party.members">
+                        <a style="position:absolute; left: 0px; right: 0px; bottom:0px; top:0px; z-index:9999;"
+                          [ngbTooltip]="'Remove ' + member.chatAccount.name + ' from party'" placement="top"
+                          *ngIf="chatAccount.id != member.chatAccount.id && chatAccount.id == party.chief.id" (click)="removePlayerFromParty(member)"></a>
+                        <div [style.opacity]="(member.state == EPartyMemberState.INVITE_PENDING) ? 0.5 : 1.0">
+                          <div style="width:100%;">
+                            <b style="font-size:12px;">
+
+                              <span class="fa fa-ellipsis-h"
+                                *ngIf="member.state == EPartyMemberState.INVITE_PENDING"></span>
+                              <span class="fa fa-user-cog" *ngIf="member.state == EPartyMemberState.NORMAL"></span>
+                              <span class="fa fa-user-check" *ngIf="member.state == EPartyMemberState.READY"></span>
+                              {{member.chatAccount.name}}</b>
+                          </div>
+                          <div>
+                            <img style="width:40px" [src]="getHeroIcon(member.hero)"
+                              [ngbTooltip]="HeroEnumText.get(member.hero)" placement="bottom">
+                            <img style="width:40px; margin-left:0px" [src]="getPetIcon(member.pet)"
+                              [ngbTooltip]="PetEnumText.get(member.pet)" placement="bottom">
+                          </div>
                         </div>
                       </div>
                     </div>
 
-                    <div style="width:112px;" class="float-left">
+                    <div style="width:112px;" class="float-left"
+                      *ngIf="(!party || party.chief.id == chatAccount.id) && getMaxInviteCount() > 0">
                       <br />
-                      <a style="font-size: 40px" class="fa fa-plus-square" (click)="openModal(invitePlayers)"
-                        *ngIf="!party || party.chief.id == chatAccount.id"></a>
+                      <a style="font-size: 40px" class="fa fa-plus-square" (click)="openModal(invitePlayers)"></a>
                     </div>
 
                   </div>
@@ -394,7 +404,8 @@
                     </div>
                     <div class="col-md-3" style="padding-top:18px; padding-right:2px;"
                       *ngIf="partyMember.state === EPartyMemberState.READY">
-                      <div style="font-size:12px; line-height:14px; padding-top:6px">Waiting for other players to be ready...</div>
+                      <div style="font-size:12px; line-height:14px; padding-top:6px">Waiting for other players to be
+                        ready...</div>
                     </div>
                     <div class="col-md-3" style="padding-top:18px; padding-left:2px;"
                       *ngIf="partyMember.state === EPartyMemberState.READY">
@@ -482,18 +493,18 @@
           <div class="news">
 
             <ngb-accordion #acc="ngbAccordion" activeIds="ngb-panel-0">
-                <ngb-panel title="v0.3.0 Client update [06/08]">
-                  <ng-template ngbPanelContent>
-                    <ul>
-                      <li><b>Arranged parties added</b></li>
-                      <li>Reordering of client elements for better overview</li>
-                      <li>Fix of chat scroll bug</li>
-                      <li>Fix of cutted tooltips</li>
-                      <li>Fix of search time value after multiple searches</li>
-                      <li>Multiple server crash fixes</li>
-                    </ul>
-                  </ng-template>
-                </ngb-panel>
+              <ngb-panel title="v0.3.0 Client update [06/08]">
+                <ng-template ngbPanelContent>
+                  <ul>
+                    <li><b>Arranged parties added</b></li>
+                    <li>Reordering of client elements for better overview</li>
+                    <li>Fix of chat scroll bug</li>
+                    <li>Fix of cutted tooltips</li>
+                    <li>Fix of search time value after multiple searches</li>
+                    <li>Multiple server crash fixes</li>
+                  </ul>
+                </ng-template>
+              </ngb-panel>
               <ngb-panel title="v0.2.0 Client update [05/21]">
                 <ng-template ngbPanelContent>
                   <ul>
@@ -644,12 +655,16 @@
   <div class="modal-body">
     <form>
       <div class="form-group">
+        You can invite up to <b>{{getMaxInviteCount() - partyPlayerInvites.size}} more</b> players:
+        <br /><br />
         <div>
           <div *ngIf="getChatAccounts(false).length != 0; else noAvailablePlayers">
             <div *ngFor="let acc of getChatAccounts(false)">
               <div class="checkbox" *ngIf="acc.canReceivePartyInvite">
                 <label style="width:100%">
-                  <input type="checkbox" (change)="changePartyInviteState(acc,$event)"> {{acc.name}}
+                  <input type="checkbox" (change)="changePartyInviteState(acc,$event)"
+                    [disabled]="(getMaxInviteCount() - partyPlayerInvites.size) <= 0 && !partyPlayerInvites.has(acc)">
+                  {{acc.name}}
                 </label>
               </div>
             </div>
