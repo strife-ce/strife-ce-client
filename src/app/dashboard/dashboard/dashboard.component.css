@@ -56,19 +56,19 @@ a.disabled {
   font-size: 12px
 }
 
-.heroSelect {
-  display:inline-block; 
+.heroSelect, .heroSelectInactive {
+  display:inline-block;
   margin:2px;
   width: 40px;
 }
 
-.heroSelect img {
-  width:100%; 
+.heroSelect img, .heroSelectInactive img {
+  width:100%;
   opacity: 0.5
 }
 
 .heroSelect:hover img {
-  width:60px; 
+  width:60px;
   margin-top:-30px;
   margin-left: -10px;
   opacity: 1.0 !important;

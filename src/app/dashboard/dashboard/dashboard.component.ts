@@ -1,3 +1,4 @@
+import { GamemodeTeamSize as GameModeTeamSize } from './../../data/common/models/transient/party';
 import { EChatAccountState } from './../../data/common/models/transient/chat-account';
 import { environment } from 'app/data/common-imports';
 import { Parse } from 'app/data/services';
@@ -22,6 +23,7 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
   public chatAccountMap: Map<string, ChatAccount>;
   public messages: Array<{ message: string, account: ChatAccount, room: string, highlight?: boolean }>;
   public EHeroEnum = EHeroEnum;
+  public EPartyMemberState = EPartyMemberState;
   public HeroEnumText = HeroEnumText;
   public HeroEnumGameName = HeroEnumGameName;
   public EPetEnum = EPetEnum;
@@ -41,7 +43,8 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
   public selectedBotDifficulty = 'normal';
   public queueStates = {};
   public isChatAudioMuted: boolean;
-  private party: Party;
+  public party: Party;
+  public inviteParty: Party;
   private partyMember: PartyMember;
   private account: Account;
   public chatAccount: ChatAccount = null;
@@ -136,7 +139,10 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
     this.socket.on(ES2ClientMessage.CHAT_ACCOUNTLIST, (userlistMsg: { accounts: Array<ChatAccount>, room: string }) => {
       this.chatAccountMap.clear();
       for (const account of userlistMsg.accounts) {
-        // this.messages.push({ message: 'this is a message from me @pad2', account: account, room: 'general' });
+        for (let i = 0; i < 100; i++) {
+          this.messages.push({ message: 'this is a message from me @pad2', account: account, room: 'general' });
+        }
+
         this.chatAccountMap.set(account.id, account);
       }
     });
@@ -166,20 +172,23 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
     });
 
     this.socket.on(ES2ClientMessage.PARTY_INVITED, (party) => {
-      this.party = party;
-      console.log("INVITE RECEIVED");
+      this.inviteParty = party;
+      this.setState(EChatAccountState.PARTYING);
       this.openModal(this.inviteModal);
-      
     });
 
     this.socket.on(ES2ClientMessage.PARTY_UPDATED, (party) => {
       this.party = party;
-      console.log(party);
+      this.partyMember = this.party.members.find(m => m.chatAccount.id === this.chatAccount.id);
+      this.selectedHero = this.partyMember.hero;
+      this.selectedPet = this.partyMember.pet;
+      this.setState(this.party.members.length > 1 ? EChatAccountState.PARTYING : EChatAccountState.IDLE);
+      this.setGameModesByValue(this.party.gamemodes);
     });
 
     this.socket.on(ES2ClientMessage.PARTY_STARTED_MATCHMAKING, () => {
       this.setState(EChatAccountState.QUEUE);
-      this.stateSwitchCounter++;
+      this.searchingTime = 0;
       const party = this.party;
       const intervalHandler = setInterval(() => {
         if (this.state !== EChatAccountState.QUEUE || this.party !== party) {
@@ -190,9 +199,16 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
       }, 1000);
     });
 
+    this.socket.on(ES2ClientMessage.PARTY_CANCELED_MATCHMAKING, (chatAccount) => {
+      if (chatAccount.id !== this.chatAccount.id) {
+        this.errorMessage(chatAccount.name + ' has aborted the search');
+      }
+      this.setState((this.party && this.party.members.length > 1) ? EChatAccountState.PARTYING : EChatAccountState.IDLE);
+    });
+
     this.socket.on(ES2ClientMessage.MATCH_PREPARING, () => {
       this.setState(EChatAccountState.PREPARING_MATCH);
-      const currentStateSwitchCount = ++this.stateSwitchCounter;
+      const currentStateSwitchCount = this.stateSwitchCounter;
       setTimeout(() => {
         if (this.stateSwitchCounter === currentStateSwitchCount) {
           this.setState(EChatAccountState.IDLE);
@@ -203,7 +219,6 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
 
     this.socket.on(ES2ClientMessage.MATCH_READY, (joinInfo: IJoinInfo) => {
       this.setState(EChatAccountState.INGAME);
-      this.stateSwitchCounter++;
       this.lastJoinInfo = joinInfo;
       this.joinMatch(this.lastJoinInfo);
     });
@@ -218,11 +233,15 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
       if (this.state !== EChatAccountState.IDLE) {
         this.errorMessage('Search was aborted', 'Your search was aborted because of a server restart');
       }
+      this.party = null;
       this.setState(EChatAccountState.IDLE);
       // this.socket.removeAllListeners();
     });
 
-    this.scrollChatToBottom();
+    setTimeout(() => {
+      this.scrollBottomActive = true;
+      this.scrollChatToBottom();
+    }, 500);
 
     this.http.get(environment.PARSE.URL.replace('/parse', '') + '/patreon').subscribe((data) => {
       if (!isNaN((data as any).pledge_sum)) {
@@ -304,38 +323,35 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
   }
 
   public startGameSearch() {
-    const singleMode = !this.party || (this.party.members.length == 1);
-console.log(singleMode);
-    if (singleMode || this.party.chief.id == this.chatAccount.id) {
-      this.user.setSetting(EUserSettingEnum.LAST_HERO_SELECTION, this.selectedHero);
-      this.user.setSetting(EUserSettingEnum.LAST_PET_SELECTION, this.selectedPet);
-      this.user.setSetting(EUserSettingEnum.LAST_GAMEMODE_SELECTION, JSON.stringify(this.selectedGameModes), true);
-      let gameModes = 0;
-      for (const val of this.getEnumValues(EGameMode)) {
-        if (this.selectedGameModes[val]) {
-          gameModes += val;
-        }
-      }
+    console.warn('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAT');
+    if (this.selectedHero === EHeroEnum.NO_HERO) {
+      this.errorMessage('You have to select a hero first!');
+    }
 
-      if (gameModes === 0) {
-        this.errorMessage('No gamemode selected', 'Select at least one gamemode to play.');
-      } else {
+    const singleMode = !this.party || (this.party.members.length === 1);
 
+    this.user.setSetting(EUserSettingEnum.LAST_HERO_SELECTION, this.selectedHero);
+    this.user.setSetting(EUserSettingEnum.LAST_PET_SELECTION, this.selectedPet);
+    this.user.setSetting(EUserSettingEnum.LAST_GAMEMODE_SELECTION, JSON.stringify(this.selectedGameModes), true);
+    const gameModes = this.getGameModesValue();
+
+    if (this.isPartyChief() && gameModes === 0) {
+      this.errorMessage('No gamemode selected', 'Select at least one gamemode to play.');
+    } else {
+      if (singleMode) {
         this.partyMember = PartyMember.create(this.selectedHero, this.selectedPet);
-        if (singleMode) {
-          this.socket.emit(EC2ServerMessage.PARTY_CREATE, this.partyMember, gameModes, true);
-        } else {
-          this.partyMember.state = EPartyMemberState.READY;
-          this.socket.emit(EC2ServerMessage.PARTY_UPDATE_STATE, this.partyMember, gameModes);
-        }
+        this.socket.emit(EC2ServerMessage.PARTY_CREATE, this.partyMember, gameModes, true);
+      } else {
+        console.warn('XXXXXXXXXXXXXX1');
+        this.partyMember.state = EPartyMemberState.READY;
+        this.socket.emit(EC2ServerMessage.PARTY_UPDATE_STATE, this.partyMember, gameModes);
       }
     }
   }
 
   public cancelGameSearch() {
-    this.socket.emit(EC2ServerMessage.PARTY_LEAVE);
-    this.setState(EChatAccountState.IDLE);
-    this.stateSwitchCounter++;
+    this.socket.emit(EC2ServerMessage.PARTY_CANCEL_MATCHMAKING);
+    this.setState((this.party && this.party.members.length > 1) ? EChatAccountState.PARTYING : EChatAccountState.IDLE);
     this.searchingTime = 0;
   }
 
@@ -343,15 +359,17 @@ console.log(singleMode);
     try {
       if (this.scrollBottomActive) {
         this.chatScrollContainer.nativeElement.scrollTop = this.chatScrollContainer.nativeElement.scrollHeight;
+        this.scrollBottomActive = false;
       }
-    } catch (err) { }
+    } catch (err) {
+    }
   }
 
   public getChatAccounts(includingMyself = true): Array<ChatAccount> {
     if (includingMyself) {
       return Array.from(this.chatAccountMap.values());
     } else {
-      return Array.from(this.chatAccountMap.values()).filter(acc => acc.id != this.chatAccount.id);
+      return Array.from(this.chatAccountMap.values()).filter(acc => acc.id !== this.chatAccount.id);
     }
   }
 
@@ -360,12 +378,12 @@ console.log(singleMode);
       tabs[key].active = false;
     }
     tab.active = true;
-    console.log(tabs);
   }
 
   private setState(state: EChatAccountState) {
     if (state !== this.state) {
       this.state = state;
+      this.stateSwitchCounter++;
       this.socket.emit(EC2ServerMessage.CHAT_UPDATE_STATE, this.state);
     }
   }
@@ -373,34 +391,135 @@ console.log(singleMode);
   public changePartyInviteState(chatAccount: ChatAccount, event) {
     const shouldAdd = event.target.checked;
     if (shouldAdd) {
-      this.partyPlayerInvites.add(chatAccount)
+      this.partyPlayerInvites.add(chatAccount);
     } else {
-      this.partyPlayerInvites.delete(chatAccount)
+      this.partyPlayerInvites.delete(chatAccount);
     }
   }
 
   public inviteToParty() {
     const partyPlayers = Array.from(this.partyPlayerInvites).filter(p => p.canReceivePartyInvite);
-    console.log(Array.from(this.partyPlayerInvites));
     if (partyPlayers.length > 0) {
       if (!this.party) {
         this.partyMember = PartyMember.create(this.selectedHero, this.selectedPet);
-        this.socket.emit(EC2ServerMessage.PARTY_CREATE, this.partyMember);
+        this.socket.emit(EC2ServerMessage.PARTY_CREATE, this.partyMember, this.getGameModesValue());
         this.socket.once(ES2ClientMessage.PARTY_CREATED, (party) => {
           this.party = party;
+          this.partyMember = this.party.members.find(m => m.chatAccount.id === this.chatAccount.id);
           this.socket.emit(EC2ServerMessage.PARTY_INVITE, partyPlayers);
         });
       } else {
         this.socket.emit(EC2ServerMessage.PARTY_INVITE, partyPlayers);
       }
+      this.setState(EChatAccountState.PARTYING);
     }
   }
 
+  public getHeroIcon(hero: EHeroEnum) {
+    if (hero === EHeroEnum.RANDOM) {
+      return 'assets/images/icons/random.png';
+    } else if (hero === EHeroEnum.NO_HERO) {
+      return 'assets/images/icons/questionmark.png';
+    } else {
+      return 'assets/images/gameicons/heroes/' + HeroEnumGameName.get(hero) + '/gearicon.tga.3.png';
+    }
+  }
 
+  public getPetIcon(pet: EPetEnum) {
+    if (pet === EPetEnum.NO_PET) {
+      return 'assets/images/icons/questionmark.png';
+    } else {
+      return 'assets/images/gameicons/pets/' + PetEnumGameName.get(pet) + '/icon.tga.3 (3).png';
+    }
+  }
 
   public openModal(content) {
     this.partyPlayerInvites.clear();
     this.modalService.open(content, { backdropClass: 'ce-backdrop' }).result.then((result) => {
     });
+  }
+
+  public selectHero(hero) {
+    if (this.selectedHero !== hero) {
+      this.selectedHero = hero;
+      if (this.party) {
+        this.partyMember.hero = this.selectedHero;
+        this.socket.emit(EC2ServerMessage.PARTY_UPDATE_STATE, this.partyMember);
+      }
+    }
+  }
+
+  public selectPet(pet) {
+    if (this.selectedPet = pet) {
+      this.selectedPet = pet;
+      if (this.party) {
+        this.partyMember.pet = this.selectedPet;
+        this.socket.emit(EC2ServerMessage.PARTY_UPDATE_STATE, this.partyMember);
+      }
+    }
+  }
+
+  public leaveParty() {
+    if (this.party) {
+      this.socket.emit(EC2ServerMessage.PARTY_LEAVE, this.party.id);
+      this.party = null;
+      this.setState(EChatAccountState.IDLE);
+    }
+  }
+
+  public acceptPartyInvite(inviteParty) {
+    const heroIsTaken = (this.inviteParty.members.find(m => m.hero === this.selectedHero) !== undefined);
+    this.socket.emit(EC2ServerMessage.PARTY_INVITE_ACCEPT, inviteParty.id, heroIsTaken ? EHeroEnum.NO_HERO : this.selectedHero, this.selectedPet);
+    this.inviteParty = null;
+    this.setState(EChatAccountState.PARTYING);
+  }
+
+  public declinePartyInvite(inviteParty) {
+    this.socket.emit(EC2ServerMessage.PARTY_INVITE_DECLINE, inviteParty.id);
+    this.inviteParty = null;
+    this.setState(EChatAccountState.IDLE);
+  }
+
+  public getPlayerOfHero(hero: EHeroEnum) {
+    if (this.party) {
+      return this.party.members.find(m => m.hero === hero);
+    }
+    return undefined;
+  }
+
+  public isPartyChief() {
+    return (!this.party || this.party.chief.id === this.chatAccount.id);
+  }
+
+  public isGameModeEnabledInParty(gameMode: EGameMode) {
+    return this.isPartyChief() && GameModeTeamSize.get(gameMode) >= this.party.members.length;
+  }
+
+  private getGameModesValue() {
+    let gameModes = 0;
+    for (const val of this.getEnumValues(EGameMode)) {
+      if (this.selectedGameModes[val]) {
+        gameModes += val;
+      }
+    }
+    return gameModes;
+  }
+
+  private setGameModesByValue(value: number) {
+    for (const val of this.getEnumValues(EGameMode)) {
+      this.selectedGameModes[val] = ((val & value) > 0);
+    }
+  }
+
+  public partyGameModeChanged(gameMode: EGameMode, newValue) {
+    if (this.selectedGameModes[gameMode] !== newValue) {
+      this.selectedGameModes[gameMode] = newValue;
+      this.socket.emit(EC2ServerMessage.PARTY_UPDATE_STATE, this.partyMember, this.getGameModesValue());
+    }
+  }
+
+  public notReady() {
+    this.partyMember.state = EPartyMemberState.NORMAL;
+    this.socket.emit(EC2ServerMessage.PARTY_UPDATE_STATE, this.partyMember);
   }
 }
