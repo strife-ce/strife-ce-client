@@ -139,10 +139,10 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
     this.socket.on(ES2ClientMessage.CHAT_ACCOUNTLIST, (userlistMsg: { accounts: Array<ChatAccount>, room: string }) => {
       this.chatAccountMap.clear();
       for (const account of userlistMsg.accounts) {
-        for (let i = 0; i < 100; i++) {
+        /*for (let i = 0; i < 100; i++) {
           this.messages.push({ message: 'this is a message from me @pad2', account: account, room: 'general' });
         }
-
+        */
         this.chatAccountMap.set(account.id, account);
       }
     });
@@ -323,7 +323,6 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
   }
 
   public startGameSearch() {
-    console.warn('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAT');
     if (this.selectedHero === EHeroEnum.NO_HERO) {
       this.errorMessage('You have to select a hero first!');
     }
@@ -342,7 +341,6 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
         this.partyMember = PartyMember.create(this.selectedHero, this.selectedPet);
         this.socket.emit(EC2ServerMessage.PARTY_CREATE, this.partyMember, gameModes, true);
       } else {
-        console.warn('XXXXXXXXXXXXXX1');
         this.partyMember.state = EPartyMemberState.READY;
         this.socket.emit(EC2ServerMessage.PARTY_UPDATE_STATE, this.partyMember, gameModes);
       }
