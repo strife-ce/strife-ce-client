@@ -1,5 +1,5 @@
 <div *ngIf="state == EChatAccountState.PREPARING_MATCH"
-  style="position:absolute; left:0; right:0; top:56px; bottom:0; background:rgba(255,255,255,0.7); z-index:99999; display:flex; align-items: center; justify-content: center; ">
+  style="position:absolute; left:0; right:0; top:0px; bottom:0; background:rgba(255,255,255,0.7); z-index:99999; display:flex; align-items: center; justify-content: center; ">
   <h1>Game Found! Joining in a moment...</h1>
 </div>
 
@@ -36,12 +36,6 @@
               </span>
             </div>
           </div>
-          <div class="card-footer" style="padding: 16px 20px">
-            <a *ngIf="!isChatAudioMuted" (click)="toggleMute()" style="font-size: 12px; color:#aaa"><span
-                class="fa fa-volume-up"></span>&nbsp; alerts on</a>
-            <a *ngIf="isChatAudioMuted" (click)="toggleMute()" style="font-size: 12px; color:#aaa"><span
-                class="fa fa-volume-mute"></span>&nbsp; alerts off</a>
-          </div>
         </div>
         <div class="col-md-9 d-flex flex-column" style="padding-left:0px;">
 
@@ -58,9 +52,32 @@
                   data-patreon-widget-type="become-patron-button">Support Strife CE at Patreon</a>
               </span>
             </div>
+            <div
+              style="box-sizing: border-box; background-color:#F7F7F7; border-bottom: 1px solid #eee; border-top: 1px solid #eee; position:relative; min-height:20px; padding: 6px 10px; font-size: 12px; color:#aaa;">
+              <div style="text-align:right">
+
+                <span style="position:absolute; left: 10px; font-weight:bold">Chat Options</span>
+
+                <span style="padding-right:20px">
+                  <a *ngIf="translationMode != ETranslationMode.TO_EN && translationMode != ETranslationMode.TO_RU"
+                    (click)="switchTranslationMode()"><span class="fa fa-language"></span>&nbsp; auto translate:
+                    disabled</a>
+                  <a *ngIf="translationMode == ETranslationMode.TO_EN" (click)="switchTranslationMode()"><span
+                      class="fa fa-language"></span>&nbsp; auto translate: any ->
+                    English</a>
+                  <a *ngIf="translationMode == ETranslationMode.TO_RU" (click)="switchTranslationMode()"><span
+                      class="fa fa-language"></span>&nbsp; auto translate: any ->
+                    Russian</a>
+                </span>
+                <a *ngIf="!isChatAudioMuted" (click)="toggleMute()"><span class="fa fa-volume-up"></span>&nbsp; alerts:
+                  on</a>
+                <a *ngIf="isChatAudioMuted" (click)="toggleMute()" style="font-size: 12px; color:#aaa"><span
+                    class="fa fa-volume-mute"></span>&nbsp; alerts: off</a>
+              </div>
+            </div>
             <div class="flex-fill d-flex flex-column" style="padding:10px">
               <dl class="flex-fill" id="messageList" style="overflow: auto; margin-right: -8px"
-                [style.max-height.px]="(this.chatAccount && !this.chatAccount.icon) ? 539 : 618" #chatScrollContainer>
+                [style.max-height.px]="(this.chatAccount && !this.chatAccount.icon) ? 508 : 587" #chatScrollContainer>
                 <div class="msg" *ngFor="let msg of messages" [style.background-color]="msg.highlight ? '#dbe4f5': ''"
                   [ngbTooltip]="'By ' + msg.account.name + ' at ' + msg.arrivedAt" placement="top">
                   <span style="width: 16px; height:16px; margin-right:4px; display: inline-block"
@@ -71,7 +88,12 @@
                         style="width:16px; margin-top:-5px;" />
                     </a>
                   </span>
-                  <span style="font-weight:600">{{msg.account.name}}</span>:&nbsp;<span>{{msg.message}}</span>
+                  <span style="font-weight:600">{{msg.account.name}}:&nbsp;</span>
+                  <span *ngIf="msg.isTranslating" style="opacity:0.5"><span
+                      class="fa fa-spinner fa-pulse"></span>&nbsp;</span>
+                  <span *ngIf="msg.translatedMessage" style="opacity:0.5"><span
+                      class="fa fa-language"></span>&nbsp;</span>
+                  <span>{{msg.translatedMessage ? msg.translatedMessage : msg.message}}</span>
                 </div>
               </dl>
               <form id="sendMessage" (ngSubmit)="sendMessage(); ">
@@ -276,7 +298,8 @@
                         *ngFor="let member of party.members">
                         <a style="position:absolute; left: 0px; right: 0px; bottom:0px; top:0px; z-index:9999;"
                           [ngbTooltip]="'Remove ' + member.chatAccount.name + ' from party'" placement="top"
-                          *ngIf="chatAccount.id != member.chatAccount.id && chatAccount.id == party.chief.id" (click)="removePlayerFromParty(member)"></a>
+                          *ngIf="chatAccount.id != member.chatAccount.id && chatAccount.id == party.chief.id"
+                          (click)="removePlayerFromParty(member)"></a>
                         <div [style.opacity]="(member.state == EPartyMemberState.INVITE_PENDING) ? 0.5 : 1.0">
                           <div style="width:100%;">
                             <b style="font-size:12px;">
@@ -493,6 +516,16 @@
           <div class="news">
 
             <ngb-accordion #acc="ngbAccordion" activeIds="ngb-panel-0">
+              <ngb-panel title="v0.3.1 Client update [06/09]">
+                <ng-template ngbPanelContent>
+                  <ul>
+                    <li><b>Automatic ru/en chat translation</b> in the client (props to Jertle for the idea!)</li>
+                    <li><b>Reenabled ingame pings and chatwheel </b></li>
+                    <li>Multiple arranged party related bugs fixed</li>
+                    <li>Minor design fixes</li>
+                  </ul>
+                </ng-template>
+              </ngb-panel>
               <ngb-panel title="v0.3.0 Client update [06/08]">
                 <ng-template ngbPanelContent>
                   <ul>

@@ -12,7 +12,17 @@ import { HttpClient } from '@angular/common/http';
 import { beep } from './sounds';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
+import { setCORS } from 'google-translate-api-browser';
+const translate = setCORS('http://allow-any-origin.appspot.com/');
+
+enum ETranslationMode {
+  NONE = '',
+  TO_EN = 'en',
+  TO_RU = 'ru',
+}
+
 interface IJoinInfo { secret: string; host: string; port: string; }
+interface IChatMessage { message: string; account: ChatAccount; room: string; highlight?: boolean; isTranslating?: boolean; translatedMessage?: string; arrivedAt?: string; }
 
 @Component({
   templateUrl: './dashboard.component.html',
@@ -21,7 +31,7 @@ interface IJoinInfo { secret: string; host: string; port: string; }
 export class DashboardComponent extends View implements OnInit, AfterViewChecked {
   private socket: SocketIOClient.Socket;
   public chatAccountMap: Map<string, ChatAccount>;
-  public messages: Array<{ message: string, account: ChatAccount, room: string, highlight?: boolean }>;
+  public messages: Array<IChatMessage>;
   public EHeroEnum = EHeroEnum;
   public EPartyMemberState = EPartyMemberState;
   public HeroEnumText = HeroEnumText;
@@ -33,8 +43,10 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
   public EAccountFlags = EAccountFlags;
   public EChatAccountState = EChatAccountState;
   public EUserSettingEnum = EUserSettingEnum;
+  public ETranslationMode = ETranslationMode;
 
   public Array = Array;
+  public translationMode = ETranslationMode.TO_EN;
   public chatDisabled = true;
   public selectedHero: EHeroEnum;
   public selectedPet: EPetEnum;
@@ -96,6 +108,7 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
       this.selectedPet = Number(this.user.getSetting(EUserSettingEnum.LAST_PET_SELECTION, EPetEnum.BOUNDER));
       this.selectedGameModes = JSON.parse(this.user.getSetting(EUserSettingEnum.LAST_GAMEMODE_SELECTION, JSON.stringify(this.selectedGameModes)));
       this.selectedBotDifficulty = this.user.getSetting(EUserSettingEnum.LAST_BOT_DIFFICULTY_SELECTION, 'normal');
+      this.translationMode = this.user.getSetting(EUserSettingEnum.AUTO_TRANSLATION_MODE, ETranslationMode.TO_EN);
     });
 
     this.accountService.getLatestPatrons(4).then(accounts => {
@@ -147,7 +160,23 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
       }
     });
 
-    this.socket.on(ES2ClientMessage.CHAT_MSG, message => {
+    this.socket.on(ES2ClientMessage.CHAT_MSG, (message: IChatMessage) => {
+      if (this.translationMode !== ETranslationMode.NONE) {
+        const cyrillicPattern = /[\u0400-\u04FF]/;
+        const isRussian = cyrillicPattern.test(message.message);
+        if ((this.translationMode === ETranslationMode.TO_EN && isRussian) || this.translationMode === ETranslationMode.TO_RU && !isRussian) {
+          message.isTranslating = true;
+          translate(message.message, { to: this.translationMode })
+            .then(res => {
+              message.translatedMessage = (res as any).text;
+              message.isTranslating = false;
+            })
+            .catch(err => {
+              message.isTranslating = false;
+            });
+        }
+      }
+
       if (this.account && ((message.message as string).toLowerCase().indexOf('@' + this.account.name.toLowerCase()) >= 0 ||
         (message.message as string).toLowerCase().indexOf('@all') >= 0)) {
         message.highlight = true;
@@ -547,5 +576,17 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
 
   public removePlayerFromParty(member: PartyMember) {
     this.socket.emit(EC2ServerMessage.PARTY_REMOVE_MEMBER, member, this.getGameModesValue());
+  }
+
+  public switchTranslationMode() {
+    if (this.translationMode === ETranslationMode.NONE) {
+      this.translationMode = ETranslationMode.TO_EN;
+    } else if (this.translationMode === ETranslationMode.TO_EN) {
+      this.translationMode = ETranslationMode.TO_RU;
+    } else {
+      this.translationMode = ETranslationMode.NONE;
+    }
+
+    this.user.setSetting(EUserSettingEnum.AUTO_TRANSLATION_MODE, this.translationMode, true);
   }
 }
