@@ -1,10 +1,10 @@
-import { GamemodeTeamSize as GameModeTeamSize } from './../../data/common/models/transient/party';
+import { GamemodeTeamSize as GameModeTeamSize, EPartyState } from './../../data/common/models/transient/party';
 import { EChatAccountState } from './../../data/common/models/transient/chat-account';
 import { environment } from 'app/data/common-imports';
-import { Parse } from 'app/data/services';
+import { Parse, AuthenticationService } from 'app/data/services';
 import { Component, OnInit, ElementRef, ViewChild, Injector, AfterViewChecked } from '@angular/core';
 import * as io from 'socket.io-client';
-import { EC2ServerMessage, ES2ClientMessage, ChatAccount, EHeroEnum, HeroEnumText, EPetEnum, PetEnumText, PetEnumGameName, PartyMember, Party, EGameMode, EAccountFlags, Account, User, EUserSettingEnum, MatchInfo, HeroEnumGameName, EPartyMemberState } from 'app/data/models';
+import { EC2ServerMessage, ES2ClientMessage, ChatAccount, EHeroEnum, HeroEnumText, EPetEnum, PetEnumText, PetEnumGameName, PartyMember, Party, EGameMode, EAccountFlags, Account, User, EUserSettingEnum, MatchInfo, HeroEnumGameName, EPartyMemberState, RolePrivilegeEnum } from 'app/data/models';
 import { View } from '@app/views/view';
 import { AccountService, UserService } from '@app/data/modelservices';
 import { HttpClient } from '@angular/common/http';
@@ -13,6 +13,7 @@ import { beep } from './sounds';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 import { setCORS } from 'google-translate-api-browser';
+import { ActivatedRoute } from '@angular/router';
 const translate = setCORS('http://allow-any-origin.appspot.com/');
 
 enum ETranslationMode {
@@ -68,6 +69,12 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
   public latestPatrons: Array<ChatAccount> = [];
   public partyPlayerInvites: Set<ChatAccount> = new Set();
   public patreonData = { pledge_sum: 0 };
+  public isModerator = false;
+  public mainMenuTabs = {
+    PLAY: { name: 'Play', disabled: false, active: true, icon: 'fa fa-gamepad'},
+    MODERATION:{ name: 'Moderation', disabled: false, active: false, icon: 'fa fa-user-lock', privilege: RolePrivilegeEnum.tab_moderate }
+  };
+
   public playTabs = {
     MATCHMAKING: { name: 'Match', disabled: false, active: true },
     STORY: { name: 'Story', disabled: false, active: false },
@@ -90,7 +97,7 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
   @ViewChild('partyInvite') inviteModal: ElementRef;
   @ViewChild('chatScrollContainer') private chatScrollContainer: ElementRef;
 
-  constructor(protected injector: Injector, private accountService: AccountService, private userService: UserService, private http: HttpClient, private modalService: NgbModal) {
+  constructor(protected injector: Injector, private accountService: AccountService, private userService: UserService, private http: HttpClient, private modalService: NgbModal, private route: ActivatedRoute, private authenticatonService: AuthenticationService) {
     super(injector);
   }
 
@@ -100,6 +107,13 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
     this.chatAccountMap = new Map();
     this.messages = new Array();
     this.selectedGameModes = { [EGameMode.MODE_1ON1]: true, [EGameMode.MODE_2ON2]: false, [EGameMode.MODE_3ON3]: false, [EGameMode.MODE_4ON4]: false, [EGameMode.MODE_5ON5]: true };
+    this.state = EChatAccountState.IDLE;
+
+    for(const tabKey of Object.keys(this.mainMenuTabs)) {
+      if(this.mainMenuTabs[tabKey].privilege) {
+        this.mainMenuTabs[tabKey].hide = true;
+      }
+    }
 
     this.userService.getCurrentUser().then(user => {
       this.user = user;
@@ -109,6 +123,12 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
       this.selectedGameModes = JSON.parse(this.user.getSetting(EUserSettingEnum.LAST_GAMEMODE_SELECTION, JSON.stringify(this.selectedGameModes)));
       this.selectedBotDifficulty = this.user.getSetting(EUserSettingEnum.LAST_BOT_DIFFICULTY_SELECTION, 'normal');
       this.translationMode = this.user.getSetting(EUserSettingEnum.AUTO_TRANSLATION_MODE, ETranslationMode.TO_EN);
+
+      for(const tabKey of Object.keys(this.mainMenuTabs)) {
+        if(this.mainMenuTabs[tabKey].privilege) {
+          this.mainMenuTabs[tabKey].hide = !this.authenticatonService.hasPrivilege(this.mainMenuTabs[tabKey].privilege);
+        }
+      }
     });
 
     this.accountService.getLatestPatrons(4).then(accounts => {
@@ -124,7 +144,15 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
 
     this.socket = io.connect(environment.LIVESERVER_URL);
     this.socket.on('connect', () => {
-      this.socket.emit(EC2ServerMessage.AUTH_REQUEST, Parse.User.current().getSessionToken());
+      this.route.queryParams.subscribe(params => {
+        const session = params['session'] as String;
+        if(!session && false) {
+          this.errorMessage("Unable to connect", "Unable to connect to the server due to a missing session token");
+          this.socket.disconnect();
+        } else {
+          this.socket.emit(EC2ServerMessage.AUTH_REQUEST, Parse.User.current().getSessionToken(), session);
+        }
+    });
     });
 
     this.socket.on(ES2ClientMessage.AUTH_ACCEPTED, () => {

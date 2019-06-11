@@ -118,9 +118,11 @@
       <div class="col-md-12 flex-fill d-flex flex-column">
         <div class="card flex-fill d-flex" style="border: none">
           <div class="card-header" style="border-top: 1px solid rgba(0, 0, 0, 0.125); padding: 10px 12px">
-            <a class="mainNav active">
-              <span class="fa fa-gamepad"></span> Play
+            <ng-template ng-template ngFor let-tab [ngForOf]="getAttributes(mainMenuTabs)">
+            <a [class]="'mainNav ' + ((tab.active) ? 'active' :'')" *ngIf="(tab.hide !== true)" (click)="switchTab(mainMenuTabs, tab)">
+              <span [class]="tab.icon"></span> {{tab.name}}
             </a>
+          </ng-template>
             <a class="mainNav deactivated" [ngbTooltip]="'Coming soon..'">
               <span class="fa fa-pencil-ruler"></span> Crafting
             </a>
@@ -138,6 +140,7 @@
 
 
           </div>
+          <div *ngIf="mainMenuTabs.PLAY.active">
           <div class="card-header" style="background-color: #f3f3f3">
             <div></div>
             <ul class="nav nav-tabs card-header-tabs">
@@ -506,6 +509,10 @@
               </div>
             </div>
           </div>
+        </div>
+        <div *ngIf="mainMenuTabs.MODERATION.active">
+          moderate!
+      </div>
         </div>
       </div>
     </div>
