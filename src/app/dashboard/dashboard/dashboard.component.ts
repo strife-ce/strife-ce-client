@@ -125,7 +125,7 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
       this.translationMode = this.user.getSetting(EUserSettingEnum.AUTO_TRANSLATION_MODE, ETranslationMode.TO_EN);
 
       for(const tabKey of Object.keys(this.mainMenuTabs)) {
-        if(this.mainMenuTabs[tabKey].privilege) {
+        if(this.mainMenuTabs[tabKey].privilege && false) {
           this.mainMenuTabs[tabKey].hide = !this.authenticatonService.hasPrivilege(this.mainMenuTabs[tabKey].privilege);
         }
       }
@@ -146,7 +146,7 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
     this.socket.on('connect', () => {
       this.route.queryParams.subscribe(params => {
         const session = params['session'] as String;
-        if(!session && false) {
+        if(!session) {
           this.errorMessage("Unable to connect", "Unable to connect to the server due to a missing session token");
           this.socket.disconnect();
         } else {
