@@ -144,15 +144,13 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
 
     this.socket = io.connect(environment.LIVESERVER_URL);
     this.socket.on('connect', () => {
-      this.route.queryParams.subscribe(params => {
-        const session = params['session'] as String;
+        const session = localStorage.getItem("SESSION")
         if(!session) {
           this.errorMessage("Unable to connect", "Unable to connect to the server due to a missing session token");
           this.socket.disconnect();
         } else {
           this.socket.emit(EC2ServerMessage.AUTH_REQUEST, Parse.User.current().getSessionToken(), session);
         }
-    });
     });
 
     this.socket.on(ES2ClientMessage.AUTH_ACCEPTED, () => {

@@ -4,7 +4,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { NgModule, Injector } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { RouterModule } from '@angular/router';
+import { RouterModule, ActivatedRoute } from '@angular/router';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { ToastrModule } from 'ngx-toastr';
 import { APP_INITIALIZER } from '@angular/core';
@@ -51,7 +51,14 @@ import { UserService, RoleService } from 'app/data/modelservices';
 export class AppModule {
   private static onAppInit(injector: Injector) {
     return () => {
+      localStorage.removeItem("SESSION");
+      const href = window.location.href;
+      if (href.indexOf('session') >= 0) {
+        const session = href.substr(href.indexOf('session=') + "session=".length);
+        localStorage.setItem("SESSION", session)
+      }
       return new Promise<void>((resolve, reject) => {
+
         injector
           .get(AuthenticationService)
           .initialize()
