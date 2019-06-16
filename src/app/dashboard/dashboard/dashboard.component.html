@@ -31,8 +31,8 @@
                       style="width:16px; margin-top:-5px;" />
                   </a>
                 </span>
-                <span *ngIf="chatAccount.hasFlag(EAccountFlags.MODERATOR)"
-                  style="font-weight:bold; color: #E6461A" ngbTooltip="Moderator" container="body">{{chatAccount.name}}</span>
+                <span *ngIf="chatAccount.hasFlag(EAccountFlags.MODERATOR)" style="font-weight:bold; color: #E6461A"
+                  ngbTooltip="Moderator" container="body">{{chatAccount.name}}</span>
                 <span *ngIf="!chatAccount.hasFlag(EAccountFlags.MODERATOR)">{{chatAccount.name}}</span>
                 <span *ngIf="chatAccount.stateIcon" [class]="'fa fa-' + chatAccount.stateIcon"
                   style="position:absolute; right: 10px; margin-top:2px; color: #bbb"></span>
@@ -532,6 +532,16 @@
           <div class="news">
 
             <ngb-accordion #acc="ngbAccordion" activeIds="ngb-panel-0">
+              <ngb-panel title="v0.3.2 Client update [06/16]">
+                <ng-template ngbPanelContent>
+                  <ul>
+                    <li>Added penalty management: Ban for matches, ban for chat</li>
+                    <li>Added moderators: Pad, Quarterstaff, Chotke</li>
+                    <li>Moderators are colorized in chat</li>
+                    <li><b>Report misbehaving players in discord (channel report-a-player)</b></li>
+                  </ul>
+                </ng-template>
+              </ngb-panel>
               <ngb-panel title="v0.3.1 Client update [06/09]">
                 <ng-template ngbPanelContent>
                   <ul>
