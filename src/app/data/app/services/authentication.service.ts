@@ -71,7 +71,6 @@ export class AuthenticationService implements CanActivateChild {
       return false;
     }
     const requiresPrivilieges = route.data.requiresPrivileges;
-    console.log(route);
     if (
       requiresPrivilieges !== undefined &&
       requiresPrivilieges instanceof Array

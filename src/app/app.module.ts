@@ -51,11 +51,13 @@ import { UserService, RoleService } from 'app/data/modelservices';
 export class AppModule {
   private static onAppInit(injector: Injector) {
     return () => {
-      localStorage.removeItem("SESSION");
       const href = window.location.href;
+      if (href.indexOf('localhost') < 0) {
+        localStorage.removeItem('SESSION');
+      }
       if (href.indexOf('session') >= 0) {
-        const session = href.substr(href.indexOf('session=') + "session=".length);
-        localStorage.setItem("SESSION", session)
+        const session = href.substr(href.indexOf('session=') + 'session='.length);
+        localStorage.setItem('SESSION', session);
       }
       return new Promise<void>((resolve, reject) => {
 

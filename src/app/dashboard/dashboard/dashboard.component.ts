@@ -71,8 +71,8 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
   public patreonData = { pledge_sum: 0 };
   public isModerator = false;
   public mainMenuTabs = {
-    PLAY: { name: 'Play', disabled: false, active: true, icon: 'fa fa-gamepad'},
-    MODERATION:{ name: 'Moderation', disabled: false, active: false, icon: 'fa fa-user-lock', privilege: RolePrivilegeEnum.tab_moderate }
+    PLAY: { name: 'Play', disabled: false, active: true, icon: 'fa fa-gamepad' },
+    MODERATION: { name: 'Moderation', disabled: false, active: false, icon: 'fa fa-user-lock', privilege: RolePrivilegeEnum.tab_moderate }
   };
 
   public playTabs = {
@@ -109,8 +109,8 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
     this.selectedGameModes = { [EGameMode.MODE_1ON1]: true, [EGameMode.MODE_2ON2]: false, [EGameMode.MODE_3ON3]: false, [EGameMode.MODE_4ON4]: false, [EGameMode.MODE_5ON5]: true };
     this.state = EChatAccountState.IDLE;
 
-    for(const tabKey of Object.keys(this.mainMenuTabs)) {
-      if(this.mainMenuTabs[tabKey].privilege) {
+    for (const tabKey of Object.keys(this.mainMenuTabs)) {
+      if (this.mainMenuTabs[tabKey].privilege) {
         this.mainMenuTabs[tabKey].hide = true;
       }
     }
@@ -124,8 +124,8 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
       this.selectedBotDifficulty = this.user.getSetting(EUserSettingEnum.LAST_BOT_DIFFICULTY_SELECTION, 'normal');
       this.translationMode = this.user.getSetting(EUserSettingEnum.AUTO_TRANSLATION_MODE, ETranslationMode.TO_EN);
 
-      for(const tabKey of Object.keys(this.mainMenuTabs)) {
-        if(this.mainMenuTabs[tabKey].privilege && false) {
+      for (const tabKey of Object.keys(this.mainMenuTabs)) {
+        if (this.mainMenuTabs[tabKey].privilege) {
           this.mainMenuTabs[tabKey].hide = !this.authenticatonService.hasPrivilege(this.mainMenuTabs[tabKey].privilege);
         }
       }
@@ -144,13 +144,13 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
 
     this.socket = io.connect(environment.LIVESERVER_URL);
     this.socket.on('connect', () => {
-        const session = localStorage.getItem("SESSION")
-        if(!session) {
-          this.errorMessage("Unable to connect", "Unable to connect to the server due to a missing session token");
-          this.socket.disconnect();
-        } else {
-          this.socket.emit(EC2ServerMessage.AUTH_REQUEST, Parse.User.current().getSessionToken(), session);
-        }
+      const session = localStorage.getItem('SESSION');
+      if (!session) {
+        this.errorMessage('Unable to connect', 'Unable to connect to the server due to a missing session token');
+        this.socket.disconnect();
+      } else {
+        this.socket.emit(EC2ServerMessage.AUTH_REQUEST, Parse.User.current().getSessionToken(), session);
+      }
     });
 
     this.socket.on(ES2ClientMessage.AUTH_ACCEPTED, () => {
@@ -230,6 +230,10 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
       this.inviteParty = party;
       this.setState(EChatAccountState.PARTYING);
       this.openModal(this.inviteModal);
+    });
+
+    this.socket.on(ES2ClientMessage.ERROR_MESSAGE, (errorTitle, errorText) => {
+      this.errorMessage(errorTitle, errorText);
     });
 
     this.socket.on(ES2ClientMessage.PARTY_UPDATED, (party) => {

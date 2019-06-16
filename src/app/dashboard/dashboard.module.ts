@@ -8,8 +8,9 @@ import { DashboardRoutes } from '@app/dashboard/dashboard.routing';
 import { DashboardComponent } from '@app/dashboard/dashboard/dashboard.component';
 import { NgToggleModule } from '@nth-cloud/ng-toggle';
 import { NgCircleProgressModule } from 'ng-circle-progress';
-import { AccountService, UserService } from '@app/data/modelservices';
+import { AccountService, UserService, GlobalPlayerService } from '@app/data/modelservices';
 import { AdsenseModule } from 'ng2-adsense';
+import { ModerationComponent } from './moderation/moderation.component';
 
 @NgModule({
   imports: [
@@ -25,10 +26,11 @@ import { AdsenseModule } from 'ng2-adsense';
     })
 
   ],
-  declarations: [DashboardComponent],
+  declarations: [DashboardComponent, ModerationComponent],
   providers: [
     AccountService,
-    UserService
+    UserService,
+    GlobalPlayerService
   ]
 })
 export class DashboardModule { }

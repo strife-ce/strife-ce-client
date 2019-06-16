@@ -1,0 +1,98 @@
+<div style="padding: 10px">
+  <div class="row">
+    <div class="col-md-4">
+
+      <button (click)="restrictedSearch()" class="btn btn-secondary" type="button"
+        ngbTooltip="accounts with active penalities">
+        <span class="fa fa-exclamation-triangle"></span></button>
+      &nbsp;
+      <button (click)="lastLoggedInSearch(50)" class="btn btn-secondary" type="button"
+        ngbTooltip="Latest 50 logged in accounts">
+        <span class="fa fa-sign-in-alt"></span></button>
+
+    </div>
+    <div class="col-md-8">
+      <form (submit)="search(accountSearchInput.value)" action="#">
+        <div class="input-group">
+
+          <input #accountSearchInput type="text" class="form-control" placeholder="username search"
+            aria-label="Recipient's username" aria-describedby="basic-addon2">
+          <div class="input-group-append">
+            <button class="btn btn-primary" type="submit">Search</button>
+          </div>
+
+        </div>
+      </form>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-12">
+      <div style="padding-top: 20px; text-align:right">Found accounts: {{accounts.length}}</div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-12">
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">Name</th>
+            <th scope="col">Aliases</th>
+            <th scope="col">Restrictions</th>
+            <th scope="col">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let account of accounts">
+            <td>{{account.name}}</td>
+            <td>
+              <div style="width:50px;" *ngIf="account.globalPlayer.accounts.length > 1"
+                [ngbTooltip]="getAliases(account)">
+                <span class="fa fa-user"></span>
+                {{account.globalPlayer.accounts.length - 1}}</div>
+              <div *ngIf="account.globalPlayer.accounts.length <= 1">0</div>
+            </td>
+            <td>
+              <div *ngIf="account.globalPlayer.chatRestriction">
+                <span
+                  class="fa fa-comment-slash"></span>&nbsp;<b>{{account.globalPlayer.chatRestriction.getUntilText()}}</b><br />
+              </div>
+              <div *ngIf="account.globalPlayer.matchRestriction">
+                <span
+                  class="fa fa-gamepad"></span>&nbsp;<b>{{account.globalPlayer.matchRestriction.getUntilText()}}</b>
+              </div>
+            </td>
+            <td style="padding-bottom:10px">
+              <form class="form-inline">
+                <ng-toggle #restrictionIsChat onColor="light" offColor="light" size="sm">
+                  <ng-template ngToggleLabel forLabel="off"><span class="fa fa-gamepad"></span>
+                  </ng-template>
+                  <ng-template ngToggleLabel forLabel="on"><span class="fa fa-comment-slash"></span>
+                  </ng-template>
+                </ng-toggle>&nbsp;
+                <select #restrictionDurationInHours class="form-control">
+                  <option value="0">Remove</option>
+                  <option value="1">1 hour</option>
+                  <option value="4">4 hours</option>
+                  <option value="8">8 hours</option>
+                  <option value="24">1 day</option>
+                  <option value="48">2 days</option>
+                  <option value="72">3 days</option>
+                  <option value="120">5 days</option>
+                  <option value="168">7 days</option>
+                  <option value="336">14 days</option>
+                  <option value="720">1 month</option>
+                  <option value="1440">2 months</option>
+                  <option value="2160">3 months</option>
+                </select>
+
+                &nbsp; <button class="btn btn-danger" type="button"
+                  (click)='addRestriction(account, restrictionDurationInHours.value, restrictionIsChat.value)'>Go</button>
+              </form>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

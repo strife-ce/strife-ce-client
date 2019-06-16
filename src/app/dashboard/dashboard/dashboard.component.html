@@ -24,14 +24,17 @@
             <div style="height:10px"></div>
             <div *ngFor="let chatAccount of getChatAccounts()">
               <span style="padding: 5px 6px">
-                <span style="width: 16px; height:16px; display: inline-block">
+                <span style="width: 16px; height:16px; margin-right:4px; display: inline-block">
                   <a href="https://www.patreon.com/strife_ce" [ngbTooltip]="chatAccount.iconTooltip" placement="right"
                     target="_blank" *ngIf="chatAccount.icon">
                     <img [src]="'assets/images/icons/' + chatAccount.icon +'.png'"
                       style="width:16px; margin-top:-5px;" />
                   </a>
                 </span>
-                {{chatAccount.name}} <span *ngIf="chatAccount.stateIcon" [class]="'fa fa-' + chatAccount.stateIcon"
+                <span *ngIf="chatAccount.hasFlag(EAccountFlags.MODERATOR)"
+                  style="font-weight:bold; color: #E6461A" ngbTooltip="Moderator" container="body">{{chatAccount.name}}</span>
+                <span *ngIf="!chatAccount.hasFlag(EAccountFlags.MODERATOR)">{{chatAccount.name}}</span>
+                <span *ngIf="chatAccount.stateIcon" [class]="'fa fa-' + chatAccount.stateIcon"
                   style="position:absolute; right: 10px; margin-top:2px; color: #bbb"></span>
               </span>
             </div>
@@ -119,10 +122,11 @@
         <div class="card flex-fill d-flex" style="border: none">
           <div class="card-header" style="border-top: 1px solid rgba(0, 0, 0, 0.125); padding: 10px 12px">
             <ng-template ng-template ngFor let-tab [ngForOf]="getAttributes(mainMenuTabs)">
-            <a [class]="'mainNav ' + ((tab.active) ? 'active' :'')" *ngIf="(tab.hide !== true)" (click)="switchTab(mainMenuTabs, tab)">
-              <span [class]="tab.icon"></span> {{tab.name}}
-            </a>
-          </ng-template>
+              <a [class]="'mainNav ' + ((tab.active) ? 'active' :'')" *ngIf="(tab.hide !== true)"
+                (click)="switchTab(mainMenuTabs, tab)">
+                <span [class]="tab.icon"></span> {{tab.name}}
+              </a>
+            </ng-template>
             <a class="mainNav deactivated" [ngbTooltip]="'Coming soon..'">
               <span class="fa fa-pencil-ruler"></span> Crafting
             </a>
@@ -141,133 +145,56 @@
 
           </div>
           <div *ngIf="mainMenuTabs.PLAY.active">
-          <div class="card-header" style="background-color: #f3f3f3">
-            <div></div>
-            <ul class="nav nav-tabs card-header-tabs">
-              <li class="nav-item" *ngFor="let tab of getAttributes(playTabs)">
-                <a [class]="'nav-link' + ((tab.active) ? ' active' :'')  + ((tab.disabled) ? ' disabled' :'')"
-                  (click)="switchTab(playTabs, tab)">{{tab.name}}</a>
-              </li>
-            </ul>
-          </div>
-          <div class="card-body">
-
-            <div style="position:absolute; right: 15px; margin-top: -72px">
-              <circle-progress [percent]="queueStates[EGameMode.MODE_1ON1]/2*100" [radius]="20" [outerStrokeWidth]="3"
-                [innerStrokeWidth]="3" [space]="-3" [outerStrokeColor]="'#a4a7ae'" [innerStrokeColor]="'#e7e8ea'"
-                [animation]="true" [titleFontSize]="16" [subtitleColor]="'#aaaaaa'" [animationDuration]="300"
-                [title]="queueStates[EGameMode.MODE_1ON1]" subtitle="1vs1&nbsp;&nbsp;" units="" [startFromZero]="false">
-              </circle-progress>
-
-              <circle-progress [percent]="queueStates[EGameMode.MODE_2ON2]/4*100" [radius]="20" [outerStrokeWidth]="3"
-                [innerStrokeWidth]="3" [space]="-3" [outerStrokeColor]="'#a4a7ae'" [innerStrokeColor]="'#e7e8ea'"
-                [animation]="true" [titleFontSize]="16" [subtitleColor]="'#aaaaaa'" [animationDuration]="300"
-                [title]="queueStates[EGameMode.MODE_2ON2]" subtitle="2vs2&nbsp;&nbsp;" units="" [startFromZero]="false">
-              </circle-progress>
-
-              <circle-progress [percent]="queueStates[EGameMode.MODE_3ON3]/6*100" [radius]="20" [outerStrokeWidth]="3"
-                [innerStrokeWidth]="3" [space]="-3" [outerStrokeColor]="'#a4a7ae'" [innerStrokeColor]="'#e7e8ea'"
-                [animation]="true" [titleFontSize]="16" [subtitleColor]="'#aaaaaa'" [animationDuration]="300"
-                [title]="queueStates[EGameMode.MODE_3ON3]" subtitle="3vs3&nbsp;&nbsp;" units="" [startFromZero]="false">
-              </circle-progress>
-
-              <circle-progress [percent]="queueStates[EGameMode.MODE_5ON5]/10*100" [radius]="20" [outerStrokeWidth]="3"
-                [innerStrokeWidth]="3" [space]="-3" [outerStrokeColor]="'#a4a7ae'" [innerStrokeColor]="'#e7e8ea'"
-                [animation]="true" [titleFontSize]="16" [subtitleColor]="'#aaaaaa'" [animationDuration]="300"
-                [title]="queueStates[EGameMode.MODE_5ON5]" subtitle="5vs5&nbsp;&nbsp;" units="" [startFromZero]="false">
-              </circle-progress>
+            <div class="card-header" style="background-color: #f3f3f3">
+              <div></div>
+              <ul class="nav nav-tabs card-header-tabs">
+                <li class="nav-item" *ngFor="let tab of getAttributes(playTabs)">
+                  <a [class]="'nav-link' + ((tab.active) ? ' active' :'')  + ((tab.disabled) ? ' disabled' :'')"
+                    (click)="switchTab(playTabs, tab)">{{tab.name}}</a>
+                </li>
+              </ul>
             </div>
-            <div *ngIf="playTabs.BOT_GAME.active">
-              <div class="row" style="padding-bottom:10px">
-                <div class="col-md-12">
-                  Select a Hero:<br />
-                  <ng-template ngFor let-heroValue [ngForOf]="getEnumValues(EHeroEnum)">
-                    <a class="heroSelect" *ngIf="heroValue > EHeroEnum.RANDOM && heroValue != EHeroEnum.BLAZER"
-                      (click)="selectHero(heroValue)">
-                      <img [src]="getHeroIcon(heroValue)" [style.opacity]="selectedHero == heroValue ? '1.0' : 0.5"
-                        [ngbTooltip]="HeroEnumText.get(heroValue)">
-                    </a>
-                  </ng-template>
-                </div>
+            <div class="card-body">
+
+              <div style="position:absolute; right: 15px; margin-top: -72px">
+                <circle-progress [percent]="queueStates[EGameMode.MODE_1ON1]/2*100" [radius]="20" [outerStrokeWidth]="3"
+                  [innerStrokeWidth]="3" [space]="-3" [outerStrokeColor]="'#a4a7ae'" [innerStrokeColor]="'#e7e8ea'"
+                  [animation]="true" [titleFontSize]="16" [subtitleColor]="'#aaaaaa'" [animationDuration]="300"
+                  [title]="queueStates[EGameMode.MODE_1ON1]" subtitle="1vs1&nbsp;&nbsp;" units=""
+                  [startFromZero]="false">
+                </circle-progress>
+
+                <circle-progress [percent]="queueStates[EGameMode.MODE_2ON2]/4*100" [radius]="20" [outerStrokeWidth]="3"
+                  [innerStrokeWidth]="3" [space]="-3" [outerStrokeColor]="'#a4a7ae'" [innerStrokeColor]="'#e7e8ea'"
+                  [animation]="true" [titleFontSize]="16" [subtitleColor]="'#aaaaaa'" [animationDuration]="300"
+                  [title]="queueStates[EGameMode.MODE_2ON2]" subtitle="2vs2&nbsp;&nbsp;" units=""
+                  [startFromZero]="false">
+                </circle-progress>
+
+                <circle-progress [percent]="queueStates[EGameMode.MODE_3ON3]/6*100" [radius]="20" [outerStrokeWidth]="3"
+                  [innerStrokeWidth]="3" [space]="-3" [outerStrokeColor]="'#a4a7ae'" [innerStrokeColor]="'#e7e8ea'"
+                  [animation]="true" [titleFontSize]="16" [subtitleColor]="'#aaaaaa'" [animationDuration]="300"
+                  [title]="queueStates[EGameMode.MODE_3ON3]" subtitle="3vs3&nbsp;&nbsp;" units=""
+                  [startFromZero]="false">
+                </circle-progress>
+
+                <circle-progress [percent]="queueStates[EGameMode.MODE_5ON5]/10*100" [radius]="20"
+                  [outerStrokeWidth]="3" [innerStrokeWidth]="3" [space]="-3" [outerStrokeColor]="'#a4a7ae'"
+                  [innerStrokeColor]="'#e7e8ea'" [animation]="true" [titleFontSize]="16" [subtitleColor]="'#aaaaaa'"
+                  [animationDuration]="300" [title]="queueStates[EGameMode.MODE_5ON5]" subtitle="5vs5&nbsp;&nbsp;"
+                  units="" [startFromZero]="false">
+                </circle-progress>
               </div>
-              <div class="row" style="padding-bottom:10px">
-                <div class="col-md-12">
-                  Select a Pet: <br />
-                  <ng-template ngFor let-petValue [ngForOf]="getEnumValues(EPetEnum)">
-                    <a class="heroSelect" *ngIf="petValue > EPetEnum.NO_PET" (click)="selectPet(petValue)">
-                      <img [src]="getPetIcon(petValue)" [style.opacity]="selectedPet == petValue ? '1.0' : 0.5"
-                        [ngbTooltip]="PetEnumText.get(petValue)">
-                    </a>
-                  </ng-template>
-                </div>
-              </div>
-              <div class="row">
-                <div class="col-md-12" style="margin-top:14px;">
-                  Select a difficulty level:
-                  <select class="custom-select" [(ngModel)]="selectedBotDifficulty">
-                    <option value="easy">
-                      Easy
-                    </option>
-                    <option value="normal">
-                      Normal
-                    </option>
-                    <option value="hard">
-                      Hard
-                    </option>
-                  </select>
-                </div>
-                <div class="col-md-12" style="position:absolute; bottom: 10px;">
-                  &nbsp;
-                  <button class="btn btn-primary btn-block" (click)="joinBotGame()">Play versus Bots</button>
-                </div>
-              </div>
-            </div>
-            <div *ngIf="playTabs.STORY.active">
-              <button class="btn btn-primary btn-block" style="margin-bottom:20px"
-                (click)="joinStoryMap('bastact1')">Story of Bastion</button>
-              <button class="btn btn-primary btn-block" (click)="joinStoryMap('tutorial')">Story of Caprice
-                (Tutorial
-                Part 1)
-              </button>
-              <button class="btn btn-primary btn-block" (click)="joinStoryMap('tutorial_2')">Story of Caprice
-                (Tutorial
-                Part 2)
-              </button>
-              <button class="btn btn-primary btn-block" (click)="joinStoryMap('tutorial_3')">Story of Caprice
-                (Tutorial
-                Part 3)
-              </button>
-            </div>
-            <div *ngIf="playTabs.EARLY_ACCESS.active">
-              In Early Access, <a href="https://www.patreon.com/strife_ce" target="_blank">
-                <img [src]="'assets/images/icons/patreon1.png'" style="width:16px; margin-top:-5px;" />
-                Patreon Supporters
-              </a> of Strife CE can play the <b>latest balance changes and new heroes</b> even before it gets released
-              to the rest of the
-              world.<br /><br /> Currently the first balance patch is in development and is made available here as
-              soon
-              as possible.
-            </div>
-            <div *ngIf="playTabs.MATCHMAKING.active">
-              <div *ngIf="state == EChatAccountState.IDLE || state == EChatAccountState.PARTYING">
+              <div *ngIf="playTabs.BOT_GAME.active">
                 <div class="row" style="padding-bottom:10px">
                   <div class="col-md-12">
                     Select a Hero:<br />
                     <ng-template ngFor let-heroValue [ngForOf]="getEnumValues(EHeroEnum)">
-                      <span *ngIf="heroValue > EHeroEnum.RANDOM && heroValue != EHeroEnum.BLAZER">
-                        <span class="heroSelectInactive" style="position:relative"
-                          *ngIf="getPlayerOfHero(heroValue) != undefined && selectedHero != heroValue">
-                          <span class="fa fa-times"
-                            style="position:absolute; top:6px; left:0px; right:0px; bottom:0px; font-size: 30px; opacity: 0.7; text-align: center;"></span>
-                          <img [src]="getHeroIcon(heroValue)" [style.opacity]="0.3"
-                            [ngbTooltip]="'Taken by ' + getPlayerOfHero(heroValue).chatAccount.name" container="body">
-                        </span>
-                        <a class="heroSelect" (click)="selectHero(heroValue)"
-                          *ngIf="getPlayerOfHero(heroValue) == undefined || selectedHero == heroValue">
-                          <img [src]="getHeroIcon(heroValue)" [style.opacity]="selectedHero == heroValue ? '1.0' : 0.5"
-                            [ngbTooltip]="HeroEnumText.get(heroValue)">
-                        </a>
-                      </span>
+                      <a class="heroSelect" *ngIf="heroValue > EHeroEnum.RANDOM && heroValue != EHeroEnum.BLAZER"
+                        (click)="selectHero(heroValue)">
+                        <img [src]="getHeroIcon(heroValue)" [style.opacity]="selectedHero == heroValue ? '1.0' : 0.5"
+                          [ngbTooltip]="HeroEnumText.get(heroValue)">
+                      </a>
                     </ng-template>
                   </div>
                 </div>
@@ -282,237 +209,319 @@
                     </ng-template>
                   </div>
                 </div>
-                <div class="row" style="padding-bottom:10px">
-                  <div class="col-md-12">
-                    Players of your party:<br />
-                    <div style="width:112px;" class="float-left" *ngIf="!party && chatAccount">
-                      <div style="width:100%;">
-                        <b>{{chatAccount.name}}</b>
-                      </div>
-                      <div>
-                        <img style="width:40px" [src]="getHeroIcon(selectedHero)"
-                          [ngbTooltip]="HeroEnumText.get(selectedHero)">
-                        <img style="width:40px; margin-left:0px" [src]="getPetIcon(selectedPet)"
-                          [ngbTooltip]="PetEnumText.get(selectedPet)">
-                      </div>
+                <div class="row">
+                  <div class="col-md-12" style="margin-top:14px;">
+                    Select a difficulty level:
+                    <select class="custom-select" [(ngModel)]="selectedBotDifficulty">
+                      <option value="easy">
+                        Easy
+                      </option>
+                      <option value="normal">
+                        Normal
+                      </option>
+                      <option value="hard">
+                        Hard
+                      </option>
+                    </select>
+                  </div>
+                  <div class="col-md-12" style="position:absolute; bottom: 10px;">
+                    &nbsp;
+                    <button class="btn btn-primary btn-block" (click)="joinBotGame()">Play versus Bots</button>
+                  </div>
+                </div>
+              </div>
+              <div *ngIf="playTabs.STORY.active">
+                <button class="btn btn-primary btn-block" style="margin-bottom:20px"
+                  (click)="joinStoryMap('bastact1')">Story of Bastion</button>
+                <button class="btn btn-primary btn-block" (click)="joinStoryMap('tutorial')">Story of Caprice
+                  (Tutorial
+                  Part 1)
+                </button>
+                <button class="btn btn-primary btn-block" (click)="joinStoryMap('tutorial_2')">Story of Caprice
+                  (Tutorial
+                  Part 2)
+                </button>
+                <button class="btn btn-primary btn-block" (click)="joinStoryMap('tutorial_3')">Story of Caprice
+                  (Tutorial
+                  Part 3)
+                </button>
+              </div>
+              <div *ngIf="playTabs.EARLY_ACCESS.active">
+                In Early Access, <a href="https://www.patreon.com/strife_ce" target="_blank">
+                  <img [src]="'assets/images/icons/patreon1.png'" style="width:16px; margin-top:-5px;" />
+                  Patreon Supporters
+                </a> of Strife CE can play the <b>latest balance changes and new heroes</b> even before it gets released
+                to the rest of the
+                world.<br /><br /> Currently the first balance patch is in development and is made available here as
+                soon
+                as possible.
+              </div>
+              <div *ngIf="playTabs.MATCHMAKING.active">
+                <div *ngIf="state == EChatAccountState.IDLE || state == EChatAccountState.PARTYING">
+                  <div class="row" style="padding-bottom:10px">
+                    <div class="col-md-12">
+                      Select a Hero:<br />
+                      <ng-template ngFor let-heroValue [ngForOf]="getEnumValues(EHeroEnum)">
+                        <span *ngIf="heroValue > EHeroEnum.RANDOM && heroValue != EHeroEnum.BLAZER">
+                          <span class="heroSelectInactive" style="position:relative"
+                            *ngIf="getPlayerOfHero(heroValue) != undefined && selectedHero != heroValue">
+                            <span class="fa fa-times"
+                              style="position:absolute; top:6px; left:0px; right:0px; bottom:0px; font-size: 30px; opacity: 0.7; text-align: center;"></span>
+                            <img [src]="getHeroIcon(heroValue)" [style.opacity]="0.3"
+                              [ngbTooltip]="'Taken by ' + getPlayerOfHero(heroValue).chatAccount.name" container="body">
+                          </span>
+                          <a class="heroSelect" (click)="selectHero(heroValue)"
+                            *ngIf="getPlayerOfHero(heroValue) == undefined || selectedHero == heroValue">
+                            <img [src]="getHeroIcon(heroValue)"
+                              [style.opacity]="selectedHero == heroValue ? '1.0' : 0.5"
+                              [ngbTooltip]="HeroEnumText.get(heroValue)">
+                          </a>
+                        </span>
+                      </ng-template>
                     </div>
-                    <div *ngIf="party">
-                      <div style="width:112px; position:relative" class="float-left"
-                        *ngFor="let member of party.members">
-                        <a style="position:absolute; left: 0px; right: 0px; bottom:0px; top:0px; z-index:9999;"
-                          [ngbTooltip]="'Remove ' + member.chatAccount.name + ' from party'" placement="top"
-                          *ngIf="chatAccount.id != member.chatAccount.id && chatAccount.id == party.chief.id"
-                          (click)="removePlayerFromParty(member)"></a>
-                        <div [style.opacity]="(member.state == EPartyMemberState.INVITE_PENDING) ? 0.5 : 1.0">
-                          <div style="width:100%;">
-                            <b style="font-size:12px;">
+                  </div>
+                  <div class="row" style="padding-bottom:10px">
+                    <div class="col-md-12">
+                      Select a Pet: <br />
+                      <ng-template ngFor let-petValue [ngForOf]="getEnumValues(EPetEnum)">
+                        <a class="heroSelect" *ngIf="petValue > EPetEnum.NO_PET" (click)="selectPet(petValue)">
+                          <img [src]="getPetIcon(petValue)" [style.opacity]="selectedPet == petValue ? '1.0' : 0.5"
+                            [ngbTooltip]="PetEnumText.get(petValue)">
+                        </a>
+                      </ng-template>
+                    </div>
+                  </div>
+                  <div class="row" style="padding-bottom:10px">
+                    <div class="col-md-12">
+                      Players of your party:<br />
+                      <div style="width:112px;" class="float-left" *ngIf="!party && chatAccount">
+                        <div style="width:100%;">
+                          <b>{{chatAccount.name}}</b>
+                        </div>
+                        <div>
+                          <img style="width:40px" [src]="getHeroIcon(selectedHero)"
+                            [ngbTooltip]="HeroEnumText.get(selectedHero)">
+                          <img style="width:40px; margin-left:0px" [src]="getPetIcon(selectedPet)"
+                            [ngbTooltip]="PetEnumText.get(selectedPet)">
+                        </div>
+                      </div>
+                      <div *ngIf="party">
+                        <div style="width:112px; position:relative" class="float-left"
+                          *ngFor="let member of party.members">
+                          <a style="position:absolute; left: 0px; right: 0px; bottom:0px; top:0px; z-index:9999;"
+                            [ngbTooltip]="'Remove ' + member.chatAccount.name + ' from party'" placement="top"
+                            *ngIf="chatAccount.id != member.chatAccount.id && chatAccount.id == party.chief.id"
+                            (click)="removePlayerFromParty(member)"></a>
+                          <div [style.opacity]="(member.state == EPartyMemberState.INVITE_PENDING) ? 0.5 : 1.0">
+                            <div style="width:100%;">
+                              <b style="font-size:12px;">
 
-                              <span class="fa fa-ellipsis-h"
-                                *ngIf="member.state == EPartyMemberState.INVITE_PENDING"></span>
-                              <span class="fa fa-user-cog" *ngIf="member.state == EPartyMemberState.NORMAL"></span>
-                              <span class="fa fa-user-check" *ngIf="member.state == EPartyMemberState.READY"></span>
-                              {{member.chatAccount.name}}</b>
-                          </div>
-                          <div>
-                            <img style="width:40px" [src]="getHeroIcon(member.hero)"
-                              [ngbTooltip]="HeroEnumText.get(member.hero)" placement="bottom">
-                            <img style="width:40px; margin-left:0px" [src]="getPetIcon(member.pet)"
-                              [ngbTooltip]="PetEnumText.get(member.pet)" placement="bottom">
+                                <span class="fa fa-ellipsis-h"
+                                  *ngIf="member.state == EPartyMemberState.INVITE_PENDING"></span>
+                                <span class="fa fa-user-cog" *ngIf="member.state == EPartyMemberState.NORMAL"></span>
+                                <span class="fa fa-user-check" *ngIf="member.state == EPartyMemberState.READY"></span>
+                                {{member.chatAccount.name}}</b>
+                            </div>
+                            <div>
+                              <img style="width:40px" [src]="getHeroIcon(member.hero)"
+                                [ngbTooltip]="HeroEnumText.get(member.hero)" placement="bottom">
+                              <img style="width:40px; margin-left:0px" [src]="getPetIcon(member.pet)"
+                                [ngbTooltip]="PetEnumText.get(member.pet)" placement="bottom">
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
 
-                    <div style="width:112px;" class="float-left"
-                      *ngIf="(!party || party.chief.id == chatAccount.id) && getMaxInviteCount() > 0">
-                      <br />
-                      <a style="font-size: 40px" class="fa fa-plus-square" (click)="openModal(invitePlayers)"></a>
-                    </div>
+                      <div style="width:112px;" class="float-left"
+                        *ngIf="(!party || party.chief.id == chatAccount.id) && getMaxInviteCount() > 0">
+                        <br />
+                        <a style="font-size: 40px" class="fa fa-plus-square" (click)="openModal(invitePlayers)"></a>
+                      </div>
 
+                    </div>
                   </div>
+                  <br />
+                  <div class="row" style="position:absolute; bottom: 20px; left: 20px; right: 20px;">
+                    <ng-template [ngIf]="!party || party.members.length == 1">
+                      <div class="col-md-9">
+                        Select one or multiple gamemodes: <br />
+                        <ng-toggle onColor="success" offColor="light" size="sm"
+                          [(ngModel)]="selectedGameModes[EGameMode.MODE_1ON1]">
+                          <ng-template ngToggleLabel forLabel="on"><span
+                              class="fa fa-check-circle"></span>&nbsp;&nbsp;1vs1
+                          </ng-template>
+                          <ng-template ngToggleLabel forLabel="off"><span
+                              class="fa fa-times-circle"></span>&nbsp;&nbsp;1vs1
+                          </ng-template>
+                        </ng-toggle>
+                        &nbsp;
+                        <ng-toggle onColor="success" offColor="light" size="sm"
+                          [(ngModel)]="selectedGameModes[EGameMode.MODE_2ON2]">
+                          <ng-template ngToggleLabel forLabel="on"><span
+                              class="fa fa-check-circle"></span>&nbsp;&nbsp;2vs2
+                          </ng-template>
+                          <ng-template ngToggleLabel forLabel="off"><span
+                              class="fa fa-times-circle"></span>&nbsp;&nbsp;2vs2
+                          </ng-template>
+                        </ng-toggle>
+                        &nbsp;
+                        <ng-toggle onColor="success" offColor="light" size="sm"
+                          [(ngModel)]="selectedGameModes[EGameMode.MODE_3ON3]">
+                          <ng-template ngToggleLabel forLabel="on"><span
+                              class="fa fa-check-circle"></span>&nbsp;&nbsp;3vs3
+                          </ng-template>
+                          <ng-template ngToggleLabel forLabel="off"><span
+                              class="fa fa-times-circle"></span>&nbsp;&nbsp;3vs3
+                          </ng-template>
+                        </ng-toggle>
+                        &nbsp;
+                        <ng-toggle onColor="success" offColor="light" size="sm"
+                          [(ngModel)]="selectedGameModes[EGameMode.MODE_5ON5]">
+                          <ng-template ngToggleLabel forLabel="on"><span
+                              class="fa fa-check-circle"></span>&nbsp;&nbsp;5vs5
+                          </ng-template>
+                          <ng-template ngToggleLabel forLabel="off"><span
+                              class="fa fa-times-circle"></span>&nbsp;&nbsp;5vs5
+                          </ng-template>
+                        </ng-toggle>
+                      </div>
+                      <div class="col-md-3" style="padding-top:18px; padding-left:2px;">
+                        <button class="btn btn-primary btn-block" (click)="startGameSearch()">Start</button>
+                      </div>
+                    </ng-template>
+                    <ng-template #partyMode [ngIf]="party && party.members.length > 1">
+                      <div class="col-md-6">
+                        {{isPartyChief() ? 'Select one or multiple gamemodes:' : 'Selected gamemodes by the party chief:'}}
+                        <br />
+                        <ng-toggle onColor="success" offColor="light" size="sm"
+                          [value]="selectedGameModes[EGameMode.MODE_2ON2]"
+                          [disabled]='!isGameModeEnabledInParty(EGameMode.MODE_2ON2)'
+                          (valueChange)="partyGameModeChanged(EGameMode.MODE_2ON2, $event)">
+                          <ng-template ngToggleLabel forLabel="on"><span
+                              class="fa fa-check-circle"></span>&nbsp;&nbsp;2vs2
+                          </ng-template>
+                          <ng-template ngToggleLabel forLabel="off"><span
+                              class="fa fa-times-circle"></span>&nbsp;&nbsp;2vs2
+                          </ng-template>
+                        </ng-toggle>
+                        &nbsp;
+                        <ng-toggle onColor="success" offColor="light" size="sm"
+                          [value]="selectedGameModes[EGameMode.MODE_3ON3]"
+                          [disabled]='!isGameModeEnabledInParty(EGameMode.MODE_3ON3)'
+                          (valueChange)="partyGameModeChanged(EGameMode.MODE_3ON3, $event)">
+                          <ng-template ngToggleLabel forLabel="on"><span
+                              class="fa fa-check-circle"></span>&nbsp;&nbsp;3vs3
+                          </ng-template>
+                          <ng-template ngToggleLabel forLabel="off"><span
+                              class="fa fa-times-circle"></span>&nbsp;&nbsp;3vs3
+                          </ng-template>
+                        </ng-toggle>
+                        &nbsp;
+                        <ng-toggle onColor="success" offColor="light" size="sm"
+                          [value]="selectedGameModes[EGameMode.MODE_5ON5]"
+                          [disabled]='!isGameModeEnabledInParty(EGameMode.MODE_5ON5)'
+                          (valueChange)="partyGameModeChanged(EGameMode.MODE_5ON5, $event)">
+                          <ng-template ngToggleLabel forLabel="on"><span
+                              class="fa fa-check-circle"></span>&nbsp;&nbsp;5vs5
+                          </ng-template>
+                          <ng-template ngToggleLabel forLabel="off"><span
+                              class="fa fa-times-circle"></span>&nbsp;&nbsp;5vs5
+                          </ng-template>
+                        </ng-toggle>
+                      </div>
+                      <div class="col-md-3" style="padding-top:18px; padding-right:2px;"
+                        *ngIf="partyMember.state !== EPartyMemberState.READY">
+                        <button class="btn btn-danger btn-block" (click)="leaveParty()">Leave party</button>
+                      </div>
+                      <div class="col-md-3" style="padding-top:18px; padding-left:2px;"
+                        *ngIf="partyMember.state !== EPartyMemberState.READY">
+                        <button class="btn btn-primary btn-block" (click)="startGameSearch()">Ready</button>
+                      </div>
+                      <div class="col-md-3" style="padding-top:18px; padding-right:2px;"
+                        *ngIf="partyMember.state === EPartyMemberState.READY">
+                        <div style="font-size:12px; line-height:14px; padding-top:6px">Waiting for other players to be
+                          ready...</div>
+                      </div>
+                      <div class="col-md-3" style="padding-top:18px; padding-left:2px;"
+                        *ngIf="partyMember.state === EPartyMemberState.READY">
+                        <button class="btn btn-primary btn-block" (click)="notReady()">Not ready</button>
+                      </div>
+                    </ng-template>
+                  </div>
+
                 </div>
-                <br />
-                <div class="row" style="position:absolute; bottom: 20px; left: 20px; right: 20px;">
-                  <ng-template [ngIf]="!party || party.members.length == 1">
-                    <div class="col-md-9">
-                      Select one or multiple gamemodes: <br />
-                      <ng-toggle onColor="success" offColor="light" size="sm"
-                        [(ngModel)]="selectedGameModes[EGameMode.MODE_1ON1]">
-                        <ng-template ngToggleLabel forLabel="on"><span
-                            class="fa fa-check-circle"></span>&nbsp;&nbsp;1vs1
-                        </ng-template>
-                        <ng-template ngToggleLabel forLabel="off"><span
-                            class="fa fa-times-circle"></span>&nbsp;&nbsp;1vs1
-                        </ng-template>
-                      </ng-toggle>
-                      &nbsp;
-                      <ng-toggle onColor="success" offColor="light" size="sm"
-                        [(ngModel)]="selectedGameModes[EGameMode.MODE_2ON2]">
-                        <ng-template ngToggleLabel forLabel="on"><span
-                            class="fa fa-check-circle"></span>&nbsp;&nbsp;2vs2
-                        </ng-template>
-                        <ng-template ngToggleLabel forLabel="off"><span
-                            class="fa fa-times-circle"></span>&nbsp;&nbsp;2vs2
-                        </ng-template>
-                      </ng-toggle>
-                      &nbsp;
-                      <ng-toggle onColor="success" offColor="light" size="sm"
-                        [(ngModel)]="selectedGameModes[EGameMode.MODE_3ON3]">
-                        <ng-template ngToggleLabel forLabel="on"><span
-                            class="fa fa-check-circle"></span>&nbsp;&nbsp;3vs3
-                        </ng-template>
-                        <ng-template ngToggleLabel forLabel="off"><span
-                            class="fa fa-times-circle"></span>&nbsp;&nbsp;3vs3
-                        </ng-template>
-                      </ng-toggle>
-                      &nbsp;
-                      <ng-toggle onColor="success" offColor="light" size="sm"
-                        [(ngModel)]="selectedGameModes[EGameMode.MODE_5ON5]">
-                        <ng-template ngToggleLabel forLabel="on"><span
-                            class="fa fa-check-circle"></span>&nbsp;&nbsp;5vs5
-                        </ng-template>
-                        <ng-template ngToggleLabel forLabel="off"><span
-                            class="fa fa-times-circle"></span>&nbsp;&nbsp;5vs5
-                        </ng-template>
-                      </ng-toggle>
+                <div *ngIf="state == EChatAccountState.QUEUE || state == EChatAccountState.PREPARING_MATCH">
+                  <div class="row">
+                    <div class="col-6">
+                      Gamemodes:
                     </div>
-                    <div class="col-md-3" style="padding-top:18px; padding-left:2px;">
-                      <button class="btn btn-primary btn-block" (click)="startGameSearch()">Start</button>
+                    <div class="col-6">
+                      <b>
+                        {{selectedGameModes[EGameMode.MODE_1ON1]? '1vs1':''}}
+                        {{selectedGameModes[EGameMode.MODE_2ON2]? '2vs2':''}}
+                        {{selectedGameModes[EGameMode.MODE_3ON3]? '3vs3':''}}
+                        {{selectedGameModes[EGameMode.MODE_5ON5]? '5vs5':''}}
+                      </b>
                     </div>
-                  </ng-template>
-                  <ng-template #partyMode [ngIf]="party && party.members.length > 1">
-                    <div class="col-md-6">
-                      {{isPartyChief() ? 'Select one or multiple gamemodes:' : 'Selected gamemodes by the party chief:'}}
-                      <br />
-                      <ng-toggle onColor="success" offColor="light" size="sm"
-                        [value]="selectedGameModes[EGameMode.MODE_2ON2]"
-                        [disabled]='!isGameModeEnabledInParty(EGameMode.MODE_2ON2)'
-                        (valueChange)="partyGameModeChanged(EGameMode.MODE_2ON2, $event)">
-                        <ng-template ngToggleLabel forLabel="on"><span
-                            class="fa fa-check-circle"></span>&nbsp;&nbsp;2vs2
-                        </ng-template>
-                        <ng-template ngToggleLabel forLabel="off"><span
-                            class="fa fa-times-circle"></span>&nbsp;&nbsp;2vs2
-                        </ng-template>
-                      </ng-toggle>
-                      &nbsp;
-                      <ng-toggle onColor="success" offColor="light" size="sm"
-                        [value]="selectedGameModes[EGameMode.MODE_3ON3]"
-                        [disabled]='!isGameModeEnabledInParty(EGameMode.MODE_3ON3)'
-                        (valueChange)="partyGameModeChanged(EGameMode.MODE_3ON3, $event)">
-                        <ng-template ngToggleLabel forLabel="on"><span
-                            class="fa fa-check-circle"></span>&nbsp;&nbsp;3vs3
-                        </ng-template>
-                        <ng-template ngToggleLabel forLabel="off"><span
-                            class="fa fa-times-circle"></span>&nbsp;&nbsp;3vs3
-                        </ng-template>
-                      </ng-toggle>
-                      &nbsp;
-                      <ng-toggle onColor="success" offColor="light" size="sm"
-                        [value]="selectedGameModes[EGameMode.MODE_5ON5]"
-                        [disabled]='!isGameModeEnabledInParty(EGameMode.MODE_5ON5)'
-                        (valueChange)="partyGameModeChanged(EGameMode.MODE_5ON5, $event)">
-                        <ng-template ngToggleLabel forLabel="on"><span
-                            class="fa fa-check-circle"></span>&nbsp;&nbsp;5vs5
-                        </ng-template>
-                        <ng-template ngToggleLabel forLabel="off"><span
-                            class="fa fa-times-circle"></span>&nbsp;&nbsp;5vs5
-                        </ng-template>
-                      </ng-toggle>
+                    <div class="col-6">
+                      Hero:
                     </div>
-                    <div class="col-md-3" style="padding-top:18px; padding-right:2px;"
-                      *ngIf="partyMember.state !== EPartyMemberState.READY">
-                      <button class="btn btn-danger btn-block" (click)="leaveParty()">Leave party</button>
+                    <div class="col-6">
+                      <b>{{HeroEnumText.get(selectedHero)}}</b>
                     </div>
-                    <div class="col-md-3" style="padding-top:18px; padding-left:2px;"
-                      *ngIf="partyMember.state !== EPartyMemberState.READY">
-                      <button class="btn btn-primary btn-block" (click)="startGameSearch()">Ready</button>
+                    <div class="col-6">
+                      Pet:
                     </div>
-                    <div class="col-md-3" style="padding-top:18px; padding-right:2px;"
-                      *ngIf="partyMember.state === EPartyMemberState.READY">
-                      <div style="font-size:12px; line-height:14px; padding-top:6px">Waiting for other players to be
-                        ready...</div>
+                    <div class="col-6">
+                      <b>{{PetEnumText.get(selectedPet)}}</b>
                     </div>
-                    <div class="col-md-3" style="padding-top:18px; padding-left:2px;"
-                      *ngIf="partyMember.state === EPartyMemberState.READY">
-                      <button class="btn btn-primary btn-block" (click)="notReady()">Not ready</button>
-                    </div>
-                  </ng-template>
+                  </div>
+                  <br /><br />
+                  <div style="text-align:left">Searching for players, please wait... {{searchingTime}} seconds</div>
+                  <br />
+                  <button class="btn btn-danger btn-block" (click)="cancelGameSearch()">Abort searching</button>
                 </div>
 
-              </div>
-              <div *ngIf="state == EChatAccountState.QUEUE || state == EChatAccountState.PREPARING_MATCH">
-                <div class="row">
-                  <div class="col-6">
-                    Gamemodes:
+                <div *ngIf="state == EChatAccountState.INGAME">
+                  <div class="row">
+                    <div class="col-6">
+                      Gamemodes:
+                    </div>
+                    <div class="col-6">
+                      <b>
+                        {{selectedGameModes[EGameMode.MODE_1ON1]? '1vs1':''}}
+                        {{selectedGameModes[EGameMode.MODE_2ON2]? '2vs2':''}}
+                        {{selectedGameModes[EGameMode.MODE_3ON3]? '3vs3':''}}
+                        {{selectedGameModes[EGameMode.MODE_5ON5]? '5vs5':''}}
+                      </b>
+                    </div>
+                    <div class="col-6">
+                      Hero:
+                    </div>
+                    <div class="col-6">
+                      <b>{{HeroEnumText.get(selectedHero)}}</b>
+                    </div>
+                    <div class="col-6">
+                      Pet:
+                    </div>
+                    <div class="col-6">
+                      <b>{{PetEnumText.get(selectedPet)}}</b>
+                    </div>
                   </div>
-                  <div class="col-6">
-                    <b>
-                      {{selectedGameModes[EGameMode.MODE_1ON1]? '1vs1':''}}
-                      {{selectedGameModes[EGameMode.MODE_2ON2]? '2vs2':''}}
-                      {{selectedGameModes[EGameMode.MODE_3ON3]? '3vs3':''}}
-                      {{selectedGameModes[EGameMode.MODE_5ON5]? '5vs5':''}}
-                    </b>
-                  </div>
-                  <div class="col-6">
-                    Hero:
-                  </div>
-                  <div class="col-6">
-                    <b>{{HeroEnumText.get(selectedHero)}}</b>
-                  </div>
-                  <div class="col-6">
-                    Pet:
-                  </div>
-                  <div class="col-6">
-                    <b>{{PetEnumText.get(selectedPet)}}</b>
-                  </div>
+                  <br /><br />
+                  <div style="text-align:left">You left a running game. Please reconnect!</div>
+                  <br />
+                  <button class="btn btn-primary" style="width:252px; margin-right:10px" (click)="joinMatch()">Rejoin
+                    the
+                    game</button>
+                  <button class="btn btn-danger" (click)="cancelMatch()">Abort game</button>
                 </div>
-                <br /><br />
-                <div style="text-align:left">Searching for players, please wait... {{searchingTime}} seconds</div>
-                <br />
-                <button class="btn btn-danger btn-block" (click)="cancelGameSearch()">Abort searching</button>
-              </div>
-
-              <div *ngIf="state == EChatAccountState.INGAME">
-                <div class="row">
-                  <div class="col-6">
-                    Gamemodes:
-                  </div>
-                  <div class="col-6">
-                    <b>
-                      {{selectedGameModes[EGameMode.MODE_1ON1]? '1vs1':''}}
-                      {{selectedGameModes[EGameMode.MODE_2ON2]? '2vs2':''}}
-                      {{selectedGameModes[EGameMode.MODE_3ON3]? '3vs3':''}}
-                      {{selectedGameModes[EGameMode.MODE_5ON5]? '5vs5':''}}
-                    </b>
-                  </div>
-                  <div class="col-6">
-                    Hero:
-                  </div>
-                  <div class="col-6">
-                    <b>{{HeroEnumText.get(selectedHero)}}</b>
-                  </div>
-                  <div class="col-6">
-                    Pet:
-                  </div>
-                  <div class="col-6">
-                    <b>{{PetEnumText.get(selectedPet)}}</b>
-                  </div>
-                </div>
-                <br /><br />
-                <div style="text-align:left">You left a running game. Please reconnect!</div>
-                <br />
-                <button class="btn btn-primary" style="width:252px; margin-right:10px" (click)="joinMatch()">Rejoin
-                  the
-                  game</button>
-                <button class="btn btn-danger" (click)="cancelMatch()">Abort game</button>
               </div>
             </div>
           </div>
-        </div>
-        <div *ngIf="mainMenuTabs.MODERATION.active">
-          moderate!
-      </div>
+          <div *ngIf="mainMenuTabs.MODERATION.active">
+            <app-dashboard-moderation *ngIf="user" [user]="user"></app-dashboard-moderation>
+          </div>
         </div>
       </div>
     </div>
