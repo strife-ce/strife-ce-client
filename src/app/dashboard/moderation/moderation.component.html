@@ -44,7 +44,8 @@
         </thead>
         <tbody>
           <tr *ngFor="let account of accounts">
-            <td>{{account.name}}</td>
+            <td style="line-height:1.0">{{account.name}}<br />
+              <span style="font-size:10px">Login: {{account.lastLogin | date:'short' }}</span></td>
             <td>
               <div style="width:50px;" *ngIf="account.globalPlayer.accounts.length > 1"
                 [ngbTooltip]="getAliases(account)">
@@ -58,8 +59,7 @@
                   class="fa fa-comment-slash"></span>&nbsp;<b>{{account.globalPlayer.chatRestriction.getUntilText()}}</b><br />
               </div>
               <div *ngIf="account.globalPlayer.matchRestriction">
-                <span
-                  class="fa fa-gamepad"></span>&nbsp;<b>{{account.globalPlayer.matchRestriction.getUntilText()}}</b>
+                <span class="fa fa-gamepad"></span>&nbsp;<b>{{account.globalPlayer.matchRestriction.getUntilText()}}</b>
               </div>
             </td>
             <td style="padding-bottom:10px">
