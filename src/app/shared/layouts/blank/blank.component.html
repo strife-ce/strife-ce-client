@@ -14,6 +14,7 @@
     -webkit-app-region: no-drag;
   }
 
+
   #close {
     color: #fff;
     position: absolute;
@@ -23,7 +24,17 @@
     cursor: pointer;
   }
 
-  #close:hover {
+  #minimize {
+    color: #fff;
+    position: absolute;
+    top: 2px;
+    right: 28px;
+    -webkit-app-region: no-drag;
+    cursor: pointer;
+    font-size:12px;
+  }
+
+  #close:hover, #minimize:hover {
     cursor: pointer;
     color: #999 !important;
   }
@@ -35,11 +46,12 @@
 
 <div style="width: 1280px; height:800px; background-color:#fff; position:relative ">
     <div style="width: 100%; padding: 24px 20px 4px 0px;" id="dragbar">
+        <div id="minimize" (click)="minimizeWindow()"><span class="fa fa-window-minimize"></span></div>
         <div id="close" (click)="closeWindow()"><span class="fa fa-window-close"></span></div>
         <p class="text-right">
           &nbsp;
           <span
-            style="position: absolute; right:30px; top:6px; font-size:9px; color:#fff"><span style="color:#fff">Made with <span class="fa fa-heart"></span> by Pad </span>&nbsp; v0.4.0</span>
+            style="position: absolute; right:52px; top:6px; font-size:9px; color:#fff"><span style="color:#909dba">Made with <span class="fa fa-heart"></span> by Pad &nbsp;|</span>&nbsp; v0.4.0</span>
         </p>
       </div>
   <router-outlet></router-outlet>

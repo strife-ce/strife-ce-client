@@ -72,7 +72,8 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
   public isModerator = false;
   public mainMenuTabs = {
     PLAY: { name: 'Play', disabled: false, active: true, icon: 'fa fa-gamepad' },
-    MODERATION: { name: 'Moderation', disabled: false, active: false, icon: 'fa fa-user-lock', privilege: RolePrivilegeEnum.tab_moderate }
+    MODERATION: { name: 'Moderation', disabled: false, active: false, icon: 'fa fa-user-lock', privilege: RolePrivilegeEnum.tab_moderate },
+    //CRAFTING: { name: 'Crafting', disabled: true, active: false, icon: 'fa fa-pencil-ruler' },
   };
 
   public playTabs = {
@@ -539,7 +540,7 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
   public selectHero(hero) {
     if (this.selectedHero !== hero) {
       if (hero === EHeroEnum.RANDOM) {
-        while (hero === EHeroEnum.BLAZER || hero === EHeroEnum.RANDOM) {// remove this while once blazer is fixed
+        while (hero === EHeroEnum.RANDOM) {
           hero = Math.floor(Math.random() * (EHeroEnum.RANDOM - 1)) + 1;
         }
       }

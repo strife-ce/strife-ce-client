@@ -14,4 +14,12 @@ export class BlankComponent {
       wnd.close();
     }
   }
+
+  public minimizeWindow() {
+    if (window && (window as any).process) {
+      const { remote } = (<any>window).require('electron');
+      const wnd = remote.getCurrentWindow();
+      wnd.minimize();
+    }
+  }
 }

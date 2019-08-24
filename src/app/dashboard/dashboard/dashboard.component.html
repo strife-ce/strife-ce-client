@@ -120,14 +120,14 @@
         <div class="card flex-fill d-flex" style="border: none;">
           <div class="card-header" style="border-top: 1px solid rgba(0, 0, 0, 0.125); padding: 10px 12px">
             <ng-template ng-template ngFor let-tab [ngForOf]="getAttributes(mainMenuTabs)">
-              <a class="mainNav {{((tab.active) ? 'active' :'')}}" *ngIf="(tab.hide !== true)"
+              <a class="mainNav {{((tab.active) ? 'active' :'')}}  {{((tab.disabled) ? 'disabled' :'')}}" *ngIf="(tab.hide !== true)"
                 (click)="switchTab(mainMenuTabs, tab)">
                 <span [class]="tab.icon"></span> {{tab.name}}
               </a>
             </ng-template>
             <a class="mainNav deactivated" [ngbTooltip]="'Coming soon..'">
-              <span class="fa fa-pencil-ruler"></span> Crafting
-            </a>
+                <span class="fa fa-pencil-ruler"></span> Crafting
+              </a>
             <a class="mainNav deactivated" [ngbTooltip]="'Coming soon..'">
               <span class="fa fa-user-astronaut"></span> Heroes
             </a>
@@ -188,7 +188,7 @@
                   <div class="col-md-12">
                     Select a Hero:<br />
                     <ng-template ngFor let-heroValue [ngForOf]="getEnumValues(EHeroEnum)">
-                      <a class="heroSelect" *ngIf="heroValue > EHeroEnum.NO_HERO && heroValue != EHeroEnum.BLAZER"
+                      <a class="heroSelect" *ngIf="heroValue > EHeroEnum.NO_HERO"
                         (click)="selectHero(heroValue)">
                         <img [src]="getHeroIcon(heroValue)" [style.opacity]="selectedHero == heroValue ? '1.0' : 0.5"
                           [ngbTooltip]="HeroEnumText.get(heroValue)">
@@ -260,7 +260,7 @@
                     <div class="col-md-12">
                       Select a Hero:<br />
                       <ng-template ngFor let-heroValue [ngForOf]="getEnumValues(EHeroEnum)">
-                        <span *ngIf="heroValue > EHeroEnum.NO_HERO && heroValue != EHeroEnum.BLAZER">
+                        <span *ngIf="heroValue > EHeroEnum.NO_HERO">
                           <span class="heroSelectInactive" style="position:relative"
                             *ngIf="getPlayerOfHero(heroValue) != undefined && selectedHero != heroValue">
                             <span class="fa fa-times"
@@ -520,6 +520,9 @@
           <div *ngIf="mainMenuTabs.MODERATION.active">
             <app-dashboard-moderation *ngIf="user" [user]="user"></app-dashboard-moderation>
           </div>
+          <!--<div *ngIf="mainMenuTabs.CRAFTING.active">
+            <app-dashboard-crafting *ngIf="user" [user]="user"></app-dashboard-crafting>
+          </div>-->
         </div>
       </div>
     </div>
@@ -540,6 +543,7 @@
                     <b><u><br />Client</u></b>
                     <li><b>Balance Patch downloader</b></li>
                     <li>Random Hero button (dev by The_Chiprel)</li>
+                    <li><b>Reenabled Blazer</b></li>
                     <li>Fixed: Patreon status bar</li>
                     <li>Fixed: Open shop bug for new players</li>
                     <li>Fixed: Saving last selected/hero/gamemode pet</li>

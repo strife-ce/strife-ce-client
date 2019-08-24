@@ -11,7 +11,17 @@
     cursor: pointer;
   }
 
-  #close:hover {
+  #minimize {
+    color: #fff;
+    position: absolute;
+    top: 2px;
+    right: 28px;
+    -webkit-app-region: no-drag;
+    cursor: pointer;
+    font-size:12px;
+  }
+
+  #close:hover, #minimize:hover {
     cursor: pointer;
     color: #999 !important;
   }
@@ -27,7 +37,8 @@
     <!-- ============================================================== -->
     <div class="page-wrapper">
       <div id="dragbar">
-        <div id="close" (click)="closeWindow()"><span class="fa fa-window-close"></span></div>
+          <div id="minimize" (click)="minimizeWindow()"><span class="fa fa-window-minimize"></span></div>
+          <div id="close" (click)="closeWindow()"><span class="fa fa-window-close"></span></div>
         <p class="text-right">
           &nbsp;
           <a class="btn btn-link btn-sm text-white" target="_blank" href="https://www.tricider.com/brainstorming/2kmOXehNw7Z"
@@ -37,7 +48,7 @@
           <a class="btn btn-link btn-sm text-white" (click)="logout()" role="button"><span
               class="fa fa-sign-out-alt"></span> logout</a>
           <span
-            style="position: absolute; right:30px; top:6px; font-size:9px; color:#fff"><span style="color:#909dba">Made with <span class="fa fa-heart"></span> by Pad </span>&nbsp; v0.4.0</span>
+            style="position: absolute; right:52px; top:6px; font-size:9px; color:#fff"><span style="color:#909dba">Made with <span class="fa fa-heart"></span> by Pad &nbsp;|</span>&nbsp; v0.4.0</span>
         </p>
       </div>
       <!-- ============================================================== -->
