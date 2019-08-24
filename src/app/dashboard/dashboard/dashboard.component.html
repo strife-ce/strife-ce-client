@@ -12,7 +12,7 @@
           <h5 class="title" style="padding:0px;margin: 5px 0px 0px 5px; border: none">Chat</h5>
         </li>
         <li class="nav-item" *ngFor="let tab of getAttributes(chatTabs)">
-          <a [class]="'nav-link' + ((tab.active) ? ' active' :'')  + ((tab.disabled) ? ' disabled' :'')"
+          <a class="nav-link {{((tab.active) ? 'active' :'')}} {{((tab.disabled) ? ' disabled' :'')}}"
             (click)="switchTab(chatTabs, tab)">{{tab.label}} ({{getChatAccounts().length}})</a>
         </li>
       </ul>
@@ -27,8 +27,7 @@
                 <span style="width: 16px; height:16px; margin-right:4px; display: inline-block">
                   <a href="https://www.patreon.com/strife_ce" [ngbTooltip]="chatAccount.iconTooltip" placement="right"
                     target="_blank" *ngIf="chatAccount.icon">
-                    <img [src]="'assets/images/icons/' + chatAccount.icon +'.png'"
-                      style="width:16px; margin-top:-5px;" />
+                    <img src="assets/images/icons/{{chatAccount.icon}}.png" style="width:16px; margin-top:-5px;" />
                   </a>
                 </span>
                 <span *ngIf="chatAccount.hasFlag(EAccountFlags.MODERATOR)" style="font-weight:bold; color: #E6461A"
@@ -82,13 +81,12 @@
               <dl class="flex-fill" id="messageList" style="overflow: auto; margin-right: -8px"
                 [style.max-height.px]="(this.chatAccount && !this.chatAccount.icon) ? 508 : 587" #chatScrollContainer>
                 <div class="msg" *ngFor="let msg of messages" [style.background-color]="msg.highlight ? '#dbe4f5': ''"
-                  [ngbTooltip]="'By ' + msg.account.name + ' at ' + msg.arrivedAt" placement="top">
+                  ngbTooltip="By {{msg.account.name}} at {{msg.arrivedAt}}" placement="top">
                   <span style="width: 16px; height:16px; margin-right:4px; display: inline-block"
                     *ngIf="msg.account.icon">
-                    <a href="https://www.patreon.com/strife_ce" [ngbTooltip]="msg.account.iconTooltip" placement="left"
+                    <a href="https://www.patreon.com/strife_ce" [ngbTooltip]="msg.account.iconTooltip" placement="top"
                       target="_blank">
-                      <img [src]="'assets/images/icons/' + msg.account.icon +'.png'"
-                        style="width:16px; margin-top:-5px;" />
+                      <img src="assets/images/icons/{{msg.account.icon}}.png" style="width:16px; margin-top:-5px;" />
                     </a>
                   </span>
                   <span style="font-weight:600">{{msg.account.name}}:&nbsp;</span>
@@ -122,7 +120,7 @@
         <div class="card flex-fill d-flex" style="border: none;">
           <div class="card-header" style="border-top: 1px solid rgba(0, 0, 0, 0.125); padding: 10px 12px">
             <ng-template ng-template ngFor let-tab [ngForOf]="getAttributes(mainMenuTabs)">
-              <a [class]="'mainNav ' + ((tab.active) ? 'active' :'')" *ngIf="(tab.hide !== true)"
+              <a class="mainNav {{((tab.active) ? 'active' :'')}}" *ngIf="(tab.hide !== true)"
                 (click)="switchTab(mainMenuTabs, tab)">
                 <span [class]="tab.icon"></span> {{tab.name}}
               </a>
@@ -149,7 +147,7 @@
               <div></div>
               <ul class="nav nav-tabs card-header-tabs">
                 <li class="nav-item" *ngFor="let tab of getAttributes(playTabs)">
-                  <a [class]="'nav-link' + ((tab.active) ? ' active' :'')  + ((tab.disabled) ? ' disabled' :'')"
+                  <a class="nav-link {{((tab.active) ? 'active' :'')}} {{((tab.disabled) ? 'disabled' :'')}}"
                     (click)="switchTab(playTabs, tab)">{{tab.name}}</a>
                 </li>
               </ul>
@@ -309,7 +307,7 @@
                         <div style="width:112px; position:relative" class="float-left"
                           *ngFor="let member of party.members">
                           <a style="position:absolute; left: 0px; right: 0px; bottom:0px; top:0px; z-index:9999;"
-                            [ngbTooltip]="'Remove ' + member.chatAccount.name + ' from party'" placement="top"
+                            ngbTooltip="Remove {{member.chatAccount.name}} from party" placement="top"
                             *ngIf="chatAccount.id != member.chatAccount.id && chatAccount.id == party.chief.id"
                             (click)="removePlayerFromParty(member)"></a>
                           <div [style.opacity]="(member.state == EPartyMemberState.INVITE_PENDING) ? 0.5 : 1.0">
@@ -532,6 +530,22 @@
           <div class="news">
 
             <ngb-accordion #acc="ngbAccordion" activeIds="ngb-panel-0">
+              <ngb-panel title="v0.4.0 Balance/Client update [08/24]">
+                <ng-template ngbPanelContent>
+                  <ul>
+                    <b><u>Balance</u></b>
+                    <li>Blazer R nerf: reduced bonus damage from 100% to 10%</li>
+                    <li>Vex W buff: priority of projectile targets from closest enemy to:
+                      heroes > buildings > units</li>
+                    <b><u><br />Client</u></b>
+                    <li><b>Balance Patch downloader</b></li>
+                    <li>Random Hero button (dev by The_Chiprel)</li>
+                    <li>Fixed: Patreon status bar</li>
+                    <li>Fixed: Open shop bug for new players</li>
+                    <li>Fixed: Saving last selected/hero/gamemode pet</li>
+                  </ul>
+                </ng-template>
+              </ngb-panel>
               <ngb-panel title="v0.3.2 Client update [06/16]">
                 <ng-template ngbPanelContent>
                   <ul>
@@ -672,7 +686,7 @@
               <span style="width: 16px; height:16px; margin-right:4px; display: inline-block">
                 <a href="https://www.patreon.com/strife_ce" [ngbTooltip]=" patron.iconTooltip" placement="left"
                   target="_blank">
-                  <img [src]="'assets/images/icons/' + patron.icon +'.png'" style="width:16px; margin-top:-5px;" />
+                  <img src="assets/images/icons/{{patron.icon}}.png" style="width:16px; margin-top:-5px;" />
                 </a>
               </span> {{patron.name}}</div>
           </div>

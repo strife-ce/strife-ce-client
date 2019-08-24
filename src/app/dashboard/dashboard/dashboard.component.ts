@@ -58,7 +58,7 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
   public isChatAudioMuted: boolean;
   public party: Party;
   public inviteParty: Party;
-  private partyMember: PartyMember;
+  public partyMember: PartyMember;
   private account: Account;
   public chatAccount: ChatAccount = null;
   private beepAudio = new Audio(beep);
@@ -337,15 +337,23 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
     }
     if (window && (window as any).process) {
       const { ipcRenderer } = (<any>window).require('electron');
-      ipcRenderer.send('start-strife', { type: 'mmr', map: 'strife', host: joinInfo.host, port: joinInfo.port, secret: joinInfo.secret });
+      if (ipcRenderer.sendSync('is-patching-required')) {
+        this.errorMessage('Update required!', 'Restart Strife CE and get the latest balance patches to start a game.');
+      } else {
+        ipcRenderer.send('start-strife', { type: 'mmr', map: 'strife', host: joinInfo.host, port: joinInfo.port, secret: joinInfo.secret });
+      }
     }
   }
 
   public joinStoryMap(mapName: string) {
     if (window && (window as any).process) {
       const { ipcRenderer } = (<any>window).require('electron');
-      ipcRenderer.send('start-strife', { type: 'story', map: mapName, name: this.chatAccount.name });
-      this.successMessage('Game is loading', 'Strife is starting in the background!');
+      if (ipcRenderer.sendSync('is-patching-required')) {
+        this.errorMessage('Update required!', 'Restart Strife CE and get the latest balance patches to start a game.');
+      } else {
+        ipcRenderer.send('start-strife', { type: 'story', map: mapName, name: this.chatAccount.name });
+        this.successMessage('Game is loading', 'Strife is starting in the background!');
+      }
     }
   }
 
@@ -355,8 +363,12 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
     this.user.setSetting(EUserSettingEnum.LAST_BOT_DIFFICULTY_SELECTION, this.selectedBotDifficulty, true);
     if (window && (window as any).process) {
       const { ipcRenderer } = (<any>window).require('electron');
-      ipcRenderer.send('start-strife', { type: 'bot', map: 'strife', difficulty: this.selectedBotDifficulty, name: this.chatAccount.name, pet: PetEnumGameName.get(this.selectedPet), hero: HeroEnumGameName.get(this.selectedHero) });
-      this.successMessage('Game is loading', 'Strife is starting in the background!');
+      if (ipcRenderer.sendSync('is-patching-required')) {
+        this.errorMessage('Update required!', 'Restart Strife CE and get the latest balance patches to start a game.');
+      } else {
+        ipcRenderer.send('start-strife', { type: 'bot', map: 'strife', difficulty: this.selectedBotDifficulty, name: this.chatAccount.name, pet: PetEnumGameName.get(this.selectedPet), hero: HeroEnumGameName.get(this.selectedHero) });
+        this.successMessage('Game is loading', 'Strife is starting in the background!');
+      }
     }
   }
 
@@ -398,6 +410,15 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
   public startGameSearch() {
     if (this.selectedHero === EHeroEnum.NO_HERO) {
       this.errorMessage('You have to select a hero first!');
+      return;
+    }
+    if (window && (window as any).process) {
+      const { ipcRenderer } = (<any>window).require('electron');
+      console.warn(ipcRenderer.sendSync('is-patching-required'));
+      if (ipcRenderer.sendSync('is-patching-required')) {
+        this.errorMessage('Update required!', 'Restart Strife CE and get the latest balance patches to start a game.');
+        return;
+      }
     }
 
     const singleMode = !this.party || (this.party.members.length === 1);
@@ -409,6 +430,7 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
 
     if (this.isPartyChief() && gameModes === 0) {
       this.errorMessage('No gamemode selected', 'Select at least one gamemode to play.');
+      return;
     } else {
       if (singleMode) {
         this.partyMember = PartyMember.create(this.selectedHero, this.selectedPet);
@@ -516,11 +538,11 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
 
   public selectHero(hero) {
     if (this.selectedHero !== hero) {
-		if (hero === EHeroEnum.RANDOM){
-			while (hero === EHeroEnum.BLAZER || hero === EHeroEnum.RANDOM){//remove this while once blazer is fixed
-				hero = Math.floor(Math.random() * (EHeroEnum.RANDOM - 1)) + 1;
-			}
-		}
+      if (hero === EHeroEnum.RANDOM) {
+        while (hero === EHeroEnum.BLAZER || hero === EHeroEnum.RANDOM) {// remove this while once blazer is fixed
+          hero = Math.floor(Math.random() * (EHeroEnum.RANDOM - 1)) + 1;
+        }
+      }
       this.selectedHero = hero;
       if (this.party) {
         this.partyMember.hero = this.selectedHero;
