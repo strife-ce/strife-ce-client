@@ -190,7 +190,7 @@
                   <div class="col-md-12">
                     Select a Hero:<br />
                     <ng-template ngFor let-heroValue [ngForOf]="getEnumValues(EHeroEnum)">
-                      <a class="heroSelect" *ngIf="heroValue > EHeroEnum.RANDOM && heroValue != EHeroEnum.BLAZER"
+                      <a class="heroSelect" *ngIf="heroValue > EHeroEnum.NO_HERO && heroValue != EHeroEnum.BLAZER"
                         (click)="selectHero(heroValue)">
                         <img [src]="getHeroIcon(heroValue)" [style.opacity]="selectedHero == heroValue ? '1.0' : 0.5"
                           [ngbTooltip]="HeroEnumText.get(heroValue)">
@@ -262,7 +262,7 @@
                     <div class="col-md-12">
                       Select a Hero:<br />
                       <ng-template ngFor let-heroValue [ngForOf]="getEnumValues(EHeroEnum)">
-                        <span *ngIf="heroValue > EHeroEnum.RANDOM && heroValue != EHeroEnum.BLAZER">
+                        <span *ngIf="heroValue > EHeroEnum.NO_HERO && heroValue != EHeroEnum.BLAZER">
                           <span class="heroSelectInactive" style="position:relative"
                             *ngIf="getPlayerOfHero(heroValue) != undefined && selectedHero != heroValue">
                             <span class="fa fa-times"

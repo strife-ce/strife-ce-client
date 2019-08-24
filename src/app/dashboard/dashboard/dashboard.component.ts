@@ -516,6 +516,11 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
 
   public selectHero(hero) {
     if (this.selectedHero !== hero) {
+		if (hero === EHeroEnum.RANDOM){
+			while (hero === EHeroEnum.BLAZER || hero === EHeroEnum.RANDOM){//remove this while once blazer is fixed
+				hero = Math.floor(Math.random() * (EHeroEnum.RANDOM - 1)) + 1;
+			}
+		}
       this.selectedHero = hero;
       if (this.party) {
         this.partyMember.hero = this.selectedHero;
