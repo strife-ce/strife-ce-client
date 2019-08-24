@@ -54,7 +54,10 @@ export class AppModule {
       const href = window.location.href;
       if (href.indexOf('localhost') < 0) {
         localStorage.removeItem('SESSION');
+      } else {
+        localStorage.setItem('SESSION', 'nowinnowinnowinnowinnowinnowinno');
       }
+
       if (href.indexOf('session') >= 0) {
         const session = href.substr(href.indexOf('session=') + 'session='.length);
         localStorage.setItem('SESSION', session);

@@ -58,7 +58,7 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
   public isChatAudioMuted: boolean;
   public party: Party;
   public inviteParty: Party;
-  private partyMember: PartyMember;
+  public partyMember: PartyMember;
   private account: Account;
   public chatAccount: ChatAccount = null;
   private beepAudio = new Audio(beep);
@@ -71,8 +71,9 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
   public patreonData = { pledge_sum: 0 };
   public isModerator = false;
   public mainMenuTabs = {
-    PLAY: { name: 'Play', disabled: false, active: true, icon: 'fa fa-gamepad' },
-    MODERATION: { name: 'Moderation', disabled: false, active: false, icon: 'fa fa-user-lock', privilege: RolePrivilegeEnum.tab_moderate }
+    PLAY: { name: 'Play', disabled: false, active: false, icon: 'fa fa-gamepad' },
+    MODERATION: { name: 'Moderation', disabled: false, active: false, icon: 'fa fa-user-lock', privilege: RolePrivilegeEnum.tab_moderate },
+    CRAFTING: { name: 'Crafting', disabled: false, active: true, icon: 'fafa-pencil-ruler' },
   };
 
   public playTabs = {

@@ -128,9 +128,6 @@
               </a>
             </ng-template>
             <a class="mainNav deactivated" [ngbTooltip]="'Coming soon..'">
-              <span class="fa fa-pencil-ruler"></span> Crafting
-            </a>
-            <a class="mainNav deactivated" [ngbTooltip]="'Coming soon..'">
               <span class="fa fa-user-astronaut"></span> Heroes
             </a>
             <a class="mainNav deactivated" [ngbTooltip]="'Coming soon..'">
@@ -522,6 +519,9 @@
           <div *ngIf="mainMenuTabs.MODERATION.active">
             <app-dashboard-moderation *ngIf="user" [user]="user"></app-dashboard-moderation>
           </div>
+          <div *ngIf="mainMenuTabs.CRAFTING.active">
+            <app-dashboard-crafting *ngIf="user" [user]="user"></app-dashboard-crafting>
+          </div>
         </div>
       </div>
     </div>
@@ -532,6 +532,16 @@
           <div class="news">
 
             <ngb-accordion #acc="ngbAccordion" activeIds="ngb-panel-0">
+                <ngb-panel title="v0.4.0 Client update [XX/XX]">
+                  <ng-template ngbPanelContent>
+                    <ul>
+                      <li><b>Added crafting system</b></li>
+                      <li>Added window minimization function</li>
+                      <li>Fixed: Open shop bug for new players</li>
+                      <li>Fixed: keeping last selected hero/pet and gamemode between client starts</li>
+                    </ul>
+                  </ng-template>
+                </ngb-panel>
               <ngb-panel title="v0.3.2 Client update [06/16]">
                 <ng-template ngbPanelContent>
                   <ul>
