@@ -56,10 +56,10 @@ Open `localhost:4200` in your browser
 
 If you have not already installed Strife CE, install it from http://strife-ce.com.
 You will find the electron app in your installation path (Usually C:\Program files(X86)\Strife CE).
-start the strife-ce.exe with the parameter -devmode
+start the strife-ce.exe with the parameter -proddevmode
 
 ```bash
-strife-ce.exe -devmode
+strife-ce.exe -proddevmode
 ```
 
 It should start the app now with your locally running website.
