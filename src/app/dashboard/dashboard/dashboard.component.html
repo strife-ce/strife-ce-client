@@ -46,7 +46,8 @@
               style="box-sizing: border-box; background-color:#F7F7F7; border-bottom: 1px solid #eee; position:relative; min-height:83px; max-height:83px; overflow:hidden; padding-top: 6px; padding-left: 6px"
               *ngIf="this.chatAccount && !this.chatAccount.icon">
               <!-- strife -->
-              <ng-adsense [display]="'inline-block'" [width]="468" [height]="60">
+              <ng-adsense [display]="'inline-block'" [width]="468" [height]="60" [adClient]="'ca-pub-8248851277942593'"
+                [adSlot]="5670932491" [adFormat]="'horizontal'">
               </ng-adsense>
               <br />
               <span style="font-size:10px; position:absolute; bottom:0px; right: 5px; background-color: #fff">
@@ -120,14 +121,14 @@
         <div class="card flex-fill d-flex" style="border: none;">
           <div class="card-header" style="border-top: 1px solid rgba(0, 0, 0, 0.125); padding: 10px 12px">
             <ng-template ng-template ngFor let-tab [ngForOf]="getAttributes(mainMenuTabs)">
-              <a class="mainNav {{((tab.active) ? 'active' :'')}}  {{((tab.disabled) ? 'disabled' :'')}}" *ngIf="(tab.hide !== true)"
-                (click)="switchTab(mainMenuTabs, tab)">
+              <a class="mainNav {{((tab.active) ? 'active' :'')}}  {{((tab.disabled) ? 'disabled' :'')}}"
+                *ngIf="(tab.hide !== true)" (click)="switchTab(mainMenuTabs, tab)">
                 <span [class]="tab.icon"></span> {{tab.name}}
               </a>
             </ng-template>
             <a class="mainNav deactivated" [ngbTooltip]="'Coming soon..'">
-                <span class="fa fa-pencil-ruler"></span> Crafting
-              </a>
+              <span class="fa fa-pencil-ruler"></span> Crafting
+            </a>
             <a class="mainNav deactivated" [ngbTooltip]="'Coming soon..'">
               <span class="fa fa-user-astronaut"></span> Heroes
             </a>
@@ -188,8 +189,7 @@
                   <div class="col-md-12">
                     Select a Hero:<br />
                     <ng-template ngFor let-heroValue [ngForOf]="getEnumValues(EHeroEnum)">
-                      <a class="heroSelect" *ngIf="heroValue > EHeroEnum.NO_HERO"
-                        (click)="selectHero(heroValue)">
+                      <a class="heroSelect" *ngIf="heroValue > EHeroEnum.NO_HERO" (click)="selectHero(heroValue)">
                         <img [src]="getHeroIcon(heroValue)" [style.opacity]="selectedHero == heroValue ? '1.0' : 0.5"
                           [ngbTooltip]="HeroEnumText.get(heroValue)">
                       </a>
