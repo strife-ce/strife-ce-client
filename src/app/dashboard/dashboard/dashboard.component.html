@@ -191,7 +191,7 @@
               <div *ngIf="playTabs.BOT_GAME.active">
                 <div class="row" style="padding-bottom:10px">
                   <div class="col-md-12">
-                    Select a Hero:<br />
+                    Sexxlect a Hero:<br />
                     <ng-template ngFor let-heroValue [ngForOf]="getEnumValues(EHeroEnum)">
                       <a class="heroSelect" *ngIf="heroValue > EHeroEnum.NO_HERO" (click)="selectHero(heroValue)">
                         <img [src]="getHeroIcon(heroValue)" [style.opacity]="selectedHero == heroValue ? '1.0' : 0.5"

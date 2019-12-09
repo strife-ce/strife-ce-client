@@ -73,7 +73,7 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
   public mainMenuTabs = {
     PLAY: { name: 'Play', disabled: false, active: true, icon: 'fa fa-gamepad' },
     MODERATION: { name: 'Moderation', disabled: false, active: false, icon: 'fa fa-user-lock', privilege: RolePrivilegeEnum.tab_moderate },
-    //CRAFTING: { name: 'Crafting', disabled: true, active: false, icon: 'fa fa-pencil-ruler' },
+    // CRAFTING: { name: 'Crafting', disabled: true, active: false, icon: 'fa fa-pencil-ruler' },
   };
 
   public playTabs = {
@@ -88,6 +88,7 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
   };
 
   private scrollBottomActive = false;
+  private heroIconMap = new Map<number, string>();
 
 
   public state: EChatAccountState;
@@ -115,6 +116,27 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
         this.mainMenuTabs[tabKey].hide = true;
       }
     }
+
+    this.http.get(environment.PARSE.URL.replace('/parse', '') + '/patch/custom-heroes').subscribe((customHeroes) => {
+      this.heroIconMap.clear();
+      try {
+        const fs = require('fs');
+        if (fs.existsSync(__dirname + '/public/patch/current/heroes/custom-heroes.txt')) {
+          customHeroes = JSON.parse(fs.readFileSync(__dirname + '/public/patch/current/heroes/custom-heroes.txt', 'utf8'));
+        }
+      } catch (e) { }
+
+      let nextEnumIndex = Math.max(...(Object.values(EHeroEnum).filter(o => !isNaN(o)))) + 1;
+      for (const hero of customHeroes as any) {
+        const index = nextEnumIndex++;
+        this.heroIconMap.set(index, (hero.imgUrl) ? hero.imgUrl : 'assets/images/icons/questionmark.png');
+        (EHeroEnum as any)[hero.enumName] = index;
+        (EHeroEnum as any)[String(index)] = hero.enumName;
+        HeroEnumText.set(index, hero.name);
+        HeroEnumText.set(index, hero.name);
+        HeroEnumGameName.set(index, hero.gameName);
+      }
+    });
 
     this.userService.getCurrentUser().then(user => {
       this.user = user;
@@ -518,6 +540,8 @@ export class DashboardComponent extends View implements OnInit, AfterViewChecked
       return 'assets/images/icons/random.png';
     } else if (hero === EHeroEnum.NO_HERO) {
       return 'assets/images/icons/questionmark.png';
+    } else if (this.heroIconMap.has(hero)) {
+      return this.heroIconMap.get(hero);
     } else {
       return 'assets/images/gameicons/heroes/' + HeroEnumGameName.get(hero) + '/gearicon.tga.3.png';
     }
